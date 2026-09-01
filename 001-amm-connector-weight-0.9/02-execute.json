@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1788278400000,
+  "meta": {
+    "name": "Execute (T+48h): set AMM connectorWeight 0.9",
+    "description": "Executes the scheduled operation. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send this once the 48h delay elapses; the DAO Safe is not required.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x42c618D9457BE7cb3b836F7FD3332E2800C48a8b",
+        "value": "0",
+        "payload": "0x1b710e970000000000000000000000000000000000000000000000000c7d713b49da0000",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0xd4893469daf02f45827715d83f62408024a12ef71566a1b35d94d4fde921db7b"
+      }
+    }
+  ]
+}
