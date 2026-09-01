@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1788441600000,
+  "meta": {
+    "name": "Execute (T+48h): register new Everstrat EVE token",
+    "description": "Executes the scheduled operation. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send this once the 48h delay elapses; the DAO Safe is not required.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x46AA1bd55c19be90d8767e0C22732A7DD31D993D",
+        "value": "0",
+        "payload": "0x645c6faeaf94fe894bf0e22494392493fc7eb18a0ab98754fe785e74fd233f476b9c37c90000000000000000000000008fe6a43672fca70d41e112b8426387665fd061ec",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x5013804e985fe4a240876a3e3f5eae32462c68812878f6b6827435af7607b548"
+      }
+    }
+  ]
+}

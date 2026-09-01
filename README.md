@@ -50,6 +50,7 @@ All verified on Etherscan.
 |---|---|---|---|
 | [001](001-amm-connector-weight-0.9/) | AMM `connectorWeight` 0.5 → 0.9 | **Scheduled**, executable 2026-09-03 08:35 UTC | `0x8c5d418c…f5db2` |
 
+| [002](002-eve-token-everstrat/) | EVE token: "Everything Strategy" → "Everstrat" (`registerContract(EVE, 0x8FE6…)`) | **Not yet scheduled** | `0xc396f407d91a7b213bf60eb9ef50cea044810daee3fc394bb6924c7de727f3` |
 ## Layout
 
 Each decision is a numbered directory containing a `README.md` explaining what and why,
