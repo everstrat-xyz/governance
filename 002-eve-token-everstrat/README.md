@@ -1,6 +1,6 @@
 # 002 — EVE token swap: "Everything Strategy" → "Everstrat"
 
-**Status:** Ready to schedule (not yet proposed).
+**Status:** ✅ **Scheduled on mainnet** (tx `0x65691a…`, block 25883107, 2026-09-01 14:43 UTC). Executable from **2026-09-03 14:43 UTC** — permissionless execute.
 **Operation id:** `0xc396f407d91a7b213bf60eb9ef50cea044810daee3fc394bb6924c7de727f3` (recomputable via `hashOperation`, verified on mainnet).
 
 ## What it changes
