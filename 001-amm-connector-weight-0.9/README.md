@@ -1,6 +1,6 @@
 # 001 — AMM `connectorWeight` 0.5 → 0.9
 
-**Status:** Scheduled on mainnet. Executable from **2026-09-03 08:35:11 UTC**.
+**Status:** ✅ **Executed on mainnet** (2026-09-03). `AMM.connectorWeight()` verified live = `900000000000000000` (0.9).
 **Operation id:** `0x8c5d418c1be823549d40cfd080e9a43e263829809264321a200e6ea2b97f5db2`
 
 ## What it changes
