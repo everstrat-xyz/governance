@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1788652800000,
+  "meta": {
+    "name": "Execute (T+48h): addSupportedERC20(USDC) on StrategyManager",
+    "description": "Executes the scheduled operation. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send this once the 48h delay elapses AND 003's USDC feed operation is executed; the DAO Safe is not required. Predecessor and salt must match the schedule.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "payload": "0xd73acee5000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "predecessor": "0xd57312a1b34a92fa9799b8467c6e49733f334d0a83aefbfad9980f1a8b7ed5a1",
+        "salt": "0xd35f034b2bc943f2f73bd90d03ca4da612af83712e2dedbf26571e73f16b1825"
+      }
+    }
+  ]
+}

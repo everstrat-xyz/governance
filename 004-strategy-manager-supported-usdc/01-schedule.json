@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1788652800000,
+  "meta": {
+    "name": "EverStrat: schedule addSupportedERC20(USDC) on StrategyManager",
+    "description": "DAO Safe schedules StrategyManager.addSupportedERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48) on the 48h admin TimelockController. Predecessor is 003's USDC feed operation (0xd57312a1...), so execute is gated on that feed being registered. Executable by anyone after 48h using the identical predecessor and salt.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "data", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+          { "internalType": "uint256", "name": "delay", "type": "uint256" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "data": "0xd73acee5000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "predecessor": "0xd57312a1b34a92fa9799b8467c6e49733f334d0a83aefbfad9980f1a8b7ed5a1",
+        "salt": "0xd35f034b2bc943f2f73bd90d03ca4da612af83712e2dedbf26571e73f16b1825",
+        "delay": "172800"
+      }
+    }
+  ]
+}
