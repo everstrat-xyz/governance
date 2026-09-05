@@ -1,7 +1,7 @@
 # 002 — EVE token swap: "Everything Strategy" → "Everstrat"
 
-**Status:** ✅ **Scheduled on mainnet** (tx `0x65691a…`, block 25883107, 2026-09-01 14:43 UTC). Executable from **2026-09-03 14:43 UTC** — permissionless execute.
-**Operation id:** `0xc396f407d91a7b213bf60eb9ef50cea044810daee3fc394bb6924c7de727f3` (recomputable via `hashOperation`, verified on mainnet).
+**Status:** ✅ **Executed on mainnet** (tx `0xc4c550f57bb5425fea1c9a144f30c223b29ad63a1d0b1a3082deb920a1944f90`, block 25897546, 2026-09-03 15:01:59 UTC) — permissionless `execute` from an unrelated EOA after the 48h delay. Scheduled 2026-09-01 14:43 UTC (tx `0x65691a…`, block 25883107).
+**Operation id:** `0xc396f407d91a7b213bf7606eb9ef50cea044810daee3fc394bb6924c7de727f3` (recomputable via `hashOperation`, verified on mainnet).
 
 ## What it changes
 
@@ -58,9 +58,20 @@ The salt must be reused byte-for-byte at execute time. It derives from
    `totalSupply()=0`, static (no EIP-1967 slot).
 
 Recompute the operation id from the fields as shown in the Safe UI and compare against
-`0xc396f407d91a7b213bf60eb9ef50cea044810daee3fc394bb6924c7de727f3`.
+`0xc396f407d91a7b213bf7606eb9ef50cea044810daee3fc394bb6924c7de727f3`.
+
+## Post-execution verification (mainnet, after execute)
+
+Confirmed against mainnet after tx `0xc4c550f5…`:
+
+- Timelock `getOperationState(opId)` → `3` (Done); `isOperationDone(opId)` → `true`.
+- `CallExecuted(opId, 0, Registry, 0, <payload>)` emitted; payload matches `data` above byte-for-byte.
+- `Registry.getContractByKey(keccak256("EVE"))` → `0x8FE6A43672fCa70d41e112B8426387665fD061EC`.
+- New token live: `name()="Everstrat"`, `symbol()="EVE"`, `totalSupply()=0`.
+- Old token `0x3A373227AECE982F07B9D14711a05d7a879859D4` still `name()="Everything Strategy"`, no longer registered.
 
 ## Cancelling
 
-Either the DAO Safe or the Security Safe may call
-`cancel(0xc396f407d91a7b213bf60eb9ef50cea044810daee3fc394bb6924c7de727f3)` on the timelock any time before execution.
+No longer possible — the operation is executed. Before execution, either the DAO Safe or
+the Security Safe could call
+`cancel(0xc396f407d91a7b213bf7606eb9ef50cea044810daee3fc394bb6924c7de727f3)` on the timelock.
