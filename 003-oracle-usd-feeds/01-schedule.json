@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1788700800000,
+  "meta": {
+    "name": "EverStrat: schedule Oracle USD feeds (USDC + WETH)",
+    "description": "DAO Safe schedules two Oracle.updateUsdFeedInfo(token, feed, staleness) calls on the 48h admin TimelockController as one batch: USDC -> Chainlink USDC/USD (staleness 82800), WETH -> Chainlink ETH/USD (staleness 3600). Executable by anyone after 48h using the identical predecessor and salt.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "data", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+          { "internalType": "uint256", "name": "delay", "type": "uint256" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26",
+        "value": "0",
+        "data": "0x8eff1c3c000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000008fffffd4afb6115b954bd326cbe7b4ba576818f60000000000000000000000000000000000000000000000000000000000014370",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "delay": "172800"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "data", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+          { "internalType": "uint256", "name": "delay", "type": "uint256" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26",
+        "value": "0",
+        "data": "0x8eff1c3c000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000005f4ec3df9cbd43714fe2740f5e3616155c5b84190000000000000000000000000000000000000000000000000000000000000e10",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "delay": "172800"
+      }
+    }
+  ]
+}
