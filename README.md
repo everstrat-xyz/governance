@@ -51,7 +51,7 @@ All verified on Etherscan.
 | [001](001-amm-connector-weight-0.9/) | AMM `connectorWeight` 0.5 → 0.9 | **Executed** — on-chain as of 2026-09-03 (`connectorWeight() == 9e17`) | `0x8c5d418c…f5db2` |
 | [002](002-eve-token-everstrat/) | EVE token: "Everything Strategy" → "Everstrat" (`registerContract(EVE, 0x8FE6…)`) | **Executed** — on-chain as of 2026-09-03 (`getContractByKey("EVE") == 0x8FE6…61EC`) | `0xc396f407d91a7b213bf7606eb9ef50cea044810daee3fc394bb6924c7de727f3` |
 | [003](003-oracle-usd-feeds/) | Oracle: register USDC + WETH USD price feeds (`updateUsdFeedInfo` ×2, batch) | **Scheduled — executable 2026-09-06 23:14:59 UTC** | `0xd57312a1…8b7ed5a1` (USDC), `0xa123b843…6d1d1f06` (WETH) |
-| [004](004-strategy-manager-supported-usdc/) | StrategyManager: `addSupportedERC20(USDC)` | **Draft** — not yet submitted; execute gated on [003](003-oracle-usd-feeds/) USDC feed (predecessor) | `0x602fe659…093871cb` |
+| [004](004-strategy-manager-supported-usdc/) | StrategyManager: `addSupportedERC20(USDC)` | **Scheduled — executable 2026-09-08 00:09:11 UTC**, and gated on [003](003-oracle-usd-feeds/) USDC feed (predecessor) | `0x602fe659…093871cb` |
 
 ## Layout
 

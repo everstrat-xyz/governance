@@ -1,10 +1,9 @@
 # 004 — StrategyManager: whitelist USDC as a supported ERC-20
 
-**Status:** 📝 **Draft — not yet submitted.** Payloads below are simulated against forked
-mainnet but have not been signed or scheduled.
+**Status:** ⏳ **Scheduled on mainnet** (tx `0x60bec29dc01dc658741ebe883697502da81e8046de1761abc3018ea6a2543f57`, block 25914620, 2026-09-06 00:09:11 UTC). Timelock state Waiting. Executable from **2026-09-08 00:09:11 UTC** — **and** only once 003's USDC feed operation is executed (see *Dependency on 003*).
 **Operation id:** `0x602fe6598633e3e8ab93387234aa64ffa49fae9edcf95215b2cfc968093871cb`
 (`hashOperation(StrategyManager, 0, addSupportedERC20(USDC), predecessor, salt)`, with the
-predecessor and salt below).
+predecessor and salt below — recomputed and verified on mainnet).
 
 ## What it changes
 
@@ -78,7 +77,7 @@ The salt derives from `keccak256("everstrat/strategy-manager/supported-erc20/usd
 and restores the per-proposal salt convention that 003 dropped. Predecessor and salt must
 be reused **byte-for-byte** at execute time.
 
-## Verification performed (forked mainnet)
+## Verification performed (forked mainnet, before signing)
 
 Fork at block 25914427, `StrategyManager.isSupportedERC20(USDC) == false`,
 `Oracle.isTokenSupported(USDC) == false`, `Registry.hasRole(ADMIN_ROLE, timelock) == true`.
@@ -100,6 +99,20 @@ Fork at block 25914427, `StrategyManager.isSupportedERC20(USDC) == false`,
 
 Recomputing `hashOperation` from the fields as rendered in the Safe UI reproduces the
 operation id above.
+
+## On-chain schedule (mainnet)
+
+Scheduled 2026-09-06 00:09:11 UTC in tx
+`0x60bec29dc01dc658741ebe883697502da81e8046de1761abc3018ea6a2543f57` (block 25914620),
+DAO Safe → timelock `schedule`. Confirmed against mainnet:
+
+- The tx calldata to the timelock matches `01-schedule.json` byte-for-byte (target
+  StrategyManager, `data` `0xd73acee5…3606eb48`, predecessor `0xd57312a1…8b7ed5a1`, salt
+  `0xd35f034b…16b1825`, delay `172800`).
+- `getOperationState(0x602fe659…093871cb)` → `1` (Waiting); `isOperationPending` → `true`.
+- `getTimestamp` → `1788826151` = **2026-09-08 00:09:11 UTC** (ready-at).
+- Predecessor `0xd57312a1…8b7ed5a1` (003 USDC feed) is still `1` (Waiting) — `execute` will
+  revert `TimelockUnexecutedPredecessor` until 003's USDC feed is executed.
 
 ## Risks
 
