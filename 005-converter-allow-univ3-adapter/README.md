@@ -1,9 +1,8 @@
 # 005 — Converter: whitelist the Uniswap V3 adapter
 
-**Status:** 📝 **Draft — not yet submitted.** Payloads below are simulated against forked
-mainnet but have not been signed or scheduled.
+**Status:** ⏳ **Scheduled on mainnet** (tx `0x85192e709b06d5e165e4ff3944c2ea8166af2417225fcbc6c60d1604f5bff23a`, block 25920019, 2026-09-06 18:11:47 UTC). Timelock state Waiting. Executable from **2026-09-08 18:11:47 UTC** — permissionless execute.
 **Operation id:** `0x40ea4797d59df5b32a799cb1f8586c5511bdc7255862818f7cf691accfa388f3`
-(`hashOperation(Converter, 0, setAllowedAdapter(adapter, true), predecessor, salt)`).
+(`hashOperation(Converter, 0, setAllowedAdapter(adapter, true), predecessor, salt)` — recomputed and verified on mainnet).
 
 ## What it changes
 
@@ -99,6 +98,19 @@ Fork at block 25919677. `Converter.isAdapterAllowed(adapter) == false`,
 
 Recomputing `hashOperation` from the fields as rendered in the Safe UI reproduces the
 operation id above.
+
+## On-chain schedule (mainnet)
+
+Scheduled 2026-09-06 18:11:47 UTC in tx
+`0x85192e709b06d5e165e4ff3944c2ea8166af2417225fcbc6c60d1604f5bff23a` (block 25920019),
+DAO Safe → timelock `schedule` (Safe nonce 8). Confirmed against mainnet:
+
+- The `schedule` calldata in the tx matches `01-schedule.json` byte-for-byte (target
+  Converter, `data` `0x73721fe9…0001`, predecessor `0x00…00`, salt
+  `0x7122c3f7…715d3`, delay `172800`).
+- `getOperationState(0x40ea4797…fa388f3)` → `1` (Waiting); `isOperationPending` → `true`.
+- `getTimestamp` → `1788891107` = **2026-09-08 18:11:47 UTC** (ready-at).
+- `Converter.isAdapterAllowed(adapter)` still `false` — flips on execute.
 
 ## Cancelling
 
