@@ -18,7 +18,7 @@ Safe can only `schedule` / `cancel`; `execute` is permissionless once the delay 
 - **Pre-wiring check** — sanity-check a freshly deployed protocol contract before a
   governance action references it (bytecode matches source, constructor args, roles).
 
-## Conventions (match the existing `001`–`005` directories exactly)
+## Conventions
 
 - Directory `NNN-short-kebab-slug/`. Files: `README.md`, `01-schedule.json`,
   `02-execute.json`, and `01-schedule-raw.json` (raw-calldata variant, selector
