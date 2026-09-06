@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1788652800000,
+  "meta": {
+    "name": "Execute (T+48h): Converter.setAllowedAdapter(UniswapV3ConverterAdapter, true)",
+    "description": "Executes the scheduled operation. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send this once the 48h delay elapses; the DAO Safe is not required. Predecessor and salt must match the schedule.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xc8700441A8ca74aE5390F137bf3Dd659CaD570de",
+        "value": "0",
+        "payload": "0x73721fe90000000000000000000000000844580a121124caec6cf4a933aac401813ccde50000000000000000000000000000000000000000000000000000000000000001",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x7122c3f7da42822abd51144eda21d5acb3f05d180f3e870a920c0f17b27715d3"
+      }
+    }
+  ]
+}
