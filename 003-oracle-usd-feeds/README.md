@@ -1,6 +1,6 @@
 # 003 — Oracle USD price feeds: add USDC and WETH
 
-**Status:** ⏳ **Scheduled on mainnet** (batch tx `0xbd213e2b75329bb4a885916d604a7c4bb6fdbd19a11ae2c3996a9c9e80b469e6`, block 25907176, 2026-09-04 23:14:59 UTC — DAO Safe nonce 6). Both operations executable from **2026-09-06 23:14:59 UTC** — permissionless execute.
+**Status:** 🟢 **Ready for execution on mainnet** (scheduled tx `0xbd213e2b75329bb4a885916d604a7c4bb6fdbd19a11ae2c3996a9c9e80b469e6`, block 25907176, 2026-09-04 23:14:59 UTC). 48h delay elapsed **2026-09-06 23:14:59 UTC** — both operations verified `state=2 (Ready)` on-chain 2026-09-07 11:37 UTC. **Execute pending** — see `02-execute.json`. (batch tx `0xbd213e2b75329bb4a885916d604a7c4bb6fdbd19a11ae2c3996a9c9e80b469e6`, block 25907176, 2026-09-04 23:14:59 UTC — DAO Safe nonce 6). Both operations executable from **2026-09-06 23:14:59 UTC** — permissionless execute.
 **Operation ids:**
 - USDC feed: `0xd57312a1b34a92fa9799b8467c6e49733f334d0a83aefbfad9980f1a8b7ed5a1`
 - WETH feed: `0xa123b8437d97fc2766453aca6597121248e88eca21925e1f9fc455b16d1d1f06`
@@ -103,3 +103,13 @@ either operation independently, any time before that operation is executed:
 
 - `cancel(0xd57312a1b34a92fa9799b8467c6e49733f334d0a83aefbfad9980f1a8b7ed5a1)` — USDC feed
 - `cancel(0xa123b8437d97fc2766453aca6597121248e88eca21925e1f9fc455b16d1d1f06)` — WETH feed
+
+## Verification performed
+
+Re-verified from live mainnet state before execution (2026-09-07):
+
+1. `getOperationState` = 2 (Ready) for both op-ids, `isOperationReady` = true.
+2. Fork simulation of `execute` from unrelated EOA — success (status Done both ops).
+3. Post-execute Oracle state asserted: USDC feed + 82800, WETH feed + 3600, both supported.
+
+Salt `0x00`, predecessor `0x00` — must match schedule; `02-execute.json` is ready for the Safe Transaction Builder.
