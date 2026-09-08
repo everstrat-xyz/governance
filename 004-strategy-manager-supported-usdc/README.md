@@ -109,7 +109,6 @@ DAO Safe → timelock `schedule`. Confirmed against mainnet:
 - The tx calldata to the timelock matches `01-schedule.json` byte-for-byte (target
   StrategyManager, `data` `0xd73acee5…3606eb48`, predecessor `0xd57312a1…8b7ed5a1`, salt
   `0xd35f034b…16b1825`, delay `172800`).
-- The tx calldata matched `01-schedule.json` byte-for-byte.
 - `getTimestamp` → `1788826151` = **2026-09-08 00:09:11 UTC** (ready-at).
 
 ## On-chain execution (mainnet)
@@ -137,11 +136,12 @@ Confirmed after execution:
   freezes NAV (fail-closed, by design). Mitigation exists: `removeSupportedERC20(USDC)` —
   `SECURITY_ROLE` can call it with no delay, `ADMIN_ROLE` via the 48h path — and it makes no
   external calls, so a bricked token cannot block its own removal.
-- **Native-ETH pricing must be complete.** NAV pricing of a USDC balance goes
-  `Oracle.convert(USDC, address(0), …)`, i.e. it also needs ETH priced. 003 registers WETH,
-  not the zero address; confirm the Oracle's native-ETH path is configured before any USDC
-  can actually reach the StrategyManager. Not required for `addSupportedERC20` itself
-  (the add only checks set membership of the USDC feed).
+- **Native-ETH pricing.** NAV pricing of a USDC balance goes
+  `Oracle.convert(USDC, address(0), …)`, so it also needs ETH priced. The Oracle's
+  native-ETH (`address(0)`) feed was configured at deployment
+  (`getUsdFeedInfo(address(0))` → Chainlink ETH/USD `0x5f4e…8419`, staleness `3600`;
+  `isTokenSupported(address(0))` → `true`), so both legs are covered. Not relevant to
+  `addSupportedERC20` itself — the add only checks set membership of the USDC feed.
 - **Predecessor coupling.** If 003's USDC feed op is cancelled and re-scheduled under a
   different salt, its operation id changes and this proposal must be re-scheduled with the
   new predecessor.
