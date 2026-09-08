@@ -1,6 +1,6 @@
 # 004 — StrategyManager: whitelist USDC as a supported ERC-20
 
-**Status:** ⏳ **Scheduled on mainnet** (tx `0x60bec29dc01dc658741ebe883697502da81e8046de1761abc3018ea6a2543f57`, block 25914620, 2026-09-06 00:09:11 UTC). Timelock state Waiting. Executable from **2026-09-08 00:09:11 UTC** — **and** only once 003's USDC feed operation is executed (see *Dependency on 003*).
+**Status:** ✅ **Executed on mainnet** (tx `0x1a97bcc41c357bcabde9975a4f7d79a396d090ff76d3cb1717e9c4828d8ed431`, block 25933686, 2026-09-08 15:57:47 UTC) — via the DAO Safe after the 48h delay and after 003's USDC feed. `StrategyManager.isSupportedERC20(USDC) == true`, `supportedERC20() == [USDC]`. Scheduled 2026-09-06 00:09:11 UTC (tx `0x60bec29dc01dc658741ebe883697502da81e8046de1761abc3018ea6a2543f57`, block 25914620).
 **Operation id:** `0x602fe6598633e3e8ab93387234aa64ffa49fae9edcf95215b2cfc968093871cb`
 (`hashOperation(StrategyManager, 0, addSupportedERC20(USDC), predecessor, salt)`, with the
 predecessor and salt below — recomputed and verified on mainnet).
@@ -109,10 +109,26 @@ DAO Safe → timelock `schedule`. Confirmed against mainnet:
 - The tx calldata to the timelock matches `01-schedule.json` byte-for-byte (target
   StrategyManager, `data` `0xd73acee5…3606eb48`, predecessor `0xd57312a1…8b7ed5a1`, salt
   `0xd35f034b…16b1825`, delay `172800`).
-- `getOperationState(0x602fe659…093871cb)` → `1` (Waiting); `isOperationPending` → `true`.
+- The tx calldata matched `01-schedule.json` byte-for-byte.
 - `getTimestamp` → `1788826151` = **2026-09-08 00:09:11 UTC** (ready-at).
-- Predecessor `0xd57312a1…8b7ed5a1` (003 USDC feed) is still `1` (Waiting) — `execute` will
-  revert `TimelockUnexecutedPredecessor` until 003's USDC feed is executed.
+
+## On-chain execution (mainnet)
+
+Executed 2026-09-08 15:57:47 UTC in tx
+`0x1a97bcc41c357bcabde9975a4f7d79a396d090ff76d3cb1717e9c4828d8ed431` (block 25933686),
+DAO Safe → timelock `execute` (Safe nonce 10). Prerequisites were both met on-chain first:
+
+- 003's USDC feed op `0xd57312a1…8b7ed5a1` executed 2026-09-07 12:02:11 UTC
+  (tx `0xe324753e7cc9d004c5348fa91ecbd80017fce4d955f7f84a6bfa7e3dfd06942c`), so the
+  predecessor check passed.
+- 48h delay elapsed 2026-09-08 00:09:11 UTC.
+
+Confirmed after execution:
+
+- `getOperationState(0x602fe659…093871cb)` → `3` (Done).
+- `CallExecuted` + `SupportedERC20Added(USDC)` (`0xf7e6a5cd…994054`) emitted.
+- `StrategyManager.isSupportedERC20(USDC)` → `true`; `supportedERC20()` → `[USDC]`.
+- `totalNAVInETH()` / `totalNAVInUSD()` → `0` (USDC balance is `0`, so no NAV effect).
 
 ## Risks
 
@@ -132,6 +148,7 @@ DAO Safe → timelock `schedule`. Confirmed against mainnet:
 
 ## Cancelling
 
-Either the DAO Safe or the Security Safe may call
-`cancel(0x602fe6598633e3e8ab93387234aa64ffa49fae9edcf95215b2cfc968093871cb)` on the timelock
-at any point before execution.
+No longer possible — the operation is executed. Before execution, either the DAO Safe or
+the Security Safe could `cancel(0x602fe6598633e3e8ab93387234aa64ffa49fae9edcf95215b2cfc968093871cb)`
+on the timelock. To reverse the effect now, `removeSupportedERC20(USDC)` — `SECURITY_ROLE`
+with no delay, or `ADMIN_ROLE` via the 48h path.
