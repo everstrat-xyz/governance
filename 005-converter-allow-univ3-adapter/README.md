@@ -44,11 +44,11 @@ has no effect on live flow until a Uniswap strategy is deployed and funded.
 operation, so this proposal has no timelock `predecessor` (`0x00…00`). It is independent of
 003 and 004.
 
-That said, the adapter is only *useful* once the Oracle can price the routes it will be
-asked to quote: the adapter maps `weth → address(0)` for Oracle lookups, so a WETH↔USDC
-route needs both the native-ETH (`address(0)`) USD feed **and** the USDC USD feed (003)
-registered, or `quoteExactAmountIn/Out` reverts. Whitelisting does not depend on that;
-routing through it does.
+The adapter maps `weth → address(0)` for Oracle lookups, so a WETH↔USDC quote needs the
+Oracle to price both `address(0)` and USDC. Both are in place: the native-ETH feed was set
+at deployment (`getUsdFeedInfo(address(0))` → Chainlink ETH/USD `0x5f4e…8419`) and the USDC
+feed by [003](../003-oracle-usd-feeds/). Whitelisting does not depend on either — it only
+checks that the adapter address has code.
 
 ## Transactions
 
