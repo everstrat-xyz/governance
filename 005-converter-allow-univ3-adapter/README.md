@@ -1,6 +1,6 @@
 # 005 — Converter: whitelist the Uniswap V3 adapter
 
-**Status:** ⏳ **Scheduled on mainnet** (tx `0x85192e709b06d5e165e4ff3944c2ea8166af2417225fcbc6c60d1604f5bff23a`, block 25920019, 2026-09-06 18:11:47 UTC). Timelock state Waiting. Executable from **2026-09-08 18:11:47 UTC** — permissionless execute.
+**Status:** ✅ **Executed on mainnet** (tx `0x4c98976ee87a01aea563f73eabc2759385394c286fad3d19c9fa3c23ecc51a8c`, block 25934444, 2026-09-08 18:30:11 UTC) — via the DAO Safe after the 48h delay. `Converter.isAdapterAllowed(0x0844…Cde5) == true`, `getAllowedAdapters() == [0x0844…Cde5]`. Scheduled 2026-09-06 18:11:47 UTC (tx `0x85192e709b06d5e165e4ff3944c2ea8166af2417225fcbc6c60d1604f5bff23a`, block 25920019).
 **Operation id:** `0x40ea4797d59df5b32a799cb1f8586c5511bdc7255862818f7cf691accfa388f3`
 (`hashOperation(Converter, 0, setAllowedAdapter(adapter, true), predecessor, salt)` — recomputed and verified on mainnet).
 
@@ -108,13 +108,25 @@ DAO Safe → timelock `schedule` (Safe nonce 8). Confirmed against mainnet:
 - The `schedule` calldata in the tx matches `01-schedule.json` byte-for-byte (target
   Converter, `data` `0x73721fe9…0001`, predecessor `0x00…00`, salt
   `0x7122c3f7…715d3`, delay `172800`).
-- `getOperationState(0x40ea4797…fa388f3)` → `1` (Waiting); `isOperationPending` → `true`.
 - `getTimestamp` → `1788891107` = **2026-09-08 18:11:47 UTC** (ready-at).
-- `Converter.isAdapterAllowed(adapter)` still `false` — flips on execute.
+
+## On-chain execution (mainnet)
+
+Executed 2026-09-08 18:30:11 UTC in tx
+`0x4c98976ee87a01aea563f73eabc2759385394c286fad3d19c9fa3c23ecc51a8c` (block 25934444),
+DAO Safe → timelock `execute` (Safe nonce 11). No predecessor, so the 48h delay (elapsed
+2026-09-08 18:11:47 UTC) was the only gate. Confirmed after execution:
+
+- `getOperationState(0x40ea4797…fa388f3)` → `3` (Done).
+- `CallExecuted` + `AdapterUpdated(0x0844…Cde5, true)` (`0x3a7f7534…9cd5`) emitted.
+- `Converter.isAdapterAllowed(0x0844…Cde5)` → `true`; `getAllowedAdapters()` → `[0x0844…Cde5]`.
+
+The Converter will now dispatch swaps to this adapter. `DeployUniCLStrat` (whose
+constructor validates its routes against this allowlist) is no longer blocked.
 
 ## Cancelling
 
-Either the DAO Safe or the Security Safe may call
-`cancel(0x40ea4797d59df5b32a799cb1f8586c5511bdc7255862818f7cf691accfa388f3)` on the timelock
-at any point before execution. After execution, `setAllowedAdapter(adapter, false)` (ADMIN,
-48h) removes the adapter again.
+No longer possible — the operation is executed. Before execution, either the DAO Safe or
+the Security Safe could `cancel(0x40ea4797d59df5b32a799cb1f8586c5511bdc7255862818f7cf691accfa388f3)`
+on the timelock. To undo the effect now, `setAllowedAdapter(adapter, false)` (`ADMIN_ROLE`,
+48h).
