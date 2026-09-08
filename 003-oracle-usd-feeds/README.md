@@ -1,6 +1,6 @@
 # 003 — Oracle USD price feeds: add USDC and WETH
 
-**Status:** 🟢 **Ready for execution on mainnet** (scheduled tx `0xbd213e2b75329bb4a885916d604a7c4bb6fdbd19a11ae2c3996a9c9e80b469e6`, block 25907176, 2026-09-04 23:14:59 UTC). 48h delay elapsed **2026-09-06 23:14:59 UTC** — both operations verified `state=2 (Ready)` on-chain 2026-09-07 11:37 UTC. **Execute pending** — see `02-execute.json`. (batch tx `0xbd213e2b75329bb4a885916d604a7c4bb6fdbd19a11ae2c3996a9c9e80b469e6`, block 25907176, 2026-09-04 23:14:59 UTC — DAO Safe nonce 6). Both operations executable from **2026-09-06 23:14:59 UTC** — permissionless execute.
+**Status:** ✅ **Executed on mainnet** (tx `0xe324753e7cc9d004c5348fa91ecbd80017fce4d955f7f84a6bfa7e3dfd06942c`, block 25925347, 2026-09-07 12:02:11 UTC) — both operations executed in one DAO Safe batch after the 48h delay. `Oracle.getUsdFeedInfo(USDC)` → `(0x8fFf…18F6, 82800)`, `getUsdFeedInfo(WETH)` → `(0x5f4e…8419, 3600)`, `isTokenSupported` true for both. Scheduled 2026-09-04 23:14:59 UTC (tx `0xbd213e2b75329bb4a885916d604a7c4bb6fdbd19a11ae2c3996a9c9e80b469e6`, block 25907176, DAO Safe nonce 6).
 **Operation ids:**
 - USDC feed: `0xd57312a1b34a92fa9799b8467c6e49733f334d0a83aefbfad9980f1a8b7ed5a1`
 - WETH feed: `0xa123b8437d97fc2766453aca6597121248e88eca21925e1f9fc455b16d1d1f06`
@@ -93,23 +93,28 @@ byte-for-byte at execute time.
 4. `Oracle.getUsdFeedInfo(USDC)` and `(WETH)` currently revert `0x868fd74e` — feeds not yet set.
 5. Feed addresses match Chainlink's published mainnet aggregators for USDC/USD and ETH/USD.
 
-After execution, re-check that `Oracle.getUsdFeedInfo(USDC|WETH)` returns
-`(feed, staleness)` as tabled above.
+## On-chain execution (mainnet)
+
+Both operations executed 2026-09-07 12:02:11 UTC in one DAO Safe batch, tx
+`0xe324753e7cc9d004c5348fa91ecbd80017fce4d955f7f84a6bfa7e3dfd06942c` (block 25925347,
+DAO Safe → timelock `execute` ×2). Sequence:
+
+1. 48h delay elapsed 2026-09-06 23:14:59 UTC; both ops verified `state = 2 (Ready)` on-chain.
+2. `execute` batch mined — `CallExecuted` emitted for both op ids; `getOperationState` → `3` (Done) for both.
+3. Oracle state after execution:
+   - `getUsdFeedInfo(USDC)` → `(0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6, 82800)`
+   - `getUsdFeedInfo(WETH)` → `(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419, 3600)`
+   - `isTokenSupported(USDC)` and `isTokenSupported(WETH)` → `true`
+
+This op is the timelock predecessor of [004](../004-strategy-manager-supported-usdc/); its
+execution here is what unblocked 004's execute.
 
 ## Cancelling
 
-Either the DAO Safe or the Security Safe may `cancel(<operation id>)` on the timelock for
-either operation independently, any time before that operation is executed:
+No longer possible — both operations are executed. Before execution, either the DAO Safe or
+the Security Safe could `cancel(<operation id>)` on the timelock per operation:
 
 - `cancel(0xd57312a1b34a92fa9799b8467c6e49733f334d0a83aefbfad9980f1a8b7ed5a1)` — USDC feed
 - `cancel(0xa123b8437d97fc2766453aca6597121248e88eca21925e1f9fc455b16d1d1f06)` — WETH feed
 
-## Verification performed
-
-Re-verified from live mainnet state before execution (2026-09-07):
-
-1. `getOperationState` = 2 (Ready) for both op-ids, `isOperationReady` = true.
-2. Fork simulation of `execute` from unrelated EOA — success (status Done both ops).
-3. Post-execute Oracle state asserted: USDC feed + 82800, WETH feed + 3600, both supported.
-
-Salt `0x00`, predecessor `0x00` — must match schedule; `02-execute.json` is ready for the Safe Transaction Builder.
+To change or drop a feed now: `updateUsdFeedInfo` again, or `removeToken` (`ADMIN_ROLE`, 48h).
