@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789200000000,
+  "meta": {
+    "name": "Execute (T+48h): register Oracle USDT/USD feed",
+    "description": "Executes the scheduled operation. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send this once the 48h delay elapses; the DAO Safe is not required. Predecessor and salt must match the schedule.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26",
+        "value": "0",
+        "payload": "0x8eff1c3c000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec70000000000000000000000003e7d1eab13ad0104d2750b8863b489d65364e32d0000000000000000000000000000000000000000000000000000000000015180",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x5c5ed1cb0184b918a42a3209e35dacf347197d609fe10ee6327d60cea78496dd"
+      }
+    }
+  ]
+}
