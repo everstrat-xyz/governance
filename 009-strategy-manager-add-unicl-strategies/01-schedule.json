@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789180800000,
+  "meta": {
+    "name": "EverStrat: schedule StrategyManager.addStrategy for both UniCL USDC/WETH strategies",
+    "description": "DAO Safe schedules two StrategyManager.addStrategy(strategy, depositWeight, withdrawalWeight) calls on the 48h admin TimelockController as one batch: the USDC/WETH 0.3% pool UniCLStrat at weight 40/40, and the USDC/WETH 0.01% pool UniCLStrat at weight 15/15. Executable by anyone after 48h using each operation's identical predecessor and salt.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "data", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+          { "internalType": "uint256", "name": "delay", "type": "uint256" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "data": "0xdca0c48f0000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac3800000000000000000000000000000000000000000000000000000000000000280000000000000000000000000000000000000000000000000000000000000028",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0xf6f07d85a2e33d9c21291a61176ceea72ec2c84314aeb767fa2787e2f45a45d3",
+        "delay": "172800"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "data", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+          { "internalType": "uint256", "name": "delay", "type": "uint256" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "data": "0xdca0c48f00000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252000000000000000000000000000000000000000000000000000000000000000f000000000000000000000000000000000000000000000000000000000000000f",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x83732cd5a6911a31a8bbbddb1405a52850ef90f550974a3ae21657997919908a",
+        "delay": "172800"
+      }
+    }
+  ]
+}

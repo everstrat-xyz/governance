@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789180800000,
+  "meta": {
+    "name": "Execute (T+48h): register both UniCL USDC/WETH strategies",
+    "description": "Executes the two scheduled operations. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send these once the 48h delay elapses; the DAO Safe is not required. Predecessor and salt must match each schedule.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "payload": "0xdca0c48f0000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac3800000000000000000000000000000000000000000000000000000000000000280000000000000000000000000000000000000000000000000000000000000028",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0xf6f07d85a2e33d9c21291a61176ceea72ec2c84314aeb767fa2787e2f45a45d3"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "payload": "0xdca0c48f00000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252000000000000000000000000000000000000000000000000000000000000000f000000000000000000000000000000000000000000000000000000000000000f",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x83732cd5a6911a31a8bbbddb1405a52850ef90f550974a3ae21657997919908a"
+      }
+    }
+  ]
+}
