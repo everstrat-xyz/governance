@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789180800000,
+  "meta": {
+    "name": "Execute (T+48h): Oracle staleness margin (WETH, native ETH, USDC)",
+    "description": "Executes the three scheduled operations. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send these once the 48h delay elapses; the DAO Safe is not required. Predecessor and salt must match each schedule.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26",
+        "value": "0",
+        "payload": "0x8eff1c3c000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000005f4ec3df9cbd43714fe2740f5e3616155c5b84190000000000000000000000000000000000000000000000000000000000001068",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x88df0cbed0092f90974fa0fe93cab84e685c9cf84f41e78cfd848335a906615a"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26",
+        "value": "0",
+        "payload": "0x8eff1c3c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f4ec3df9cbd43714fe2740f5e3616155c5b84190000000000000000000000000000000000000000000000000000000000001068",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0xf3be49b7996241345a11e359ac0db97d73ec34ae48cf6a833ea59cb0e946d57f"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          { "name": "target",      "type": "address" },
+          { "name": "value",       "type": "uint256" },
+          { "name": "payload",     "type": "bytes"   },
+          { "name": "predecessor", "type": "bytes32" },
+          { "name": "salt",        "type": "bytes32" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26",
+        "value": "0",
+        "payload": "0x8eff1c3c000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000008fffffd4afb6115b954bd326cbe7b4ba576818f60000000000000000000000000000000000000000000000000000000000014a78",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x825cf1a3ac0260f5a4598503b9fd946d9fd68332aeba257cf3b7d48945aa54e2"
+      }
+    }
+  ]
+}
