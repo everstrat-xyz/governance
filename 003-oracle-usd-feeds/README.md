@@ -27,8 +27,11 @@ for the two assets the protocol prices:
 | WETH `0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2` | `0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419` | ETH / USD | `3600` (1h) |
 
 `staleness` is the maximum age of a Chainlink `latestRoundData` answer the oracle will
-accept before treating the price as stale. Each value tracks that feed's published
-heartbeat (USDC/USD 24h, ETH/USD 1h) with a margin below it.
+accept before treating the price as stale. Each value equals that feed's published
+heartbeat **exactly** (USDC/USD 23h, ETH/USD 1h) — chosen with no jitter margin. A round
+landing even slightly past its nominal heartbeat (ordinary block-time variance, not a
+stalled feed) can trip `OracleStalePrice`; see [008](../008-oracle-staleness-margin/),
+which widens both bounds to add that margin.
 
 Before this change, `Oracle.getUsdFeedInfo(USDC)` and `getUsdFeedInfo(WETH)` both revert
 (`0x868fd74e`) — no feed is configured for either asset.
@@ -40,9 +43,8 @@ feeds; it removes and rewrites nothing.
 
 The oracle needs a USD reference for every asset it values. USDC and WETH are the
 protocol's priced assets, and the two registered feeds are Chainlink's canonical mainnet
-aggregators for `USDC / USD` and `ETH / USD`. The staleness bounds are set just under
-each feed's heartbeat so a feed that stops updating fails closed rather than serving a
-frozen price.
+aggregators for `USDC / USD` and `ETH / USD`. The staleness bounds are set at each feed's
+heartbeat so a feed that stops updating fails closed rather than serving a frozen price.
 
 **Timing:** scheduled while the protocol is unbootstrapped — no position depends on the
 oracle yet — so registering the feeds now has no effect on any user.
