@@ -19,7 +19,7 @@ for each token and changing only `stalenessInterval`:
 |---|---|---|---|
 | WETH `0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2` | `0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419` (ETH/USD) | `3600` → **`4200`** | 3600 (1h) |
 | `address(0)` (native ETH) | `0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419` (ETH/USD) | `3600` → **`4200`** | 3600 (1h) |
-| USDC `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` | `0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6` (USDC/USD) | `82800` → **`84600`** | 86400 (24h) |
+| USDC `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` | `0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6` (USDC/USD) | `82800` → **`84600`** | 82800 (23h) |
 
 Because the feed address is unchanged for all three, `_upsertFeed` takes the update path
 (not the first-add path): each call emits `UsdStalenessIntervalUpdated(token, old, new)`
@@ -33,19 +33,15 @@ it needs the same treatment once it's live).
 
 ## Why
 
-WETH and `address(0)` were both registered ([003](../003-oracle-usd-feeds/)) with
-`stalenessInterval = 3600` — **exactly** the feed's own heartbeat, with zero margin. A
-Chainlink round that lands even one second past its nominal heartbeat (ordinary block-time
-jitter, not a stalled feed) makes `getUsdPrice`/`getUsdPriceWithStalenessCheck` revert with
-`OracleStalePrice` even though the feed is healthy. `+600` (10 min) absorbs normal jitter
-without materially loosening the staleness check (the feed still fails closed well within
-the hour if it actually stops updating).
-
-USDC's `82800` bound already sits below its `86400` heartbeat, but by a full hour — tighter
-than necessary and closer to the failure mode above than it needs to be for a feed that, in
-practice, updates close to its 24h cadence. `84600` keeps a **30 min** margin below the
-heartbeat: enough room for jitter, without extending how long a genuinely stalled feed can
-serve a frozen price.
+All three feeds were registered ([003](../003-oracle-usd-feeds/)) with `stalenessInterval`
+set to **exactly** the feed's own heartbeat — WETH and `address(0)` at `3600` (1h), USDC at
+`82800` (23h) — with zero jitter margin in every case. A Chainlink round that lands even a
+second past its nominal heartbeat (ordinary block-time variance, not a stalled feed) makes
+`getUsdPrice`/`getUsdPriceWithStalenessCheck` revert with `OracleStalePrice` even though the
+feed is healthy. This proposal adds margin above each heartbeat: `+600` (10 min) for the
+two 1h-heartbeat feeds, `+1800` (30 min) for USDC's 23h-heartbeat feed — enough to absorb
+normal jitter without materially loosening the check (a feed that actually stops updating
+still fails closed well within the added margin).
 
 **Timing:** proposed independent of any strategy activity — this only changes how tolerant
 three already-live feeds are to normal timing variance, not what they price or whether
