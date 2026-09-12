@@ -1,9 +1,8 @@
 # 007 — StrategyManager: whitelist USDT as a supported ERC-20
 
-**Status:** 📝 **Draft — not yet submitted.** Payloads built and (link below) dependency validated
-against forked mainnet. Schedule and execute via the 48h admin timelock.
+**Status:** ⏳ **Scheduled on mainnet** (tx `0x83ddbe36f5af0e3365a4ca25459f9a78fb6bd1afaadf7de03b1d307036283c75`, block 25956365, 2026-09-11 19:50:59 UTC). Timelock state Waiting. Executable from **2026-09-13 19:50:59 UTC** — **and** only once [006](../006-oracle-usdt-feed/)'s USDT feed operation is executed (see *Dependency on 006*).
 **Operation id:** `0xd98323ea4ce022263fda34fe855afa99119621065da39310f13701106a7f9274`
-(recomputable via `hashOperation` with the predecessor and salt below).
+(recomputable via `hashOperation` with the predecessor and salt below — recomputed and verified on mainnet).
 
 ## What it changes
 
@@ -84,3 +83,23 @@ Fork at mainnet head, `StrategyManager.isSupportedERC20(USDT) == false`,
 5. Post-state: `StrategyManager.isSupportedERC20(USDT) == true`.
 
 Recomputing `hashOperation` from the fields as rendered reproduces the operation id above.
+
+## On-chain schedule (mainnet)
+
+Scheduled 2026-09-11 19:50:59 UTC in tx
+`0x83ddbe36f5af0e3365a4ca25459f9a78fb6bd1afaadf7de03b1d307036283c75` (block 25956365),
+DAO Safe → timelock `schedule`. Confirmed against mainnet:
+
+- The `schedule` calldata in the tx matches `01-schedule-raw.json` byte-for-byte (target
+  StrategyManager, `data` `0xd73acee5…31ec7`, predecessor `0x3aa9f59b…5fe21a9a`, salt
+  `0x5e625924…5a85cf4`, delay `172800`).
+- `getOperationState(0xd98323ea…6a7f9274)` → `1` (Waiting); `isOperationPending` → `true`.
+- `getTimestamp` → `1789329059` = **2026-09-13 19:50:59 UTC** (ready-at).
+- Predecessor `0x3aa9f59b…5fe21a9a` (006's USDT feed) is still `1` (Waiting) — `execute`
+  will revert `TimelockUnexecutedPredecessor` until 006's USDT feed is executed.
+
+## Cancelling
+
+Either the DAO Safe or the Security Safe may call
+`cancel(0xd98323ea4ce022263fda34fe855afa99119621065da39310f13701106a7f9274)` on the timelock
+at any point before execution.
