@@ -1,9 +1,8 @@
 # 006 — Oracle USD price feed: add USDT
 
-**Status:** 📝 **Draft — not yet submitted.** Payloads below are simulated against forked
-mainnet but have not been signed or scheduled.
+**Status:** ⏳ **Scheduled on mainnet** (tx `0x33e88b7fb0f327f91ffca0a88d08016f62f4e14de1229e81f38e0b70784862f2`, block 25953995, 2026-09-11 11:54:47 UTC). Timelock state Waiting. Executable from **2026-09-13 11:54:47 UTC** — permissionless execute.
 **Operation id:** `0x3aa9f59be4381618b4c684ca8155b837fa1718db26ef96c021ba4d775fe21a9a`
-(`hashOperation(Oracle, 0, updateUsdFeedInfo(USDT, USDT/USD, 86400), predecessor, salt)`).
+(`hashOperation(Oracle, 0, updateUsdFeedInfo(USDT, USDT/USD, 86400), predecessor, salt)` — recomputed and verified on mainnet).
 
 ## What it changes
 
@@ -105,6 +104,22 @@ Fork at block 25942019. `Oracle.isTokenSupported(USDT) == false`,
 48 h time jump makes the real Chainlink round older than the 24 h bound. Not a defect: on
 mainnet the feed round is fresh (verified `getUsdPrice(USDC)` returns `~1.0` live against
 the same code path).
+
+## On-chain schedule (mainnet)
+
+Scheduled 2026-09-11 11:54:47 UTC in tx
+`0x33e88b7fb0f327f91ffca0a88d08016f62f4e14de1229e81f38e0b70784862f2` (block 25953995),
+DAO Safe → timelock `schedule`. Confirmed against mainnet:
+
+- The `schedule` calldata in the tx matches `01-schedule-raw.json` byte-for-byte (target
+  Oracle, `data` `0x8eff1c3c…015180`, predecessor `0x00…00`, salt `0x5c5ed1cb…96dd`,
+  delay `172800`).
+- `getOperationState(0x3aa9f59b…5fe21a9a)` → `1` (Waiting); `isOperationPending` → `true`.
+- `getTimestamp` → `1789300487` = **2026-09-13 11:54:47 UTC** (ready-at).
+- `Oracle.isTokenSupported(USDT)` still `false` — flips on execute.
+
+[007](../007-strategy-manager-supported-usdt/) sets this operation as its timelock
+predecessor.
 
 ## Cancelling
 
