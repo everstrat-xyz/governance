@@ -58,6 +58,7 @@ All verified on Etherscan.
 | [008](008-oracle-staleness-margin/) | Oracle: widen WETH/`address(0)` staleness 3600→4200 and USDC 82800→84600 (jitter margin, ×3) | **Scheduled — executable 2026-09-15 11:05:47 UTC** | `0xc6360fe9…8abaada9` (WETH), `0x209d4394…5492ad272166` (`address(0)`), `0x74253eb4…8840d93fe` (USDC) |
 | [009](009-strategy-manager-add-unicl-strategies/) | StrategyManager: register the two UniCL USDC/WETH strategies (`addStrategy` ×2, batch) | **Scheduled — executable 2026-09-15 12:38:35 UTC** | `0x345dfba9…5e7eca8` (0.3% pool), `0xf340bad1…828ea50990` (0.01% pool) |
 | [010](010-oracle-usdt-staleness-margin/) | Oracle: widen USDT staleness 86400→88200 (jitter margin) | **Draft** — not yet submitted | `0xa2e19cb9…17ab4c6e` |
+| [011](011-strategy-manager-add-unicl-weth-usdt-strategy/) | StrategyManager: register the UniCL WETH/USDT 0.3% strategy (`addStrategy`) | **Draft** — not yet submitted | `0x4b6a7a40…96fcd9fd6` |
 
 ## Layout
 
