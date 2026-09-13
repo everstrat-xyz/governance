@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789257600000,
+  "meta": {
+    "name": "EverStrat: schedule Oracle USDT staleness margin",
+    "description": "DAO Safe schedules Oracle.updateUsdFeedInfo(USDT, Chainlink USDT/USD 0x3E7d1eAB13ad0104d2750B8863b489D65364e32D, staleness 88200) on the 48h admin TimelockController, re-passing the existing feed and only widening staleness from 86400 to 88200 (a 30 min jitter margin above the feed's 24h heartbeat). Executable by anyone after 48h using the identical predecessor and salt.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "data", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+          { "internalType": "uint256", "name": "delay", "type": "uint256" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26",
+        "value": "0",
+        "data": "0x8eff1c3c000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec70000000000000000000000003e7d1eab13ad0104d2750b8863b489d65364e32d0000000000000000000000000000000000000000000000000000000000015888",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x801e90834d72db816c7d5768fe725fe5d14f3ea7cb5a30e91410234aa42a70b5",
+        "delay": "172800"
+      }
+    }
+  ]
+}
