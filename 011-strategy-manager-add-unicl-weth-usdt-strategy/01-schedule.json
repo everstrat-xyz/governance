@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789344000000,
+  "meta": {
+    "name": "EverStrat: schedule StrategyManager.addStrategy (UniCL WETH/USDT 0.3%)",
+    "description": "DAO Safe schedules StrategyManager.addStrategy(0x3Fb6B9174427CA4FF38728398F4F4CB526F66501, 45, 45) on the 48h admin TimelockController, registering the deployed UniCLStrat instance against the WETH/USDT 0.3% Uniswap V3 pool. Executable by anyone after 48h using the identical predecessor and salt.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "data", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+          { "internalType": "uint256", "name": "delay", "type": "uint256" }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "data": "0xdca0c48f0000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501000000000000000000000000000000000000000000000000000000000000002d000000000000000000000000000000000000000000000000000000000000002d",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0xa20b7d1644726d67c06b27adfa7ab090cae091dba915757b89def8905cab2e5d",
+        "delay": "172800"
+      }
+    }
+  ]
+}
