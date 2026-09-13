@@ -1,7 +1,9 @@
 # 008 — Oracle: add jitter margin to WETH/ETH and USDC staleness bounds
 
-**Status:** 📝 **Draft — not yet submitted.** Payloads below are simulated against forked
-mainnet but have not been signed or scheduled.
+**Status:** ⏳ **Scheduled on mainnet** (tx
+`0x4be3e8c7bec7da0297352928cd660f6d71f064ece5603e95123264fa2afd4180`, block 25968101,
+2026-09-13 11:05:47 UTC). Timelock state Waiting for all three ops. Executable from
+**2026-09-15 11:05:47 UTC**.
 **Operation ids:**
 - WETH staleness: `0xc6360fe9cd159fb18d1436bb65e431afeb8909c3c0a03b431f2b8cd08abaada9`
 - Native-ETH (`address(0)`) staleness: `0x209d4394819de0a3c5994870976244f2945004b217efe7a1beaf5492ad272166`
@@ -119,6 +121,20 @@ Fork at block 25962915. Starting state: `getUsdFeedInfo(WETH) == (0x5f4e…8419,
 warped fork immediately after execute — the 48h time jump outruns even the widened bounds.
 Fork artifact only: on mainnet the underlying Chainlink rounds are fresh (both feeds
 verified `latestRoundData` within their heartbeat at proposal time).
+
+## On-chain schedule (mainnet)
+
+Scheduled 2026-09-13 11:05:47 UTC in tx
+`0x4be3e8c7bec7da0297352928cd660f6d71f064ece5603e95123264fa2afd4180` (block 25968101),
+DAO Safe (Transaction Builder, `multiSend` via `MultiSendCallOnly`, nonce 17) → timelock
+`schedule` ×3. Confirmed against mainnet (Safe tx service `dataDecoded`):
+
+- The three `schedule` calls in the tx match `01-schedule.json` byte-for-byte: same
+  target (Oracle), `data` (`0x8eff1c3c…`), zero predecessor, and salts
+  `0x88df0cbe…906615a` (WETH), `0xf3be49b7…6d57f` (`address(0)`), `0x825cf1a3…a54e2`
+  (USDC), all with `delay = 172800`.
+- `getOperationState` → `1` (Waiting) for all three op ids; `isOperationPending` → `true`.
+- `getTimestamp` → `1789470347` = **2026-09-15 11:05:47 UTC** (ready-at) for all three.
 
 ## Cancelling
 

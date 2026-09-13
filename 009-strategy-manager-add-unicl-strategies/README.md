@@ -1,7 +1,9 @@
 # 009 — StrategyManager: register the two UniCL USDC/WETH strategies
 
-**Status:** 📝 **Draft — not yet submitted.** Payloads below are simulated against forked
-mainnet but have not been signed or scheduled.
+**Status:** ⏳ **Scheduled on mainnet** (tx
+`0xf383aaafc8132184bc5b1b183ae4ae53082be0f99234e76aec92302b17d88a59`, block 25968565,
+2026-09-13 12:38:35 UTC). Timelock state Waiting for both ops. Executable from
+**2026-09-15 12:38:35 UTC**.
 **Operation ids:**
 - 0.3% pool strategy: `0x345dfba96cc9da6d54b34e07a99bdc594eac68248b26cb292a6c0d18a5e7eca8`
 - 0.01% pool strategy: `0xf340bad15fd7770a796eb38047ff1170e898b4f5541a656cd5a0bb828ea50990`
@@ -138,6 +140,20 @@ Fork at block 25963186. Starting state: neither strategy registered,
 7. Re-`execute` (strategy 1) — reverts `TimelockUnexpectedOperationState` (`0x5ead8eb5`); a
    direct re-add from the timelock reverts `StrategyManagerStrategyAlreadyRegistered`
    (`0x5dfc84ba`).
+
+## On-chain schedule (mainnet)
+
+Scheduled 2026-09-13 12:38:35 UTC in tx
+`0xf383aaafc8132184bc5b1b183ae4ae53082be0f99234e76aec92302b17d88a59` (block 25968565),
+DAO Safe (Transaction Builder, `multiSend` via `MultiSendCallOnly`, nonce 18) → timelock
+`schedule` ×2. Confirmed against mainnet (Safe tx service `dataDecoded`):
+
+- Both `schedule` calls in the tx match `01-schedule.json` byte-for-byte: same target
+  (StrategyManager), `data` (`0xdca0c48f…`), zero predecessor, and salts
+  `0xf6f07d85…7e2f45a45d3` (0.3% pool) and `0x83732cd5…97919908a` (0.01% pool), both with
+  `delay = 172800`.
+- `getOperationState` → `1` (Waiting) for both op ids; `isOperationPending` → `true`.
+- `getTimestamp` → `1789475915` = **2026-09-15 12:38:35 UTC** (ready-at) for both.
 
 ## Cancelling
 
