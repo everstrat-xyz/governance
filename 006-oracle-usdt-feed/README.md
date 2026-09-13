@@ -1,6 +1,6 @@
 # 006 — Oracle USD price feed: add USDT
 
-**Status:** ⏳ **Scheduled on mainnet** (tx `0x33e88b7fb0f327f91ffca0a88d08016f62f4e14de1229e81f38e0b70784862f2`, block 25953995, 2026-09-11 11:54:47 UTC). Timelock state Waiting. Executable from **2026-09-13 11:54:47 UTC** — permissionless execute.
+**Status:** ✅ **Executed on mainnet** (tx `0x1d641ca6005443ce9ac21d7f61f6116a8b9fe0aa2e8f1975108404b401d0b934`, block 25968966, 2026-09-13 13:59:11 UTC) — permissionless execute, after the 48h delay. `Oracle.isTokenSupported(USDT) == true`, `getUsdFeedInfo(USDT) == (0x3E7d…e32D, 86400)`. Scheduled 2026-09-11 11:54:47 UTC (tx `0x33e88b7fb0f327f91ffca0a88d08016f62f4e14de1229e81f38e0b70784862f2`, block 25953995).
 **Operation id:** `0x3aa9f59be4381618b4c684ca8155b837fa1718db26ef96c021ba4d775fe21a9a`
 (`hashOperation(Oracle, 0, updateUsdFeedInfo(USDT, USDT/USD, 86400), predecessor, salt)` — recomputed and verified on mainnet).
 
@@ -114,16 +114,30 @@ DAO Safe → timelock `schedule`. Confirmed against mainnet:
 - The `schedule` calldata in the tx matches `01-schedule-raw.json` byte-for-byte (target
   Oracle, `data` `0x8eff1c3c…015180`, predecessor `0x00…00`, salt `0x5c5ed1cb…96dd`,
   delay `172800`).
-- `getOperationState(0x3aa9f59b…5fe21a9a)` → `1` (Waiting); `isOperationPending` → `true`.
 - `getTimestamp` → `1789300487` = **2026-09-13 11:54:47 UTC** (ready-at).
-- `Oracle.isTokenSupported(USDT)` still `false` — flips on execute.
 
 [007](../007-strategy-manager-supported-usdt/) sets this operation as its timelock
 predecessor.
 
+## On-chain execution (mainnet)
+
+Executed 2026-09-13 13:59:11 UTC in tx
+`0x1d641ca6005443ce9ac21d7f61f6116a8b9fe0aa2e8f1975108404b401d0b934` (block 25968966),
+permissionless `execute` after the 48h delay elapsed (ready-at 2026-09-13 11:54:47 UTC).
+
+Confirmed after execution:
+
+- `getOperationState(0x3aa9f59b…5fe21a9a)` → `3` (Done); `isOperationDone` → `true`.
+- `CallExecuted` + `UsdFeedAdded`/staleness-add event emitted for USDT.
+- `Oracle.isTokenSupported(USDT)` → `true`; `getUsdFeedInfo(USDT)` →
+  `(0x3E7d1eAB13ad0104d2750B8863b489D65364e32D, 86400)`.
+
+This satisfies [007](../007-strategy-manager-supported-usdt/)'s timelock predecessor —
+007 can now execute once its own 48h delay elapses.
+
 ## Cancelling
 
-Either the DAO Safe or the Security Safe may
-`cancel(0x3aa9f59be4381618b4c684ca8155b837fa1718db26ef96c021ba4d775fe21a9a)` on the timelock
-any time before execution. After execution: `updateUsdFeedInfo` again to change the feed or
+Either the DAO Safe or the Security Safe could have
+`cancel(0x3aa9f59be4381618b4c684ca8155b837fa1718db26ef96c021ba4d775fe21a9a)`'d this on the
+timelock before execution. Now executed: `updateUsdFeedInfo` again to change the feed or
 staleness, or `removeToken(USDT)` (`ADMIN_ROLE`, 48h) to drop it.
