@@ -1,6 +1,6 @@
 # 007 — StrategyManager: whitelist USDT as a supported ERC-20
 
-**Status:** ⏳ **Scheduled on mainnet** (tx `0x83ddbe36f5af0e3365a4ca25459f9a78fb6bd1afaadf7de03b1d307036283c75`, block 25956365, 2026-09-11 19:50:59 UTC). Timelock state Waiting. Executable from **2026-09-13 19:50:59 UTC** — **and** only once [006](../006-oracle-usdt-feed/)'s USDT feed operation is executed (see *Dependency on 006*).
+**Status:** ✅ **Executed on mainnet** (tx `0x4114df3d438f70bcae9d57916f04193d8ca72648227427c0b0d1a87e3e0b79fc`, block 25970736, 2026-09-13 19:53:47 UTC) — permissionless execute, after the 48h delay and after [006](../006-oracle-usdt-feed/)'s USDT feed executed. `StrategyManager.isSupportedERC20(USDT) == true`. Scheduled 2026-09-11 19:50:59 UTC (tx `0x83ddbe36f5af0e3365a4ca25459f9a78fb6bd1afaadf7de03b1d307036283c75`, block 25956365).
 **Operation id:** `0xd98323ea4ce022263fda34fe855afa99119621065da39310f13701106a7f9274`
 (recomputable via `hashOperation` with the predecessor and salt below — recomputed and verified on mainnet).
 
@@ -98,8 +98,26 @@ DAO Safe → timelock `schedule`. Confirmed against mainnet:
 - Predecessor `0x3aa9f59b…5fe21a9a` (006's USDT feed) is still `1` (Waiting) — `execute`
   will revert `TimelockUnexecutedPredecessor` until 006's USDT feed is executed.
 
+## On-chain execution (mainnet)
+
+Executed 2026-09-13 19:53:47 UTC in tx
+`0x4114df3d438f70bcae9d57916f04193d8ca72648227427c0b0d1a87e3e0b79fc` (block 25970736),
+permissionless `execute`. Prerequisites were both met on-chain first:
+
+- 006's USDT feed op `0x3aa9f59b…5fe21a9a` executed 2026-09-13 13:59:11 UTC
+  (tx `0x1d641ca6005443ce9ac21d7f61f6116a8b9fe0aa2e8f1975108404b401d0b934`), so the
+  predecessor check passed.
+- 48h delay elapsed 2026-09-13 19:50:59 UTC.
+
+Confirmed after execution:
+
+- `getOperationState(0xd98323ea…6a7f9274)` → `3` (Done).
+- `CallExecuted` + `SupportedERC20Added(USDT)` emitted.
+- `StrategyManager.isSupportedERC20(USDT)` → `true`.
+
 ## Cancelling
 
-Either the DAO Safe or the Security Safe may call
-`cancel(0xd98323ea4ce022263fda34fe855afa99119621065da39310f13701106a7f9274)` on the timelock
-at any point before execution.
+Either the DAO Safe or the Security Safe could have
+`cancel(0xd98323ea4ce022263fda34fe855afa99119621065da39310f13701106a7f9274)`'d this on the
+timelock before execution. Now executed: `removeSupportedERC20(USDT)`
+(`ADMIN_ROLE || SECURITY_ROLE`) unwinds the whitelist entry.
