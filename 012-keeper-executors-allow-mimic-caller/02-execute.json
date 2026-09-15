@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789430400000,
+  "meta": {
+    "name": "Execute (T+48h): allow the Mimic smart account on both keeper executors",
+    "description": "Executes the two scheduled allowExecutorCaller operations. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send these once the 48h delay has elapsed AND predecessor 011 is Done \u2014 before that, execute reverts TimelockUnexecutedPredecessor (0x90a9a618). The DAO Safe is not required. Predecessor and salt must match each schedule exactly.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          {
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "payload",
+            "type": "bytes"
+          },
+          {
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xb7D76E4334e9E23B6edFF77e0C05B07E938a090B",
+        "value": "0",
+        "payload": "0xb76fa13800000000000000000000000041153f0c36f8fb5c38396573ddb487ac95a98256",
+        "predecessor": "0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6",
+        "salt": "0x1e9fefcfe014e4103ee70beacf32f3d393bb3ca8535b28716d4e9370ddae1cce"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          {
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "payload",
+            "type": "bytes"
+          },
+          {
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xE94F714fbBF85c421b6FB80D3Ce0DFA20110EA29",
+        "value": "0",
+        "payload": "0xb76fa13800000000000000000000000041153f0c36f8fb5c38396573ddb487ac95a98256",
+        "predecessor": "0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6",
+        "salt": "0x1e9fefcfe014e4103ee70beacf32f3d393bb3ca8535b28716d4e9370ddae1cce"
+      }
+    }
+  ]
+}

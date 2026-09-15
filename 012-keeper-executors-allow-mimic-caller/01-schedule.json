@@ -1,0 +1,112 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1789430400000,
+  "meta": {
+    "name": "EverStrat: allow the Mimic smart account as executor caller on both keeper executors",
+    "description": "DAO Safe schedules two KeeperExecutor.allowExecutorCaller(0x41153f0c36f8Fb5c38396573dDB487AC95a98256) calls on the 48h admin TimelockController as one batch \u2014 one per keeper executor (QueueKeeperExecutor 0xb7D7\u2026090B, StrategyKeeperExecutor 0xE94F\u2026EA29). Both operations carry the same predecessor: 011's operation id (0x4b6a7a40\u20269fd6), so neither can execute until the UniCL WETH/USDT strategy registration is Done. Executable by anyone after 48h using each operation's predecessor and salt.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delay",
+            "type": "uint256"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xb7D76E4334e9E23B6edFF77e0C05B07E938a090B",
+        "value": "0",
+        "data": "0xb76fa13800000000000000000000000041153f0c36f8fb5c38396573ddb487ac95a98256",
+        "predecessor": "0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6",
+        "salt": "0x1e9fefcfe014e4103ee70beacf32f3d393bb3ca8535b28716d4e9370ddae1cce",
+        "delay": "172800"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "schedule",
+        "payable": false,
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delay",
+            "type": "uint256"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xE94F714fbBF85c421b6FB80D3Ce0DFA20110EA29",
+        "value": "0",
+        "data": "0xb76fa13800000000000000000000000041153f0c36f8fb5c38396573ddb487ac95a98256",
+        "predecessor": "0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6",
+        "salt": "0x1e9fefcfe014e4103ee70beacf32f3d393bb3ca8535b28716d4e9370ddae1cce",
+        "delay": "172800"
+      }
+    }
+  ]
+}
