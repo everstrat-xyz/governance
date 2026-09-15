@@ -1,7 +1,8 @@
 # 010 — Oracle: add jitter margin to USDT staleness bound
 
-**Status:** 📝 **Draft — not yet submitted.** Payload below is simulated against forked
-mainnet but has not been signed or scheduled.
+**Status:** ⏳ **Scheduled on mainnet** — DAO Safe nonce 19, executed 2026-09-14 10:04:59
+UTC (tx `0x838950378422d1988b28335eed20aed86d0cc9059d389a34ca227ddc5c45a994`). Timelock
+state Waiting (re-checked 2026-09-15 12:40 UTC); executable from **2026-09-16 10:04:59 UTC**.
 **Operation id:** `0xa2e19cb9b60ce55ee8cf1fc86dcf7cfffcb1118ed18b87f6e802ef3e17ab4c6e`
 (recomputable via `hashOperation` with the predecessor and salt below — recomputed and
 verified against a mainnet fork).
@@ -109,6 +110,17 @@ execute — the 48h time jump outruns even the widened bound. Fork artifact only
 [008](../008-oracle-staleness-margin/#verification-performed-forked-mainnet-before-signing):
 on mainnet the underlying Chainlink round is fresh (verified `latestRoundData` ~1h8m old
 at proposal time).
+
+## On-chain schedule (mainnet)
+
+| Field | Value |
+|---|---|
+| Scheduled via | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 19 |
+| Schedule tx | `0x838950378422d1988b28335eed20aed86d0cc9059d389a34ca227ddc5c45a994` |
+| Executed (Safe) | 2026-09-14 10:04:59 UTC — 3/4 signatures |
+| Operation state | `Waiting` (re-checked 2026-09-15 12:40 UTC) |
+| Executable from | 2026-09-16 10:04:59 UTC |
+| Execute (permissionless) | `02-execute.json` — anyone with gas, once `Ready` |
 
 ## Cancelling
 

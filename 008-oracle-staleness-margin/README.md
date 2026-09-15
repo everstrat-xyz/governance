@@ -1,9 +1,9 @@
 # 008 — Oracle: add jitter margin to WETH/ETH and USDC staleness bounds
 
-**Status:** ⏳ **Scheduled on mainnet** (tx
+**Status:** ⏳ **Ready on mainnet** (tx
 `0x4be3e8c7bec7da0297352928cd660f6d71f064ece5603e95123264fa2afd4180`, block 25968101,
-2026-09-13 11:05:47 UTC). Timelock state Waiting for all three ops. Executable from
-**2026-09-15 11:05:47 UTC**.
+2026-09-13 11:05:47 UTC). All three ops read `Ready` — **executable by anyone since
+2026-09-15 11:05:47 UTC**. Not executed as of 2026-09-15 12:40 UTC.
 **Operation ids:**
 - WETH staleness: `0xc6360fe9cd159fb18d1436bb65e431afeb8909c3c0a03b431f2b8cd08abaada9`
 - Native-ETH (`address(0)`) staleness: `0x209d4394819de0a3c5994870976244f2945004b217efe7a1beaf5492ad272166`

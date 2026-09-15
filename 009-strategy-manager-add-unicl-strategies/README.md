@@ -2,8 +2,8 @@
 
 **Status:** ⏳ **Scheduled on mainnet** (tx
 `0xf383aaafc8132184bc5b1b183ae4ae53082be0f99234e76aec92302b17d88a59`, block 25968565,
-2026-09-13 12:38:35 UTC). Timelock state Waiting for both ops. Executable from
-**2026-09-15 12:38:35 UTC**.
+2026-09-13 12:38:35 UTC). Timelock state Waiting for both ops (re-checked 2026-09-15
+12:40 UTC). Executable from **2026-09-15 12:38:35 UTC**.
 **Operation ids:**
 - 0.3% pool strategy: `0x345dfba96cc9da6d54b34e07a99bdc594eac68248b26cb292a6c0d18a5e7eca8`
 - 0.01% pool strategy: `0xf340bad15fd7770a796eb38047ff1170e898b4f5541a656cd5a0bb828ea50990`

@@ -1,7 +1,8 @@
 # 011 — StrategyManager: register the UniCL WETH/USDT 0.3% strategy
 
-**Status:** 📝 **Draft — not yet submitted.** Payload below is simulated against forked
-mainnet but has not been signed or scheduled.
+**Status:** ⏳ **Scheduled on mainnet** — DAO Safe nonce 20, executed 2026-09-14 10:05:47
+UTC (tx `0xb73007da3d15deb3cb8d2e683e0470c479b3688c20a14c750380f37cd642c8c4`). Timelock
+state Waiting (re-checked 2026-09-15 12:40 UTC); executable from **2026-09-16 10:05:47 UTC**.
 **Operation id:** `0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6`
 (recomputable via `hashOperation` with the predecessor and salt below — recomputed and
 verified against a mainnet fork).
@@ -140,6 +141,17 @@ Fork at block 25971132. Starting state: strategy unregistered,
 7. Re-`execute` — reverts `TimelockUnexpectedOperationState` (`0x5ead8eb5`); a direct
    re-add from the timelock reverts `StrategyManagerStrategyAlreadyRegistered`
    (`0x5dfc84ba`).
+
+## On-chain schedule (mainnet)
+
+| Field | Value |
+|---|---|
+| Scheduled via | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 20 |
+| Schedule tx | `0xb73007da3d15deb3cb8d2e683e0470c479b3688c20a14c750380f37cd642c8c4` |
+| Executed (Safe) | 2026-09-14 10:05:47 UTC — 3/4 signatures |
+| Operation state | `Waiting` (re-checked 2026-09-15 12:40 UTC) |
+| Executable from | 2026-09-16 10:05:47 UTC |
+| Execute (permissionless) | `02-execute.json` — anyone with gas, once `Ready` |
 
 ## Cancelling
 
