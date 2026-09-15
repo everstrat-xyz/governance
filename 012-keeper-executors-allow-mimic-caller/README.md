@@ -1,6 +1,10 @@
 # 012 — Allow the Mimic smart account as executor caller on both keeper executors
 
-**Status:** Draft — awaiting DAO Safe signatures (2 ops, one Safe tx)
+**Status:** ⏳ **Scheduled on mainnet** — proposed as DAO Safe nonce 21 through the
+off-chain Safe delegate `0x1483E048a76A93a3A59bBfA6d60471eA4990e922`, executed 2026-09-15
+11:42:47 UTC with 3/4 signatures (tx
+`0x41e5a64096c938a4f98c57da0e2edec0856adfed802812523d48a2cecc515211`, block 25982636).
+Both ops state Waiting; executable from **2026-09-17 11:42:47 UTC**, blocked until 011 is Done.
 **Operation id (QueueKeeperExecutor):** `0xa4c9f4d382fa7196d669dc24528d5ac92950c4b8b31b43dcdec5569f505f6e40`
 **Operation id (StrategyKeeperExecutor):** `0xb716df945dcc361695182bfad5553ffb7b6dd2cebfba54b7f4b249ac06b880b5`
 **Predecessor (both ops):** `0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6` — [011](../011-strategy-manager-add-unicl-weth-usdt-strategy/), WETH/USDT UniCL strategy registration
@@ -128,6 +132,18 @@ Built from the task in the DAO chat (bind the Mimic smart account
 this record is derived programmatically at build time from the timelock ABI, the executor
 addresses in the root README, and the 011 operation id; no hex is transcribed by hand. Fork
 simulation and selectors recorded as observed.
+
+## On-chain schedule (mainnet)
+
+| Field | Value |
+|---|---|
+| Proposed by | off-chain Safe delegate `0x1483E048a76A93a3A59bBfA6d60471eA4990e922` ("Everhomie"); `proposer` recorded as its delegator `0x4A2D30c7b9f7907D580f9A1902D42dd78B21F0d2` |
+| Scheduled via | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 21 (batch of 2 `schedule` ops) |
+| Signatures | 3 of 4 — `0x4A2D…F0d2` 11:28:06 · `0xe9BE…dc4a` 11:38:46 · `0x1Efb…9a46` 11:42:13 UTC |
+| Execute (Safe) | 2026-09-15 11:42:47 UTC — tx `0x41e5a64096c938a4f98c57da0e2edec0856adfed802812523d48a2cecc515211`, block 25982636 |
+| Operation state | `Waiting` for both ops (re-checked 2026-09-15 12:40 UTC) |
+| Executable from | 2026-09-17 11:42:47 UTC — after 011 is `Done` (`predecessor`) |
+| Effect so far | none: both executors still report `isExecutorCaller(0x4115…8256) == false` until this executes |
 
 ## Cancelling
 
