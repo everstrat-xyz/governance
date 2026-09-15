@@ -1,9 +1,9 @@
 # 009 — StrategyManager: register the two UniCL USDC/WETH strategies
 
-**Status:** ⏳ **Scheduled on mainnet** (tx
-`0xf383aaafc8132184bc5b1b183ae4ae53082be0f99234e76aec92302b17d88a59`, block 25968565,
-2026-09-13 12:38:35 UTC). Timelock state Waiting for both ops (re-checked 2026-09-15
-12:40 UTC). Executable from **2026-09-15 12:38:35 UTC**.
+**Status:** ✅ **Executed on mainnet** — both ops `Done` on 2026-09-15 (13:42:35 and
+13:43:47 UTC). Scheduled 2026-09-13 12:38:35 UTC (tx
+`0xf383aaafc8132184bc5b1b183ae4ae53082be0f99234e76aec92302b17d88a59`, block 25968565).
+See `## On-chain execution`.
 **Operation ids:**
 - 0.3% pool strategy: `0x345dfba96cc9da6d54b34e07a99bdc594eac68248b26cb292a6c0d18a5e7eca8`
 - 0.01% pool strategy: `0xf340bad15fd7770a796eb38047ff1170e898b4f5541a656cd5a0bb828ea50990`
@@ -154,6 +154,23 @@ DAO Safe (Transaction Builder, `multiSend` via `MultiSendCallOnly`, nonce 18) �
   `delay = 172800`.
 - `getOperationState` → `1` (Waiting) for both op ids; `isOperationPending` → `true`.
 - `getTimestamp` → `1789475915` = **2026-09-15 12:38:35 UTC** (ready-at) for both.
+
+## On-chain execution (mainnet)
+
+| Operation | Executed (UTC) | Transaction | Block | Gas |
+|---|---|---|---|---|
+| 0.3% USDC/WETH strategy | 2026-09-15 13:42:35 | `0xd592550de1b0ae6c4a9ab3412d2ffc919fb9af5523a798c02c355d4eb4c02b6c` | 25983233 | 349,592 |
+| 0.01% USDC/WETH strategy | 2026-09-15 13:43:47 | `0x558a69879f1f4467dadfacc7900cae95ec19a5dbb50404360a4a7931986f5960` | 25983238 | 266,541 |
+
+Executed by `0x046E01eE…a899D7` — two separate `execute` calls. `EXECUTOR_ROLE` is
+`address(0)`, so execution is permissionless; the caller needs no role and only pays gas.
+
+**Effect verified on-chain after execution** (`StrategyManager.isStrategyRegistered`):
+
+| Strategy | Pool fee | Address | Registered |
+|---|---|---|---|
+| USDC/WETH | 0.3% | `0x5E12FFD5e0F69d37B581D06b68ad6c53609cac38` | **true** |
+| USDC/WETH | 0.01% | `0x59C476c1817b23791d96F35b9f468E6d9A242252` | **true** |
 
 ## Cancelling
 
