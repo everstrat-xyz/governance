@@ -57,8 +57,9 @@ All verified on Etherscan.
 | [007](007-strategy-manager-supported-usdt/) | StrategyManager: `addSupportedERC20(USDT)` | **Executed** — on-chain as of 2026-09-13 (`isSupportedERC20(USDT) == true`) | `0xd98323ea…6a7f9274` |
 | [008](008-oracle-staleness-margin/) | Oracle: widen WETH/`address(0)` staleness 3600→4200 and USDC 82800→84600 (jitter margin, ×3) | **Scheduled — executable 2026-09-15 11:05:47 UTC** | `0xc6360fe9…8abaada9` (WETH), `0x209d4394…5492ad272166` (`address(0)`), `0x74253eb4…8840d93fe` (USDC) |
 | [009](009-strategy-manager-add-unicl-strategies/) | StrategyManager: register the two UniCL USDC/WETH strategies (`addStrategy` ×2, batch) | **Scheduled — executable 2026-09-15 12:38:35 UTC** | `0x345dfba9…5e7eca8` (0.3% pool), `0xf340bad1…828ea50990` (0.01% pool) |
-| [010](010-oracle-usdt-staleness-margin/) | Oracle: widen USDT staleness 86400→88200 (jitter margin) | **Draft** — not yet submitted | `0xa2e19cb9…17ab4c6e` |
-| [011](011-strategy-manager-add-unicl-weth-usdt-strategy/) | StrategyManager: register the UniCL WETH/USDT 0.3% strategy (`addStrategy`) | **Draft** — not yet submitted | `0x4b6a7a40…96fcd9fd6` |
+| [010](010-oracle-usdt-staleness-margin/) | Oracle: widen USDT staleness 86400→88200 (jitter margin) | **Scheduled — executable 2026-09-16 10:04:59 UTC** | `0xa2e19cb9…17ab4c6e` |
+| [011](011-strategy-manager-add-unicl-weth-usdt-strategy/) | StrategyManager: register the UniCL WETH/USDT 0.3% strategy (`addStrategy`) | **Scheduled — executable 2026-09-16 10:05:47 UTC** | `0x4b6a7a40…96fcd9fd6` |
+| [012](012-keeper-executors-allow-mimic-caller/) | Keeper executors: `allowExecutorCaller(Mimic 0x4115…8256)` on both QueueKeeperExecutor and StrategyKeeperExecutor (batch, predecessor = 011) | **Draft** — awaiting DAO Safe signatures | `0xa4c9f4d3…5f6e40` (queue), `0xb716df94…06b880b5` (strategy) |
 
 ## Layout
 
