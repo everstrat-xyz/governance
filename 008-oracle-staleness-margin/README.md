@@ -1,9 +1,9 @@
 # 008 — Oracle: add jitter margin to WETH/ETH and USDC staleness bounds
 
-**Status:** ⏳ **Ready on mainnet** (tx
-`0x4be3e8c7bec7da0297352928cd660f6d71f064ece5603e95123264fa2afd4180`, block 25968101,
-2026-09-13 11:05:47 UTC). All three ops read `Ready` — **executable by anyone since
-2026-09-15 11:05:47 UTC**. Not executed as of 2026-09-15 12:40 UTC.
+**Status:** ✅ **Executed on mainnet** — all three ops `Done` on 2026-09-15 (13:24:11 /
+13:35:59 / 13:37:11 UTC). Scheduled 2026-09-13 11:05:47 UTC (tx
+`0x4be3e8c7bec7da0297352928cd660f6d71f064ece5603e95123264fa2afd4180`, block 25968101);
+executed one call per operation once the 48h delay elapsed. See `## On-chain execution`.
 **Operation ids:**
 - WETH staleness: `0xc6360fe9cd159fb18d1436bb65e431afeb8909c3c0a03b431f2b8cd08abaada9`
 - Native-ETH (`address(0)`) staleness: `0x209d4394819de0a3c5994870976244f2945004b217efe7a1beaf5492ad272166`
@@ -135,6 +135,27 @@ DAO Safe (Transaction Builder, `multiSend` via `MultiSendCallOnly`, nonce 17) �
   (USDC), all with `delay = 172800`.
 - `getOperationState` → `1` (Waiting) for all three op ids; `isOperationPending` → `true`.
 - `getTimestamp` → `1789470347` = **2026-09-15 11:05:47 UTC** (ready-at) for all three.
+
+## On-chain execution (mainnet)
+
+| Operation | Executed (UTC) | Transaction | Block | Gas |
+|---|---|---|---|---|
+| WETH staleness | 2026-09-15 13:24:11 | `0x703329c72ce8665acd9f04bb4334a0100e731b3a68317f8f6688e95374274319` | 25983142 | 61,856 |
+| Native ETH (`address(0)`) staleness | 2026-09-15 13:35:59 | `0xb143651f07c6c947f7623d2e192af273399e26561c027f43785277f6c3a7e442` | 25983200 | 61,616 |
+| USDC staleness | 2026-09-15 13:37:11 | `0x39e48a2a99d45b57c9e27e4460d075c95ad059e8760128e9060688be7e908c51` | 25983206 | 61,868 |
+
+Executed by `0x046E01eE…a899D7` — three separate `execute` calls, one per operation.
+`EXECUTOR_ROLE` is `address(0)`, so this is permissionless; the caller needs no role and
+only pays gas.
+
+**Effect verified on-chain after execution** (`Oracle.getUsdFeedInfo(token)` →
+`(priceFeed, stalenessInterval)`):
+
+| Token | Price feed | stalenessInterval | Was |
+|---|---|---|---|
+| WETH | `0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419` | **4200** | 3600 |
+| Native ETH (`address(0)`) | `0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419` | **4200** | 3600 |
+| USDC | `0x8fFfFD4AfB6115b954Bd326cbe7B4BA576818f6` | **84600** | 82800 |
 
 ## Cancelling
 
