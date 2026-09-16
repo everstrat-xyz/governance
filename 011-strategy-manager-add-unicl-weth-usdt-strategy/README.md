@@ -1,8 +1,10 @@
 # 011 — StrategyManager: register the UniCL WETH/USDT 0.3% strategy
 
-**Status:** ⏳ **Scheduled on mainnet** — DAO Safe nonce 20, executed 2026-09-14 10:05:47
-UTC (tx `0xb73007da3d15deb3cb8d2e683e0470c479b3688c20a14c750380f37cd642c8c4`). Timelock
-state Waiting (re-checked 2026-09-15 12:40 UTC); executable from **2026-09-16 10:05:47 UTC**.
+**Status:** ✅ **Executed on mainnet** — 2026-09-16 11:46:59 UTC. Scheduled via DAO Safe
+nonce 20 on 2026-09-14 10:05:47 UTC (tx
+`0xb73007da3d15deb3cb8d2e683e0470c479b3688c20a14c750380f37cd642c8c4`); the 48h delay
+elapsed 2026-09-16 10:05:47 UTC and the operation was executed ~1h41m later. **012's
+`predecessor` is this operation, so 012's gate is now cleared.**
 **Operation id:** `0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6`
 (recomputable via `hashOperation` with the predecessor and salt below — recomputed and
 verified against a mainnet fork).
@@ -152,6 +154,25 @@ Fork at block 25971132. Starting state: strategy unregistered,
 | Operation state | `Waiting` (re-checked 2026-09-15 12:40 UTC) |
 | Executable from | 2026-09-16 10:05:47 UTC |
 | Execute (permissionless) | `02-execute.json` — anyone with gas, once `Ready` |
+
+## On-chain execution (mainnet)
+
+| Field | Value |
+|---|---|
+| Executed (UTC) | 2026-09-16 11:46:59 |
+| Transaction | `0x1807f0d15a843933f12c9eb8b1af45bb8a1334867d49931959d89845c084b72e` |
+| Block | 25989831 |
+| Gas | 266,541 |
+| Caller | `0x046E01eE…a899D7` (permissionless — `EXECUTOR_ROLE` is `address(0)`, no role needed) |
+
+**Effect verified on-chain after execution** — `StrategyManager.isStrategyRegistered`:
+
+| Strategy | Registered |
+|---|---|
+| `0x3Fb6B9174427CA4FF38728398F4F4CB526F66501` (WETH/USDT 0.3%) | **true** |
+
+This clears the `predecessor` gate on **012**, whose two `allowExecutorCaller` operations
+become executable 2026-09-17 11:42:47 UTC.
 
 ## Cancelling
 
