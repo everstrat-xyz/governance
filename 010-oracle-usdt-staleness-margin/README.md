@@ -1,8 +1,9 @@
 # 010 — Oracle: add jitter margin to USDT staleness bound
 
-**Status:** ⏳ **Scheduled on mainnet** — DAO Safe nonce 19, executed 2026-09-14 10:04:59
-UTC (tx `0x838950378422d1988b28335eed20aed86d0cc9059d389a34ca227ddc5c45a994`). Timelock
-state Waiting (re-checked 2026-09-15 12:40 UTC); executable from **2026-09-16 10:04:59 UTC**.
+**Status:** ✅ **Executed on mainnet** — 2026-09-16 11:44:47 UTC. Scheduled via DAO Safe
+nonce 19 on 2026-09-14 10:04:59 UTC (tx
+`0x838950378422d1988b28335eed20aed86d0cc9059d389a34ca227ddc5c45a994`); the 48h delay
+elapsed 2026-09-16 10:04:59 UTC and the operation was executed ~1h40m later.
 **Operation id:** `0xa2e19cb9b60ce55ee8cf1fc86dcf7cfffcb1118ed18b87f6e802ef3e17ab4c6e`
 (recomputable via `hashOperation` with the predecessor and salt below — recomputed and
 verified against a mainnet fork).
@@ -121,6 +122,23 @@ at proposal time).
 | Operation state | `Waiting` (re-checked 2026-09-15 12:40 UTC) |
 | Executable from | 2026-09-16 10:04:59 UTC |
 | Execute (permissionless) | `02-execute.json` — anyone with gas, once `Ready` |
+
+## On-chain execution (mainnet)
+
+| Field | Value |
+|---|---|
+| Executed (UTC) | 2026-09-16 11:44:47 |
+| Transaction | `0xfa6d1d560c00bc60ee0d3a479b8b25bd821e9173bc91293f2ceaaff0e6023e3a` |
+| Block | 25989820 |
+| Gas | 61,868 |
+| Caller | `0x046E01eE…a899D7` (permissionless — `EXECUTOR_ROLE` is `address(0)`, no role needed) |
+
+**Effect verified on-chain after execution** — `Oracle.getUsdFeedInfo(USDT)`:
+
+| Field | Now | Before |
+|---|---|---|
+| Price feed | `0x3E7d1eAB13ad0104d2750B8863b489D65364e32D` (unchanged) | same |
+| `stalenessInterval` | **88200** | 86400 |
 
 ## Cancelling
 

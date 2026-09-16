@@ -44,7 +44,9 @@ manual. See the `DeployKeeperExecutors` NatSpec steps 1–4 and
 **Ordering is intentional and enforced on-chain.** Both operations carry 011's operation id as
 `predecessor`, so `execute` reverts `TimelockUnexecutedPredecessor` (`0x90a9a618`) until the
 WETH/USDT strategy registration is `Done`. Automation therefore cannot be turned on before the
-strategy it is meant to service is live.
+strategy it is meant to service is live. **011 executed on 2026-09-16 11:46:59 UTC, so this gate is
+now cleared** — 012's own 48h delay closes at 2026-09-17 11:42:47 UTC, after which nothing but gas
+stands between the queued batch and live automation.
 
 ## Transactions
 
