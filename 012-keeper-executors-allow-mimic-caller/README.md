@@ -1,10 +1,12 @@
 # 012 — Allow the Mimic smart account as executor caller on both keeper executors
 
-**Status:** ⏳ **Scheduled on mainnet** — proposed as DAO Safe nonce 21 through the
-off-chain Safe delegate `0x1483E048a76A93a3A59bBfA6d60471eA4990e922`, executed 2026-09-15
-11:42:47 UTC with 3/4 signatures (tx
-`0x41e5a64096c938a4f98c57da0e2edec0856adfed802812523d48a2cecc515211`, block 25982636).
-Both ops state Waiting; executable from **2026-09-17 11:42:47 UTC**, blocked until 011 is Done.
+**Status:** ✅ **Executed on mainnet** — 2026-09-17 12:02:59 / 12:04:23 UTC. Both executors now
+report `isExecutorCaller(0x41153f0C36f8Fb5c38396573dDB487AC95a98256) == true` and
+`executorCallerCount() == 1`, so the Mimic smart account can drive keeper automation.
+Proposed as DAO Safe nonce 21 through the off-chain Safe delegate
+`0x1483E048a76A93a3A59bBfA6d60471eA4990e922`, executed 2026-09-15 11:42:47 UTC with 3/4
+signatures (tx `0x41e5a64096c938a4f98c57da0e2edec0856adfed802812523d48a2cecc515211`, block
+25982636); the 48h delay elapsed 2026-09-17 11:42:47 UTC.
 **Operation id (QueueKeeperExecutor):** `0xa4c9f4d382fa7196d669dc24528d5ac92950c4b8b31b43dcdec5569f505f6e40`
 **Operation id (StrategyKeeperExecutor):** `0xb716df945dcc361695182bfad5553ffb7b6dd2cebfba54b7f4b249ac06b880b5`
 **Predecessor (both ops):** `0x4b6a7a40449523fa21d7f268807beddb8a670319b4bce25ca142d9696fcd9fd6` — [011](../011-strategy-manager-add-unicl-weth-usdt-strategy/), WETH/USDT UniCL strategy registration
@@ -145,7 +147,38 @@ simulation and selectors recorded as observed.
 | Execute (Safe) | 2026-09-15 11:42:47 UTC — tx `0x41e5a64096c938a4f98c57da0e2edec0856adfed802812523d48a2cecc515211`, block 25982636 |
 | Operation state | `Waiting` for both ops (re-checked 2026-09-15 12:40 UTC) |
 | Executable from | 2026-09-17 11:42:47 UTC — after 011 is `Done` (`predecessor`) |
-| Effect so far | none: both executors still report `isExecutorCaller(0x4115…8256) == false` until this executes |
+| Effect | both executors report `isExecutorCaller(0x4115…8256) == true`, `executorCallerCount() == 1` |
+
+## On-chain execution (mainnet)
+
+Executed on 2026-09-17, one call per operation, both from `0x046E01eE…a899D7`
+(permissionless — `EXECUTOR_ROLE` is `address(0)`). 011 was already `Done`, so the
+`predecessor` gate was satisfied.
+
+| Operation | Transaction | Block | Executed (UTC) | Gas |
+|---|---|---|---|---|
+| QueueKeeperExecutor `0xa4c9f4d3…5f6e40` | `0x0441b1f863b9e70a25c52c9eecc50c25fcfd970520bcd41b2000fa25cd788049` | 25997085 | 2026-09-17 12:02:59 | 117,480 |
+| StrategyKeeperExecutor `0xb716df94…06b880b5` | `0x08760b797858c72e59a5b52c3b60ffdf85896f6614a9205be777c76775e0df3f` | 25997092 | 2026-09-17 12:04:23 | 117,469 |
+
+Gas matches the fork simulation (117,480 / 117,469) exactly.
+
+**Getters after execution** — the state change the proposal was for:
+
+| Executor | `isExecutorCaller(Mimic)` | `executorCallerCount()` | `isExecutorCaller(0x1111…1111)` |
+|---|---|---|---|
+| QueueKeeperExecutor `0xb7D76E43…090B` | **true** | **1** | false |
+| StrategyKeeperExecutor `0xE94F714f…EA29` | **true** | **1** | false |
+
+**Live gate exercised** — `perform(...)` (`0x16092623` / `0x16d9fdd2`) against current mainnet
+state, both executors:
+
+| Caller | Result |
+|---|---|
+| Mimic `0x41153f0C…8256` | revert `KeeperExecutorUnknownAction()` `0x16a2ea8f` — the caller gate **passes**, execution then stops because action `None` is not a real action |
+| Stranger `0x1111…1111` | revert `KeeperExecutorUnauthorizedCaller(0x1111…1111)` `0x5e6ac3a8` — rejected at the gate |
+| *(before this proposal)* any caller | revert `KeeperExecutorNoAllowedCallers()` `0x0e1c8dbc` |
+
+So the allowlist is not just stored — it is the thing gating entry, and only the Mimic passes it.
 
 ## Cancelling
 

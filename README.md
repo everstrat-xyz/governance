@@ -46,24 +46,29 @@ All verified on Etherscan.
 
 ## Status at a glance
 
-_As of 2026-09-16 12:25 UTC. Read live from `Timelock.getOperationState(opId)`
+_As of 2026-09-17 12:15 UTC. Read live from `Timelock.getOperationState(opId)`
 (`0` Unset · `1` Waiting · `2` Ready · `3` Done) and the Safe Transaction Service._
 
 | Proposal | Where it stands |
 |---|---|
-| 001–011 | **Done** — executed on mainnet, state and effects re-verified on-chain |
-| **012** | **Scheduled** — DAO Safe nonce 21 executed 2026-09-15 11:42:47 UTC with 3/4 signatures; both ops `Waiting`, executable from **2026-09-17 11:42:47 UTC**. Its `predecessor` (011) is now `Done`, so that gate is cleared. |
+| 001–012 | **Done** — every privileged action queued to date has executed on mainnet, state and effects re-verified on-chain |
 
-**Everything queued so far has executed.** 008 (3 ops) and 009 (2 ops) landed on
-2026-09-15 between 13:24:11 and 13:43:47 UTC; **010 and 011 landed on 2026-09-16 at
-11:44:47 and 11:46:59 UTC**. All seven calls came from `0x046E01eE…a899D7`: `EXECUTOR_ROLE`
-is `address(0)`, so `execute` is **permissionless** — any address with gas can run a `Ready`
-operation, no owner action required. Per-proposal transactions, gas, and post-execution
-getter reads live in each proposal's `## On-chain execution` section.
+**The whole queue has landed.** 008 (3 ops) and 009 (2 ops) executed 2026-09-15 between
+13:24:11 and 13:43:47 UTC; **010 and 011 on 2026-09-16 at 11:44:47 and 11:46:59 UTC**; **012
+closed it out on 2026-09-17 at 12:02:59 and 12:04:23 UTC**. All nine calls came from
+`0x046E01eE…a899D7`: `EXECUTOR_ROLE` is `address(0)`, so `execute` is **permissionless** —
+any address with gas can run a `Ready` operation, no owner action required. The 48h delay is a
+**floor, not a schedule**: every operation of the last three days ran 20 minutes to 1 hour 40
+after it became `Ready`. Per-proposal transactions, gas, and post-execution getter reads live in
+each proposal's `## On-chain execution` section.
 
-The DAO Safe holds **no pending transactions** (next nonce 22). The only operation still in
-flight is **012**, whose first execution window opens 2026-09-17 11:42:47 UTC and needs
-nothing but gas.
+**012 wired up keeper automation.** The Mimic smart account `0x4115…8256` is now the only
+allowed executor caller on both keeper executors (`executorCallerCount() == 1` on each); a live
+`perform` from the Mimic clears the caller gate while every other address is rejected with
+`KeeperExecutorUnauthorizedCaller`. This is the first governance action of the batch whose
+visible effect is operational rather than a parameter change.
+
+The DAO Safe holds **no pending transactions** (next nonce 22). Nothing is in flight.
 
 ## Decisions
 
@@ -80,7 +85,7 @@ nothing but gas.
 | [009](009-strategy-manager-add-unicl-strategies/) | StrategyManager: register the two UniCL USDC/WETH strategies (`addStrategy` ×2, batch) | **Executed** — 2026-09-15, both ops `Done` (13:42:35 / 13:43:47 UTC); `isStrategyRegistered` is `true` for both strategies | `0x345dfba9…5e7eca8` (0.3% pool), `0xf340bad1…828ea50990` (0.01% pool) |
 | [010](010-oracle-usdt-staleness-margin/) | Oracle: widen USDT staleness 86400→88200 (jitter margin) | **Executed** — 2026-09-16 11:44:47 UTC (tx `0xfa6d1d56…0e6023e3a`); `getUsdFeedInfo(USDT)` now returns staleness **88200** with the feed unchanged (`0x3E7d1eAB…e32D`) | `0xa2e19cb9…17ab4c6e` |
 | [011](011-strategy-manager-add-unicl-weth-usdt-strategy/) | StrategyManager: register the UniCL WETH/USDT 0.3% strategy (`addStrategy`) | **Executed** — 2026-09-16 11:46:59 UTC (tx `0x1807f0d1…45c084b72e`); `isStrategyRegistered(0x3Fb6B917…6501)` is `true` | `0x4b6a7a40…96fcd9fd6` |
-| [012](012-keeper-executors-allow-mimic-caller/) | Keeper executors: `allowExecutorCaller(Mimic 0x4115…8256)` on both QueueKeeperExecutor and StrategyKeeperExecutor (batch, predecessor = 011) | **Scheduled** — DAO Safe nonce 21 executed 2026-09-15 11:42:47 UTC, 3/4 signatures (tx `0x41e5a640…cc515211`); both ops `Waiting`, executable from **2026-09-17 11:42:47 UTC**; `predecessor` (011) is `Done` as of 2026-09-16 11:46:59 UTC, so that gate is cleared | `0xa4c9f4d3…5f6e40` (queue), `0xb716df94…06b880b5` (strategy) |
+| [012](012-keeper-executors-allow-mimic-caller/) | Keeper executors: `allowExecutorCaller(Mimic 0x4115…8256)` on both QueueKeeperExecutor and StrategyKeeperExecutor (batch, predecessor = 011) | **Executed** — 2026-09-17 12:02:59 / 12:04:23 UTC (tx `0x0441b1f8…cd788049` / `0x08760b79…775e0df3f`); `isExecutorCaller(0x4115…8256) == true` on both executors with `executorCallerCount() == 1`, and a live `perform` from the Mimic passes the caller gate | `0xa4c9f4d3…5f6e40` (queue), `0xb716df94…06b880b5` (strategy) |
 
 ## Layout
 
