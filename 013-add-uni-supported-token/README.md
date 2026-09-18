@@ -4,6 +4,21 @@
 the DAO Safe's next free nonce is **22** and it holds no pending transactions.
 Nothing in this directory has been signed.
 
+**The Safe batch is not posted yet** — proposing it needs a signature from one of the four
+owners (`0xe9BEf44a…`, `0x1Efbc65e…`, `0xF412F1A5…`, `0x4A2D30c7…`, threshold 3/4), and the
+payload as built has this deterministic hash:
+
+```
+safeTxHash = 0xe396b3f0217ee7d8496397ba9c8e91f0e070d6a495d82ca426af264140191795   (nonce 22)
+```
+
+Three ways to land it (a) Safe app → **Transaction Builder** → import `01-schedule.json`, which
+recreates this exact transaction; (b) sign the hash with an owner key and post it:
+`SAFE_PK=<key> /root/.hermes/scripts/propose_safe_batch.py --repo-json 01-schedule-raw.json --key-env SAFE_PK`;
+(c) hand the 65-byte signature + signer address to the bot, which posts it with
+`--signature … --sender …`. Verify the hash before signing: recomputing it is a one-line
+`getTransactionHash` call (below). Nonce 22 must still be free when it is signed.
+
 **Operation ids (verify with `Timelock.getOperationState`):**
 
 | # | Operation | id |
@@ -135,6 +150,31 @@ two questions were probed on two forks, with the Timelock impersonated in the se
 feed (DAI) reverts `0x0eb217c5`; a direct `updateUsdFeedInfo` from a non-admin reverts `0x4d616cff`
 (Registry permission, admin role hash as the argument).
 
+**The Safe payload itself, end to end** (`/tmp/sim013c.sh`, third anvil fork at block 26,006,240,
+`localhost:8548`). This one starts from untouched mainnet state and executes the *actual* batch
+payload rather than the two calls separately:
+
+1. `packed_multisend(01-schedule-raw.json)` from
+   `/root/.hermes/scripts/propose_safe_batch.py` is decoded back — 2 entries, both
+   `to = Timelock`, `operation = 0 (CALL)`, `value = 0`, 356 / 292 bytes of calldata, packed length
+   818, consumed 818 (exact) — and compared byte-for-byte against the file: **PASS**.
+2. The Safe's owner set is patched in *fork storage only* (`owners[anvil#0] = 1`, `threshold = 1`);
+   the real Safe is 4 owners / 3-of-4 and is not touched. `nonce()` stays `22`.
+3. `Safe.execTransaction(MultiSendCallOnly, 0, payload, operation = 1, …, sig)` → **success**,
+   gas **126,126**, block 26,006,241, nonce `22 → 23`, and the hash it was signed against is
+   `0xe396b3f0…191795` — the same value produced above on a different fork, so the proposal hash is
+   reproducible.
+4. Both ops `1 (Waiting)` immediately. `warp 172801 s` → both `2 (Ready)`. Both executed from an
+   unrelated EOA → both `3 (Done)`.
+5. Final state: `Oracle.isTokenSupported(UNI) = true`, `getUsdFeedInfo(UNI) = (0x5533…220e, 4200)`,
+   `Oracle.getSupportedTokens() = [address(0), USDC, WETH, USDT, UNI]`,
+   `SM.isSupportedERC20(UNI) = true`, `SM.supportedERC20() = [USDC, USDT, UNI]`, and
+   `SM.totalNAVInETH()` **unchanged** (`436737449545944677`) because the SM holds no UNI.
+
+`readyAt` is simply `exec time + 172800`: the fork batch landed at `1789756824`
+(2026-09-18 18:40:24 UTC), so `readyAt = 1789929624`. Real scheduling will use whatever timestamp
+the mainnet batch lands at.
+
 ## Risks
 
 - **The feed can freeze NAV.** This is the fail-closed design of `_supportedERC20sNAVInETH`
@@ -187,4 +227,16 @@ cast call $TL "hashOperation(address,uint256,bytes,bytes32,bytes32)(bytes32)" \
 # feed sanity
 cast call 0x553303d460EE0afB37EdFf9bE42922D8FF63220e "description()(string)" --rpc-url $R
 cast call 0x553303d460EE0afB37EdFf9bE42922D8FF63220e "decimals()(uint8)" --rpc-url $R
+
+# the hash an owner signs, straight from the Safe (must be 0xe396b3f0…191795 while nonce is 22).
+# DATA = the MultiSend payload: cast abi-encode "f(bytes)" <payload> | cut -c 11-
+SAFE=0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9
+MS=0x9641d764fc13c8B624c04430C7356C1C7C8102e2
+DATA=$(python3 -c 'import sys;sys.path.insert(0,"/root/.hermes/scripts");from propose_safe_batch import packed_multisend,entries_from_repo;print(packed_multisend(entries_from_repo("013-add-uni-supported-token/01-schedule-raw.json")))')
+cast call $SAFE "getTransactionHash(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,uint256)(bytes32)" \
+  $MS 0 $DATA 1 0 0 0 0x0000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000 \
+  $(cast call $SAFE "nonce()(uint256)" --rpc-url $R) --rpc-url $R
+
+# is nonce 22 still free?
+curl -s "https://safe-transaction-mainnet.safe.global/api/v1/safes/$SAFE/multisig-transactions/?nonce=22" | head -c 200
 ```
