@@ -1,23 +1,21 @@
 # 013 — Add UNI as a supported ERC-20 (UNI/USD Oracle feed + `StrategyManager`)
 
-**Status:** 📝 **Draft — not scheduled.** Both operation ids are `Unset` (`0`) on mainnet;
-the DAO Safe's next free nonce is **22** and it holds no pending transactions.
-Nothing in this directory has been signed.
-
-**The Safe batch is not posted yet** — proposing it needs a signature from one of the four
-owners (`0xe9BEf44a…`, `0x1Efbc65e…`, `0xF412F1A5…`, `0x4A2D30c7…`, threshold 3/4), and the
-payload as built has this deterministic hash:
+**Status:** ⏳ **PROPOSED — pending in the Safe queue at nonce 22, awaiting 3-of-4 owner confirmations.**
+Proposed 2026-09-18 19:05:31 UTC by the agent's registered Safe Tx Service proposer (delegate
+`0x1483E048a76A93a3A59bBfA6d60471eA4990e922`, delegator = owner `0x4A2D30c7…`), `confirmations: []`,
+`isExecuted: false`, `origin = everstrat/013-add-uni-supported-token`.
+Both operation ids are still `Unset` (`0`) on mainnet — nothing reaches the Timelock until the owners
+confirm and someone executes. The batch as queued:
 
 ```
 safeTxHash = 0xe396b3f0217ee7d8496397ba9c8e91f0e070d6a495d82ca426af264140191795   (nonce 22)
 ```
 
-Three ways to land it (a) Safe app → **Transaction Builder** → import `01-schedule.json`, which
-recreates this exact transaction; (b) sign the hash with an owner key and post it:
-`SAFE_PK=<key> /root/.hermes/scripts/propose_safe_batch.py --repo-json 01-schedule-raw.json --key-env SAFE_PK`;
-(c) hand the 65-byte signature + signer address to the bot, which posts it with
-`--signature … --sender …`. Verify the hash before signing: recomputing it is a one-line
-`getTransactionHash` call (below). Nonce 22 must still be free when it is signed.
+Independently audited **from the service's own bytes** (`verify_safe_batch.py --nonce 22 …`): the 900-byte
+queued calldata decodes to `multiSend(bytes)` → 2 entries → `Timelock.schedule`, and equals a fresh
+repack of `01-schedule-raw.json` **byte-for-byte**, with both `hashOperation` ids reproducing.
+
+Next step is human: open the queued tx (Safe app, nonce 22) and confirm — 3 of 4.
 
 **Operation ids (verify with `Timelock.getOperationState`):**
 

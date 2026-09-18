@@ -52,7 +52,7 @@ _As of 2026-09-18 18:30 UTC. Read live from `Timelock.getOperationState(opId)`
 | Proposal | Where it stands |
 |---|---|
 | 001–012 | **Done** — every privileged action queued to date has executed on mainnet, state and effects re-verified on-chain |
-| [013](013-add-uni-supported-token/) | **Draft** — payloads written, **not signed, not scheduled**. Both op ids `Unset` (`0`) on mainnet; target Safe nonce 22 |
+| [013](013-add-uni-supported-token/) | ⏳ **Proposed** — pending in the Safe queue at **nonce 22** since 2026-09-18 19:05:31 UTC, awaiting **3-of-4** owner confirmations. Both op ids `Unset` (`0`) on mainnet until it executes |
 
 **The whole queue has landed.** 008 (3 ops) and 009 (2 ops) executed 2026-09-15 between
 13:24:11 and 13:43:47 UTC; **010 and 011 on 2026-09-16 at 11:44:47 and 11:46:59 UTC**; **012
@@ -69,9 +69,10 @@ allowed executor caller on both keeper executors (`executorCallerCount() == 1` o
 `KeeperExecutorUnauthorizedCaller`. This is the first governance action of the batch whose
 visible effect is operational rather than a parameter change.
 
-The DAO Safe holds **no pending transactions** (next nonce 22). Nothing is in flight.
+The DAO Safe has **one pending transaction: 013 at nonce 22** (proposed 2026-09-18 19:05:31 UTC,
+`confirmations: []`), so its next nonce is 23 once that executes.
 
-**013 is the only open item, and it is off-chain.** Add UNI as a supported ERC-20 — one Safe
+**013 is the only open item — and it is now a real pending Safe tx.** Add UNI as a supported ERC-20 — one Safe
 batch, two timelock operations: `Oracle.updateUsdFeedInfo(UNI, 0x5533…220e, 4200)` then
 `StrategyManager.addSupportedERC20(UNI)` with the feed op as predecessor (the order is forced:
 `addSupportedERC20` reverts `StrategyManagerERC20NotPriceable` without a feed). Staleness 4200 s is
@@ -95,7 +96,7 @@ see [013](013-add-uni-supported-token/).
 | [010](010-oracle-usdt-staleness-margin/) | Oracle: widen USDT staleness 86400→88200 (jitter margin) | **Executed** — 2026-09-16 11:44:47 UTC (tx `0xfa6d1d56…0e6023e3a`); `getUsdFeedInfo(USDT)` now returns staleness **88200** with the feed unchanged (`0x3E7d1eAB…e32D`) | `0xa2e19cb9…17ab4c6e` |
 | [011](011-strategy-manager-add-unicl-weth-usdt-strategy/) | StrategyManager: register the UniCL WETH/USDT 0.3% strategy (`addStrategy`) | **Executed** — 2026-09-16 11:46:59 UTC (tx `0x1807f0d1…45c084b72e`); `isStrategyRegistered(0x3Fb6B917…6501)` is `true` | `0x4b6a7a40…96fcd9fd6` |
 | [012](012-keeper-executors-allow-mimic-caller/) | Keeper executors: `allowExecutorCaller(Mimic 0x4115…8256)` on both QueueKeeperExecutor and StrategyKeeperExecutor (batch, predecessor = 011) | **Executed** — 2026-09-17 12:02:59 / 12:04:23 UTC (tx `0x0441b1f8…cd788049` / `0x08760b79…775e0df3f`); `isExecutorCaller(0x4115…8256) == true` on both executors with `executorCallerCount() == 1`, and a live `perform` from the Mimic passes the caller gate | `0xa4c9f4d3…5f6e40` (queue), `0xb716df94…06b880b5` (strategy) |
-| [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the Chainlink UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) **and** `addSupportedERC20(UNI)` (batch, predecessor = feed op) | 📝 **Draft** — payloads written, not signed, not scheduled, **not posted to the Safe**; both op ids `Unset` on mainnet. Batch hash (nonce 22) `safeTxHash = 0xe396b3f0…191795`; an owner signature is required to propose it | `0xeca68714…6d49bbd` (feed), `0xcd443da6…5f35ae9` (supported ERC-20) |
+| [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the Chainlink UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) **and** `addSupportedERC20(UNI)` (batch, predecessor = feed op) | ⏳ **Proposed** — queued in the Safe at nonce 22, `confirmations: []`, not executed; proposed by delegate `0x1483E048…0e922`. `safeTxHash = 0xe396b3f0…191795`; queued bytes audited byte-for-byte against `01-schedule-raw.json`. Needs 3-of-4 owner confirmations | `0xeca68714…6d49bbd` (feed), `0xcd443da6…5f35ae9` (supported ERC-20) |
 
 ## Layout
 
