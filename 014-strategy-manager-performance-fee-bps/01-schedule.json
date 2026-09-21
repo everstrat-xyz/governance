@@ -3,8 +3,8 @@
   "chainId": "1",
   "createdAt": 1789948800000,
   "meta": {
-    "name": "EverStrat: set StrategyManager performance fee to 1000 bps (10%)",
-    "description": "DAO Safe schedules one operation on the 48h admin timelock: StrategyManager.setPerformanceFeeBps(1000). Enables performance-fee harvesting for the first time; daoTreasury (the DAO Safe) receives the fee as an EVE dilution mint. No predecessor.",
+    "name": "014 - StrategyManager.setPerformanceFeeBps(1500 = 15%)",
+    "description": "Timelock.schedule(StrategyManager.setPerformanceFeeBps(1500), predecessor=0, salt=keccak(everstrat/sm/performance-fee-bps/2026-09-21), delay=172800). Operation id 0xc4302e528a0a993eb9cc433dfc35ddace37bfef0cc3d2e7b97207d397f74ea46.",
     "txBuilderVersion": "1.16.5",
     "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
     "createdFromOwnerAddress": ""
@@ -15,8 +15,6 @@
       "value": "0",
       "data": null,
       "contractMethod": {
-        "name": "schedule",
-        "payable": false,
         "inputs": [
           {
             "internalType": "address",
@@ -48,12 +46,14 @@
             "name": "delay",
             "type": "uint256"
           }
-        ]
+        ],
+        "name": "schedule",
+        "payable": false
       },
       "contractInputsValues": {
         "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
         "value": "0",
-        "data": "0x9f0caac900000000000000000000000000000000000000000000000000000000000003e8",
+        "data": "0x9f0caac900000000000000000000000000000000000000000000000000000000000005dc",
         "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
         "salt": "0x2115f78dfb605f8591296be39bd99ddad345076ecbe6c2e21ec2d320472598c0",
         "delay": "172800"

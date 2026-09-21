@@ -3,17 +3,55 @@
   "chainId": "1",
   "createdAt": 1789948800000,
   "meta": {
-    "name": "Execute (T+48h): StrategyManager.setPerformanceFeeBps(1000)",
-    "description": "Raw calldata. Execute once Ready. EXECUTOR_ROLE is address(0): anyone can send this. No predecessor.",
-    "txBuilderVersion": "1.16.5"
+    "name": "014 - execute (permissionless)",
+    "description": "Timelock.execute(...) for operation 0xc4302e528a0a993eb9cc433dfc35ddace37bfef0cc3d2e7b97207d397f74ea46. Callable by anyone once Ready.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
   },
   "transactions": [
     {
       "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
       "value": "0",
-      "data": "0x134008d300000000000000000000000094916ab93c669e7c734f844db019ce9449a3b5c9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000002115f78dfb605f8591296be39bd99ddad345076ecbe6c2e21ec2d320472598c000000000000000000000000000000000000000000000000000000000000000249f0caac900000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000",
-      "contractMethod": null,
-      "contractInputsValues": null
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ],
+        "name": "execute",
+        "payable": true
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "data": "0x9f0caac900000000000000000000000000000000000000000000000000000000000005dc",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x2115f78dfb605f8591296be39bd99ddad345076ecbe6c2e21ec2d320472598c0"
+      }
     }
   ]
 }
