@@ -1,5 +1,9 @@
 # 015 — Register the UniCL UNI/WETH 0.3% strategy
 
+> 🔴 **WITHDRAWN 2026-09-21 16:40 UTC — do not sign, do not execute.** No owner ever signed
+> it, it never executed, and it never reached the timelock. Kept as a record of the hazard
+> analysis; see [Status](#status) for the cancellation and the rejection tx.
+
 Wires the newly deployed UNI/WETH 0.3% concentrated-liquidity strategy into
 `StrategyManager` so it can receive deposits and be valued in protocol NAV.
 
@@ -166,16 +170,66 @@ cast call $TL "getOperationState(bytes32)(uint8)" 0xcd443da64d612cc5bc96157197e5
 
 ## Status
 
-🟡 **PROPOSED — queued in the DAO Safe at nonce 24, `confirmations: []`**
+🔴 **WITHDRAWN — 2026-09-21 16:40 UTC. Never executed; nothing ever reached the timelock.**
+
+Withdrawn by **Arseny**: *"it seems that the strategy is not completely ready and we didn't
+enable Uni oracle."*
+
+### What had been filed
 
 - `safeTxHash` = `0x49019656754da2fb6e5146e0b5163bd2770ba603b882abb9cddcbd4c78f7c1f9`
-- submitted `2026-09-21T16:29:08Z`, origin `everstrat/015-strategy-manager-add-unicl-uni-weth-strategy`
+- submitted `2026-09-21T16:29:08Z`, nonce 24, origin `everstrat/015-strategy-manager-add-unicl-uni-weth-strategy`
 - proposedByDelegate `0x1483E048…0E922`, proposer `0x4A2D30c7…1F0d2`
 - stored `data` byte-verified against [`01-schedule-raw.json`](01-schedule-raw.json) (714 chars, both sides)
-- awaiting **3-of-4** owner confirmations, then the timelock's 48h delay, then anyone can `execute`
+- **`confirmations: []`** — no owner ever signed it, so it could never have executed on its own
 
-**Filing order note.** 014 sits at nonce 23 and 015 at nonce 24, so 015 cannot
-execute ahead of 014. That is harmless — the two are independent — but it does
-mean 015's clock starts a little later.
+### Why there was nothing to cancel on-chain
+
+The Safe tx never executed, so `schedule(...)` never ran and the operation was never
+created:
+
+```sh
+cast call $TL "getOperationState(bytes32)(uint8)" 0x489a556a585fbae6efeb04d3f1627d9168124c63a2b089e29b2e5ba42201cd07 --rpc-url $RPC
+# 0  (Unset)
+```
+
+No scheduled operation, no ETA, no `isOperationPending` — and therefore no
+`TimelockController.cancel(bytes32)` to call. The DAO Safe's `CANCELLER_ROLE` is
+irrelevant to this case; it only matters once an operation actually exists.
+
+### How it was cancelled
+
+`DELETE /safes/{safe}/multisig-transactions/{hash}/` is **not exposed** on
+`api.safe.global` — it answers an HTML `404` (and the OpenAPI schema is not published at
+any of the usual paths), so the queue entry could not simply be deleted. The enforceable
+cancel is the standard Safe **rejection transaction**: a tx at the *same nonce* from the
+Safe to itself.
+
+| field | value |
+|---|---|
+| `to` | `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9` (the Safe itself) |
+| `value` | `0` |
+| `data` | `0x` |
+| `operation` | `0` (call) |
+| `nonce` | `24` |
+| `safeTxHash` | `0xe51719fe3911bd8d37f5b56939f17a415d9fbf73437a28b8caa3d8dacabff734` |
+| submitted | `2026-09-21T16:40:52Z` |
+
+Both transactions now sit at nonce 24. The first one to collect **3-of-4** confirmations
+and execute consumes the nonce, and a Safe nonce can only ever be spent once — so the 015
+tx becomes permanently unexecutable. Until that rejection is signed, the 015 tx remains
+harmless but *visible* in the queue, so owners should sign the rejection rather than
+merely ignore it.
+
+### Re-proposing later
+
+Unchanged by the withdrawal: the inner calldata is sound and `01-schedule-raw.json` can be
+re-filed as-is once the strategy is final. Two things should be settled first:
+
+1. **013 must be executed** (op1 `updateUsdFeedInfo(UNI…)`, then op2
+   `addSupportedERC20(UNI)`) — that is exactly the "we didn't enable Uni oracle" gap, and
+   it is why the op carried 013's op id as its predecessor.
+2. **The deployed binary should be attributable** — see the provenance finding below
+   (24,570 B vs the 24,391 B reproduced from `origin/main`).
 
 Sequence lives in [`../README.md`](../README.md).
