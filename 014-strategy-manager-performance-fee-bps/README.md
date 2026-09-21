@@ -1,11 +1,17 @@
 # 014 — Set StrategyManager `performanceFeeBps` to 1500 (15%)
 
-**Status:** 🟡 **PREPARED — not yet submitted to the Safe.** Payloads are built and fork-verified and
-the SafeTx is signed, but the Safe Transaction Service returned
-`429 {"error_msg":"Monthly quota exceeded"}` on 2026-09-21 (`x-ratelimit-limit: 5000`,
-`x-ratelimit-remaining: 0`, reset **2026-10-01 14:12 UTC**). No `SAFE_API_KEY` is configured, and the
-legacy host redirects into the same quota. This is the same exhaustion documented for the
-safe-watch listener; the fix is a Safe API key, or an owner filing the tx from the Safe app.
+**Status:** 🟡 **PROPOSED — queued in the DAO Safe at nonce 23, `confirmations: []`.**
+`safeTxHash = 0x4fba6636d0eb3a605e38ef34a4b78274bffe725c00bb3b6bdbc9055a31dd0004`, submitted
+2026-09-21T16:02:21Z by delegate `0x1483E048…0E922` (proposer `0x4A2D30c7…1F0d2`), origin
+`everstrat/014-strategy-manager-performance-fee-bps`. The service decodes it as `schedule` with the
+exact parameters below, and the stored bytes match `01-schedule-raw.json` byte-for-byte. **Needs
+3-of-4 owner confirmations.**
+
+> **Filing note.** The first two attempts were rejected with
+> `429 {"error_msg":"Monthly quota exceeded"}` — the anonymous tier is 5000 req/month/IP and our own
+> 5-minute `safe_watch` poll had burned it. A `SAFE_API_KEY` was added on 2026-09-21 and the POST then
+> returned **201**; the authenticated limit is **50,000** (10×), so this class of blocker is gone.
+> See [[Notes/2026-09-21-governance-014-performance-fee]].
 
 **Requested by:** Arseny — *"set it to 15 and open a proposal on safe"* (2026-09-21), after вадюша
 reported that `performanceFeeBps` is still `0`, so the performance fee **accrues but cannot be
