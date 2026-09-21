@@ -46,7 +46,7 @@ All verified on Etherscan.
 
 ## Status at a glance
 
-_As of 2026-09-18 18:30 UTC. Read live from `Timelock.getOperationState(opId)`
+_As of 2026-09-21 16:30 UTC. Read live from `Timelock.getOperationState(opId)`
 (`0` Unset · `1` Waiting · `2` Ready · `3` Done) and the Safe Transaction Service._
 
 | Proposal | Where it stands |
@@ -69,16 +69,24 @@ allowed executor caller on both keeper executors (`executorCallerCount() == 1` o
 `KeeperExecutorUnauthorizedCaller`. This is the first governance action of the batch whose
 visible effect is operational rather than a parameter change.
 
-The DAO Safe has **one pending transaction: 013 at nonce 22** (proposed 2026-09-18 19:05:31 UTC,
-`confirmations: []`), so its next nonce is 23 once that executes.
+**013 has executed and opened UNI; two proposals now sit in the Safe behind it.**
+The queued 013 Safe tx ran (on-chain Safe nonce is 23 ⇒ nonce 22 executed), which
+scheduled both of its timelock operations; they are `Ready` (`getOperationState == 2`)
+and `execute` is **permissionless** — the feed registration and `addSupportedERC20(UNI)`
+take effect whenever someone with gas calls them, op1 (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`)
+first, then op2 (`addSupportedERC20(UNI)`, which reverts `StrategyManagerERC20NotPriceable`
+without a feed). Both reverts, the NAV semantics, the pricing and the UNI/WETH 0.3% target
+pool were reproduced on a mainnet fork — see [013](013-add-uni-supported-token/). Staleness
+4200 s is measured against 600 Chainlink rounds / 13 days (max gap 3660 s, zero gaps above 3900 s).
 
-**013 is the only open item — and it is now a real pending Safe tx.** Add UNI as a supported ERC-20 — one Safe
-batch, two timelock operations: `Oracle.updateUsdFeedInfo(UNI, 0x5533…220e, 4200)` then
-`StrategyManager.addSupportedERC20(UNI)` with the feed op as predecessor (the order is forced:
-`addSupportedERC20` reverts `StrategyManagerERC20NotPriceable` without a feed). Staleness 4200 s is
-measured against 600 Chainlink rounds / 13 days (max gap 3660 s, zero gaps above 3900 s). Reverts,
-NAV semantics, pricing and the UNI/WETH 0.3% target pool were all reproduced on a mainnet fork —
-see [013](013-add-uni-supported-token/).
+Two new proposals are queued behind that:
+
+- **[014](014-strategy-manager-performance-fee-bps/) at nonce 23** — turn the performance fee
+  on: `setPerformanceFeeBps(1500)` (0 → 15%). 48h admin timelock, no predecessor.
+- **[015](015-strategy-manager-add-unicl-uni-weth-strategy/) at nonce 24** — register the
+  UNI/WETH 0.3% strategy Arseny deployed on 2026-09-21, gated on 013's op2 as predecessor.
+
+The queue head is **nonce 23**, so both need 3-of-4 owner confirmations in order.
 
 ## Decisions
 
@@ -98,6 +106,7 @@ see [013](013-add-uni-supported-token/).
 | [012](012-keeper-executors-allow-mimic-caller/) | Keeper executors: `allowExecutorCaller(Mimic 0x4115…8256)` on both QueueKeeperExecutor and StrategyKeeperExecutor (batch, predecessor = 011) | **Executed** — 2026-09-17 12:02:59 / 12:04:23 UTC (tx `0x0441b1f8…cd788049` / `0x08760b79…775e0df3f`); `isExecutorCaller(0x4115…8256) == true` on both executors with `executorCallerCount() == 1`, and a live `perform` from the Mimic passes the caller gate | `0xa4c9f4d3…5f6e40` (queue), `0xb716df94…06b880b5` (strategy) |
 | [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the Chainlink UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) **and** `addSupportedERC20(UNI)` (batch, predecessor = feed op) | ✅ **Scheduled** — the queued Safe tx executed; both operation ids are now `Ready` (`getOperationState == 2`) as of 2026-09-21 (on-chain Safe nonce is 23 ⇒ nonce 22 executed). The feed + token registration take effect when someone calls `execute` (permissionless) | `0xeca68714…6d49bbd` (feed), `0xcd443da6…5f35ae9` (supported ERC-20) |
 | [014](014-strategy-manager-performance-fee-bps/) | StrategyManager: turn the performance fee on — `setPerformanceFeeBps(1500)` (0 → **15%**, rate set by Arseny 2026-09-21) | 🟡 **Proposed** — queued in the DAO Safe at **nonce 23**, `confirmations: []`, not executed; `safeTxHash = 0x4fba6636…dd0004`, submitted 2026-09-21T16:02:21Z by delegate `0x1483E048…0e922`. Stored bytes audited byte-for-byte against `01-schedule-raw.json`, and the service decodes it as `schedule` (target `0x94916a…b5C9`, `setPerformanceFeeBps(1500)`, predecessor `0x0`, salt `0x2115f78d…2598c0`, delay `172800`). Needs 3-of-4 owner confirmations. *(Filing was first blocked by `429 Monthly quota exceeded`; a `SAFE_API_KEY` raised the limit 5000 → 50,000.)* | `0xc4302e52…f74ea46` |
+| [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the newly deployed UniCL UNI/WETH 0.3% strategy — `addStrategy(0x2c3AEFaC…0715d, 10, 10)`, **predecessor = 013's `addSupportedERC20(UNI)`** so it can only land once UNI is priceable | 🟡 **Proposed** — queued in the DAO Safe at **nonce 24**, `confirmations: []`; `safeTxHash = 0x49019656…4c78f7c1f9`, submitted 2026-09-21T16:29:08Z by delegate `0x1483E048…0e922`. Fork-verified both ways: registering while UNI is unpriceable makes `totalNAVInETH()` revert `OracleTokenNotSupported` (`0x868fd74e`) as soon as the strategy holds UNI — a protocol-wide NAV freeze — and re-running with 013 executed prices it correctly (1 UNI = 0.0032577 ETH). Weights 10/10; cap 250 ETH | `0x489a556a…2201cd07` |
 
 ## Layout
 
