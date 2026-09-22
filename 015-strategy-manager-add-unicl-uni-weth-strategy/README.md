@@ -37,11 +37,11 @@ The pool's `observationCardinality` is 274, above the 150 minimum the 1800 s TWA
 ## Why it was withdrawn
 
 Withdrawn by **Arseny** on 2026-09-21 16:40 UTC: *"it seems that the strategy is not completely
-ready and we didn't enable Uni oracle."* Two open items back that up:
+ready and we didn't enable Uni oracle."* Two open items at the time:
 
-1. **UNI is not priceable yet.** [013](../013-add-uni-supported-token/) (UNI/USD feed +
-   `addSupportedERC20(UNI)`) is scheduled and `Ready` but not executed — see
-   [Dependency on 013](#dependency-on-013).
+1. **UNI was not priceable.** [013](../013-add-uni-supported-token/) (UNI/USD feed +
+   `addSupportedERC20(UNI)`) had not executed — see [Dependency on 013](#dependency-on-013).
+   *Resolved:* 013 executed 2026-09-22 23:16:47 UTC, and UNI is now priceable and supported.
 2. **The deployed binary is not attributable** — see [Risks](#risks).
 
 ## Why weights 10 / 10
@@ -146,7 +146,7 @@ enforceable way to kill one.
 
 ## Cancelling
 
-Nothing to cancel. To re-propose once 013 has executed and the binary is attributed, re-file
+Nothing to cancel. 013 has executed, so once the binary is attributed a re-proposal can re-file
 `01-schedule-raw.json` at the Safe's current nonce — the inner calldata, predecessor and salt are
 unchanged, so the operation id stays `0x489a556a…2201cd07`. A re-proposal after the strategy is
 redeployed needs new calldata, a new salt and a new directory.

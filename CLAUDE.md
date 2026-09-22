@@ -42,9 +42,7 @@ Safe can only `schedule` / `cancel`; `execute` is permissionless once the delay 
 - One branch + PR per proposal: `docs/NNN-slug` → `main`. If a PR is stacked on another
   open PR, base it on that branch and retarget to `main` after the base merges
   (`git rebase origin/main` + `git push --force-with-lease`).
-- Commit trailer: `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.
-  PR body trailer: `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
-  For long PR bodies use `gh pr create --body-file` (avoids shell-quoting breakage).
+- For long PR bodies use `gh pr create --body-file` (avoids shell-quoting breakage).
 - Don't invent rationale. Reconstructed entries get a `## Provenance` section stating they
   were rebuilt from chain state, with the *Why* marked inferred pending the proposer's notes.
 

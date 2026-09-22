@@ -1,11 +1,12 @@
 # 013 — Add UNI as a supported ERC-20 (UNI/USD Oracle feed + StrategyManager)
 
-**Status:** ⏳ **Scheduled on mainnet — Ready, not yet executed** (schedule tx
-`0x4b36e80469d8fe3f7d6cf71b34d82d3ab8ece17961365ec2e03ecb000d02afc7`, block 26010017,
-2026-09-19 07:18:11 UTC, DAO Safe nonce 22). Both operations have been `Ready`
-(`getOperationState == 2`) since **2026-09-21 07:18:11 UTC**; `execute` is permissionless, op1
-first. As of 2026-09-22 23:03 UTC (block 26036183) nobody has executed them:
-`Oracle.isTokenSupported(UNI) == false`, `StrategyManager.isSupportedERC20(UNI) == false`.
+**Status:** ✅ **Executed on mainnet** — 2026-09-22 23:15:47 / 23:16:47 UTC (tx
+`0x2c158399c99f1820b2bebe4101f0fdde529a6a3cc9e27a8ae239be66d7304f72` /
+`0x25d9e669ffdb784be09560ce0b6e94e5ab14d6f24f415c3206bcea193736c39a`, blocks 26036243 / 26036248).
+`Oracle.isTokenSupported(UNI) == true`, `getUsdFeedInfo(UNI) == (0x5533…220e, 4200)`,
+`StrategyManager.isSupportedERC20(UNI) == true`. Scheduled 2026-09-19 07:18:11 UTC via DAO Safe
+nonce 22 (tx `0x4b36e80469d8fe3f7d6cf71b34d82d3ab8ece17961365ec2e03ecb000d02afc7`, block
+26010017); `Ready` from 2026-09-21 07:18:11 UTC, executed ~40h later.
 **Operation ids:**
 - op1 — UNI/USD feed: `0xeca687148460f11ee30984d2685c68a72a434233ff9bf2b984760bb606d49bbd`
 - op2 — `addSupportedERC20(UNI)`: `0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9`
@@ -170,13 +171,36 @@ safeTxHash `0xe396b3f0…191795` — the same hash later signed on mainnet.
 | Events | `CallScheduled` + `CallSalt` for op1 and op2; `ExecutionSuccess(0xe396b3f0…191795)` |
 | Calldata check | the two `MultiSend` entries equal `01-schedule-raw.json` byte-for-byte; `hashOperation` reproduces both op ids |
 | Ready at | `getTimestamp` = `1789975091` = **2026-09-21 07:18:11 UTC** (both ops) |
-| Operation state | `2 (Ready)` for both ops (re-checked 2026-09-22 23:03 UTC, block 26036183) |
-| Execute (permissionless) | `02-execute.json` — op1, then op2. A live `eth_call` of op1's `execute` from a role-less EOA succeeds (gas estimate 158,630); op2 reverts `0x90a9a618` until op1 is done |
+| Execute (permissionless) | `02-execute.json` — op1, then op2 |
+
+## On-chain execution (mainnet)
+
+Executed on 2026-09-22, one call per operation, op1 first, both from `0x046E01eE…a899D7`
+(permissionless — `EXECUTOR_ROLE` is `address(0)`). The calldata of both transactions equals
+`02-execute.json` byte-for-byte.
+
+| Operation | Transaction | Block | Executed (UTC) | Gas | Events |
+|---|---|---|---|---|---|
+| op1 feed `0xeca68714…06d49bbd` | `0x2c158399c99f1820b2bebe4101f0fdde529a6a3cc9e27a8ae239be66d7304f72` | 26036243 | 2026-09-22 23:15:47 | 157,422 | `UsdFeedAdded`, `CallExecuted` |
+| op2 supported ERC-20 `0xcd443da6…a5f35ae9` | `0x25d9e669ffdb784be09560ce0b6e94e5ab14d6f24f415c3206bcea193736c39a` | 26036248 | 2026-09-22 23:16:47 | 124,677 | `SupportedERC20Added(UNI)`, `CallExecuted` |
+
+Gas matches the fork simulation (157,422 / 124,677) exactly. Both ops `getOperationState == 3`
+(Done).
+
+**Getters after execution** (block 26036274):
+
+- `Oracle.isTokenSupported(UNI)` → `true`; `getUsdFeedInfo(UNI)` →
+  `(0x553303d460EE0afB37EdFf9bE42922D8FF63220e, 4200)`
+- `Oracle.getSupportedTokens()` → `[address(0), USDC, WETH, USDT, UNI]`
+- `StrategyManager.isSupportedERC20(UNI)` → `true`; `supportedERC20()` → `[USDC, USDT, UNI]`
+- `StrategyManager.totalNAVInETH()` → `1304420368675317954` (reads cleanly with UNI in the set)
+
+This clears the UNI-oracle blocker cited when
+[015](../015-strategy-manager-add-unicl-uni-weth-strategy/) was withdrawn.
 
 ## Cancelling
 
-Either the DAO Safe or the Security Safe may `cancel(opId)` on the timelock while the ops are
-`Ready`. Cancelling op1 makes op2 permanently unexecutable (its predecessor would never be
-`Done`), so the two must be cancelled — and re-proposed — together. After execution:
-`removeSupportedERC20(UNI)` (Security Safe, no delay) and `updateUsdFeedInfo(UNI, …)` via the
-48h `ADMIN_ROLE` path.
+No longer possible — both operations are executed. Before execution, either the DAO Safe or the
+Security Safe could `cancel(opId)`; cancelling op1 would have made op2 permanently unexecutable.
+To reverse the effect now: `removeSupportedERC20(UNI)` (Security Safe, no delay) and
+`updateUsdFeedInfo(UNI, …)` via the 48h `ADMIN_ROLE` path.
