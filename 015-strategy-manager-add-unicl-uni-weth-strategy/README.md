@@ -1,39 +1,28 @@
-# 015 — Register the UniCL UNI/WETH 0.3% strategy
+# 015 — StrategyManager: register the UniCL UNI/WETH 0.3% strategy
 
-> 🔴 **WITHDRAWN 2026-09-21 16:40 UTC — do not sign, do not execute.** No owner ever signed
-> it, it never executed, and it never reached the timelock. Kept as a record of the hazard
-> analysis; see [Status](#status) for the cancellation and the rejection tx.
+**Status:** ❌ **Withdrawn — never scheduled.** Filed in the DAO Safe queue at nonce 24
+(2026-09-21 16:29:08 UTC) and withdrawn 11 minutes later, before any owner signed. A Safe
+rejection at the same nonce executed on 2026-09-22 13:39:11 UTC (tx
+`0x06eed20458f42cbafacdcf4fedcd7ac2969c2d709020b33a7c09809e58e3113d`, block 26033382), so the
+015 Safe tx is permanently unexecutable. Nothing reached the timelock
+(`getOperationState == 0` Unset) and `isStrategyRegistered(0x2c3A…715d) == false`.
+**Operation id (never scheduled):** `0x489a556a585fbae6efeb04d3f1627d9168124c63a2b089e29b2e5ba42201cd07`
 
-Wires the newly deployed UNI/WETH 0.3% concentrated-liquidity strategy into
-`StrategyManager` so it can receive deposits and be valued in protocol NAV.
+## What it would have changed
 
-| | |
-|---|---|
-| Target | `StrategyManager` `0x94916ab93C669E7c734f844dB019Ce9449a3b5C9` |
-| Call | `addStrategy(address,uint8,uint8)` — `0xdca0c48f` |
-| Arguments | `0x2c3AEFaCb41065810f43F23d0eBa8dF20350715d`, `10`, `10` |
-| Delay | `172800` (48h) |
-| Predecessor | `0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9` — **013 op2** |
-| Salt | `0x04c997170365fd7c8ae41d6545e71cd8636caacda545cb6c146a8e7b81dc40b2` |
-| Salt preimage | `keccak256("everstrat/strategy-manager/add-strategy/unicl-uni-weth-0.3pct/2026-09-21")` |
-| Operation id | `0x489a556a585fbae6efeb04d3f1627d9168124c63a2b089e29b2e5ba42201cd07` |
-| Inner calldata | `0xdca0c48f0000000000000000000000002c3aefacb41065810f43f23d0eba8df20350715d000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000a` |
+`StrategyManager.addStrategy(0x2c3AEFaCb41065810f43F23d0eBa8dF20350715d, 10, 10)` — wire the
+newly deployed UNI/WETH 0.3% concentrated-liquidity strategy into `StrategyManager` so it can
+receive deposits and be valued in protocol NAV, with deposit and withdrawal weights of 10.
 
-The operation id above was recomputed from these exact fields with the on-chain
-5-field `hashOperation(target, value, data, predecessor, salt)` — `delay` is **not**
-part of it — and matches the live contract call.
-
-## The strategy
-
-Deployed by Arseny on 2026-09-21: `0x2c3AEFaCb41065810f43F23d0eBa8dF20350715d`
-(tx `0x9481e0e2…5113d68`, 5.88M gas, status success). Read back from the contract:
+Deployed by Arseny on 2026-09-21 (tx `0x9481e0e2…5113d68`, 5.88M gas). Read back from the
+contract:
 
 | Param | Value |
 |---|---|
 | `pool` | `0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801` — UNI/WETH, fee 3000, tickSpacing 60 |
 | `pairedToken` | UNI `0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984` |
 | `token0` / `token1` | UNI / WETH |
-| `swapAdapter` | `0x0844580a121124CAEc6Cf4A933aac401813cCde5` (005) — `isAdapterAllowed` true |
+| `swapAdapter` | `0x0844580a121124CAEc6Cf4A933aac401813cCde5` ([005](../005-converter-allow-univ3-adapter/)) — `isAdapterAllowed` true |
 | `registry` | `0x46AA1bd55c19be90d8767e0C22732A7DD31D993D` |
 | `positionWidth` | 18 (±1080 ticks ≈ ±10.8%) |
 | `rebalanceTickThreshold` | 480 |
@@ -42,72 +31,88 @@ Deployed by Arseny on 2026-09-21: `0x2c3AEFaCb41065810f43F23d0eBa8dF20350715d`
 | `maxTotalNAV` | **250 ETH** (smallest of the four strategies) |
 | `paused` | false |
 | `totalDeposited` / `navInETH` | 0 / 0 — empty |
-| `isStrategyRegistered` | **false** |
 
-The pool's `observationCardinality` is 274, comfortably above the 150 minimum the
-1800s TWAP needs. Nothing about the wiring is wrong: correct registry, correct
-adapter, allowlisted route, unpaused, empty, cap set.
+The pool's `observationCardinality` is 274, above the 150 minimum the 1800 s TWAP needs.
 
-## Why this is gated behind 013 (the predecessor)
+## Why it was withdrawn
 
-`addStrategy` itself succeeds with UNI unsupported — it only checks role, pause
-state, code presence and duplicate registration. So the precondition is not
-enforced by that call. But a strategy holding **UNI** is unpriceable until 013
-lands, and that is a protocol-wide hazard, not a local one.
+Withdrawn by **Arseny** on 2026-09-21 16:40 UTC: *"it seems that the strategy is not completely
+ready and we didn't enable Uni oracle."* Two open items back that up:
 
-Measured on a fork pinned to block 26027017, registering the strategy first and
-then giving it 1 UNI:
+1. **UNI is not priceable yet.** [013](../013-add-uni-supported-token/) (UNI/USD feed +
+   `addSupportedERC20(UNI)`) is scheduled and `Ready` but not executed — see
+   [Dependency on 013](#dependency-on-013).
+2. **The deployed binary is not attributable** — see [Risks](#risks).
+
+## Why weights 10 / 10
+
+Weights are normalised across eligible strategies, so this would dilute the existing three
+rather than add a fourth share: 40/15/45/10 → **36.4 / 13.6 / 40.9 / 9.1 %**. 10 is the most
+conservative weight in the set: the smallest cap of the four (250 ETH vs 1000 / 140 / 4500); UNI
+is the first paired token that is neither ETH nor a USD stable, so the position carries
+idiosyncratic single-asset risk; and the strategy is unproven in production.
+
+## Dependency on 013
+
+`predecessor` was set to **013's `addSupportedERC20(UNI)` op**
+(`0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9`). `addStrategy` itself
+succeeds with UNI unsupported — it only checks role, pause state, code presence and duplicates —
+but a strategy holding UNI is unpriceable until 013 lands, and that is a protocol-wide hazard.
+Measured on a fork pinned to block 26027017, registering first and then giving the strategy 1 UNI:
 
 | Step | Result |
 |---|---|
-| `addStrategy` with 013 unexecuted | succeeds (249,565 gas) — registration alone is fine |
+| `addStrategy` with 013 unexecuted | OK (249,565 gas) — registration alone is fine |
 | `StrategyManager.totalNAVInETH()`, strategy empty | works (strategy is worth 0) |
-| `strategy.navInETH()` with 1 UNI held | **reverts `0x868fd74e`** `OracleTokenNotSupported()` |
-| `StrategyManager.totalNAVInETH()` with 1 UNI held | **reverts `0x868fd74e`** — NAV frozen protocol-wide |
+| `strategy.navInETH()` with 1 UNI held | revert `OracleTokenNotSupported()` `0x868fd74e` |
+| `StrategyManager.totalNAVInETH()` with 1 UNI held | revert `0x868fd74e` — **NAV frozen protocol-wide** |
 | …then execute 013 op1 + op2 | both calls work again |
-| `strategy.navInETH()` after 013 | `0xb92d5f861ec02` = 3,257,672,436,673,538 wei ≈ 0.0032577 ETH for 1 UNI |
-| `totalNAVInETH()` after 013 | baseline + exactly that value |
+| `strategy.navInETH()` after 013 | 3,257,672,436,673,538 wei ≈ 0.0032577 ETH for 1 UNI |
 
-So without 013 the strategy is not merely useless, it is a loaded gun: the first
-UNI it holds makes `totalNAVInETH()` revert, and every deposit, withdrawal and
-keeper flow that reads NAV reverts with it. Encoding 013 op2 as the predecessor
-makes the ordering impossible to get wrong — the timelock refuses to execute
-this operation until UNI is priceable, whatever order the queue ends up in.
+The predecessor makes that ordering impossible to get wrong. Alternative: `predecessor = 0x00…00`
+and sequence manually — the operation id changes, and the hazard above becomes an operational
+rule instead of an on-chain one. If 013 were ever cancelled, this op would have to be re-scheduled
+with a new predecessor.
 
-The cost of that choice: if 013 is ever cancelled, this operation becomes
-unexecutable and must be re-scheduled with a zero predecessor. That is the
-fail-closed direction, which is the one to err in.
+## Transactions
 
-## Weights: 10 / 10
+| # | File | From | Calls |
+|---|---|---|---|
+| 1 | `01-schedule.json` | DAO Safe | `timelock.schedule(...)` with `delay = 172800` — **withdrawn, do not sign** |
+| 2 | `02-execute.json` | anyone | `timelock.execute(...)` — never applicable |
 
-Weights are normalised across eligible strategies, so this dilutes the existing
-three rather than adding a fourth share: 40/15/45/10 → **36.4 / 13.6 / 40.9 / 9.1 %**.
+`01-schedule-raw.json` is the same transaction as raw calldata (selector `0x01d5062a`).
 
-10 is deliberately the most conservative weight in the set, on three grounds:
-this is the smallest cap of the four (250 ETH vs 1000 / 140 / 4500); UNI is the
-first paired token that is neither ETH nor a USD stable, so the position carries
-idiosyncratic single-asset risk on top of the β≈0.5 the other pools already have;
-and the strategy is unproven in production. It is a one-line change to re-cut if
-the DAO wants it to matter more on day one.
+### Parameters
 
-## Simulations
-
-Fork (anvil, mainnet pinned to 26027017), full real path through the timelock:
-
-| Test | Result |
+| Field | Value |
 |---|---|
-| direct `addStrategy` from a non-ADMIN account | reverts `0x4d616cff` `RegistryClientMissingRole` |
-| `schedule` from the DAO Safe | succeeds, 57,420 gas |
-| `execute` before the 48h delay | reverts `0x5ead8eb5` `TimelockUnexpectedOperationState` |
-| `execute` after 48h with 013 op2 **unexecuted** | reverts `0x90a9a618` `TimelockUnexecutedPredecessor` |
-| `execute` after 013 op2 is Done | succeeds, **269,246 gas**; registered, `strategyCount` 3 → 4, weights 10/10, `CONVERTER_CALLER_ROLE` granted, op state Done |
-| re-`execute` the same op | reverts `0x5ead8eb5` (single-shot) |
+| `target` | StrategyManager `0x94916ab93C669E7c734f844dB019Ce9449a3b5C9` |
+| `value` | `0` |
+| `data` | `addStrategy(address,uint8,uint8)` (`0xdca0c48f`) — `0xdca0c48f0000000000000000000000002c3aefacb41065810f43f23d0eba8df20350715d000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000a` |
+| `predecessor` | `0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9` (013 op2) |
+| `salt` | `0x04c997170365fd7c8ae41d6545e71cd8636caacda545cb6c146a8e7b81dc40b2` = `keccak256("everstrat/strategy-manager/add-strategy/unicl-uni-weth-0.3pct/2026-09-21")` |
+| `delay` | `172800` |
 
-## Bytecode provenance — OPEN ITEM
+## Verification performed
 
-This deployment is **not reproducible from any committed revision I can build**,
-and it was compiled with different settings than the three strategies already
-registered. Measured:
+Fork (anvil, mainnet pinned to 26027017), full path through the timelock:
+
+| Step | Result |
+|---|---|
+| direct `addStrategy` from a non-ADMIN account | revert `RegistryClientMissingRole` `0x4d616cff` |
+| `schedule` from the DAO Safe | OK, 57,420 gas |
+| `execute` before the 48h delay | revert `TimelockUnexpectedOperationState` `0x5ead8eb5` |
+| `execute` after 48h with 013 op2 unexecuted | revert `TimelockUnexecutedPredecessor` `0x90a9a618` |
+| `execute` after 013 op2 is Done | OK, **269,246 gas**; registered, `strategyCount` 3 → 4, weights 10/10, `CONVERTER_CALLER_ROLE` granted |
+| re-`execute` | revert `0x5ead8eb5` |
+| `hashOperation(...)` | reproduces `0x489a556a…2201cd07` |
+
+## Risks
+
+**Bytecode provenance — open item.** This deployment is not reproducible from any committed
+revision of `../contracts`, and it was compiled with different settings than the three strategies
+already registered:
 
 | Binary | Runtime size | CBOR metadata |
 |---|---|---|
@@ -115,121 +120,33 @@ registered. Measured:
 | WETH/USDT strategy (registered) | 24,391 B | 51 B — IPFS hash present |
 | `origin/main` (49c0e63) build | 24,391 B | 51 B — IPFS hash present |
 
-The `origin/main` build reproduces the **registered** binaries: identical length,
-differences confined to 1,057 bytes in 56 runs, i.e. the immutable slots alone.
-So `origin/main` is the baseline the existing three came from, and this new
-contract is **+179 bytes** of extra code, differing from that baseline in 20,592
-bytes across 568 runs — a different build, not a different set of constructor
-arguments.
+The `origin/main` build reproduces the registered binaries (differences confined to immutable
+slots). This contract is **+179 bytes**, differing in 20,592 bytes across 568 runs — a different
+build, not different constructor arguments. Other build profiles don't reach 24,570 B either
+(default / `via_ir` 24,391 B; `bytecode_hash = none` 24,350 B; `optimizer_runs = 1000000`
+32,912 B), so the delta is a **source** difference. The ABI surface is identical (61 of 61
+dispatcher selectors match the registered strategy), so there is no new external or privileged
+entry point — but the audit's coverage cannot be claimed for it. **Before any re-proposal the
+deployer should supply the commit and build profile used.**
 
-What is reassuring: the ABI surface is **identical** — 61 of 61 `PUSH4 … EQ`
-dispatcher entries match the registered strategy exactly, so no new or changed
-external function, no new privileged entry point. What is not: a 179-byte code
-delta plus a different metadata setting means I cannot tell what source produced
-this binary, and therefore cannot claim the audit's line coverage applies to it.
+## Withdrawal (mainnet)
 
-It is not a build-profile difference either. Rebuilding the same source under
-other profiles does not reach 24,570 B:
-
-| Build profile | Runtime size |
+| Field | Value |
 |---|---|
-| default | 24,391 B |
-| `via_ir = true` | 24,391 B |
-| `bytecode_hash = none` | 24,350 B (metadata stripped, as on-chain) |
-| `optimizer_runs = 1000000` | 32,912 B |
+| Filed | DAO Safe nonce 24, safeTxHash `0x49019656754da2fb6e5146e0b5163bd2770ba603b882abb9cddcbd4c78f7c1f9`, submitted 2026-09-21 16:29:08 UTC by delegate `0x1483E048…0E922` (proposer `0x4A2D…F0d2`), origin `everstrat/015-strategy-manager-add-unicl-uni-weth-strategy`; stored `data` equal to `01-schedule-raw.json` |
+| Signatures on 015 | none |
+| Rejection | Safe → itself, `value 0`, `data 0x`, nonce 24, safeTxHash `0xe51719fe3911bd8d37f5b56939f17a415d9fbf73437a28b8caa3d8dacabff734`, submitted 2026-09-21 16:40:52 UTC |
+| Rejection signatures | 3 of 4 — `0x4A2D…F0d2` 2026-09-21 16:43:01 · `0x1Efb…9a46` 2026-09-22 12:44:59 · `0xe9BE…dc4a` 13:12:05 UTC |
+| Rejection executed | 2026-09-22 13:39:11 UTC — tx `0x06eed20458f42cbafacdcf4fedcd7ac2969c2d709020b33a7c09809e58e3113d`, block 26033382; `ExecutionSuccess(0xe51719fe…abff734)`; relayed by `0x4A2D…F0d2` via the MetaMask `DelegationManager` |
+| Result | Safe nonce advanced 24 → 25; the 015 Safe tx can never execute. `getOperationState(0x489a556a…2201cd07) == 0`, `isStrategyRegistered(0x2c3A…715d) == false` (re-checked 2026-09-22 23:03 UTC) |
 
-`bytecode_hash = none` explains the stripped metadata but not the size. The
-+179 B is therefore a **source** difference, not a compiler-setting difference.
+There was never a timelock operation, so no `cancel(bytes32)` was involved: the Safe
+Transaction Service does not expose deletion of a queued tx, and a same-nonce rejection is the
+enforceable way to kill one.
 
-**Before this executes, the deployer should supply the commit and the build
-profile used.** If it turns out the 179 bytes are a change to strategy logic,
-that change has not been audited, and it is sitting behind a `maxTotalNAV` of
-250 ETH — which is the whole reason to settle it now rather than after deposits.
+## Cancelling
 
-## Verifying this independently
-
-```bash
-RPC=https://ethereum-rpc.publicnode.com
-TL=0xF0911198Ef0a4b4234546fa5F50d6d1D45091774
-SM=0x94916ab93C669E7c734f844dB019Ce9449a3b5C9
-NEW=0x2c3AEFaCb41065810f43F23d0eBa8dF20350715d
-
-# 1. the operation id
-cast call $TL "hashOperation(address,uint256,bytes,bytes32,bytes32)(bytes32)" \
-  $SM 0 0xdca0c48f0000000000000000000000002c3aefacb41065810f43f23d0eba8df20350715d000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000a \
-  0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9 \
-  0x04c997170365fd7c8ae41d6545e71cd8636caacda545cb6c146a8e7b81dc40b2 --rpc-url $RPC
-
-# 2. is it live yet, and did it run
-cast call $TL "getOperationState(bytes32)(uint8)" 0x489a556a585fbae6efeb04d3f1627d9168124c63a2b089e29b2e5ba42201cd07 --rpc-url $RPC
-cast call $SM "isStrategyRegistered(address)(bool)" $NEW --rpc-url $RPC
-
-# 3. the dependency this waits on
-cast call $TL "getOperationState(bytes32)(uint8)" 0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9 --rpc-url $RPC
-```
-
-## Status
-
-🔴 **WITHDRAWN — 2026-09-21 16:40 UTC. Never executed; nothing ever reached the timelock.**
-
-Withdrawn by **Arseny**: *"it seems that the strategy is not completely ready and we didn't
-enable Uni oracle."*
-
-### What had been filed
-
-- `safeTxHash` = `0x49019656754da2fb6e5146e0b5163bd2770ba603b882abb9cddcbd4c78f7c1f9`
-- submitted `2026-09-21T16:29:08Z`, nonce 24, origin `everstrat/015-strategy-manager-add-unicl-uni-weth-strategy`
-- proposedByDelegate `0x1483E048…0E922`, proposer `0x4A2D30c7…1F0d2`
-- stored `data` byte-verified against [`01-schedule-raw.json`](01-schedule-raw.json) (714 chars, both sides)
-- **`confirmations: []`** — no owner ever signed it, so it could never have executed on its own
-
-### Why there was nothing to cancel on-chain
-
-The Safe tx never executed, so `schedule(...)` never ran and the operation was never
-created:
-
-```sh
-cast call $TL "getOperationState(bytes32)(uint8)" 0x489a556a585fbae6efeb04d3f1627d9168124c63a2b089e29b2e5ba42201cd07 --rpc-url $RPC
-# 0  (Unset)
-```
-
-No scheduled operation, no ETA, no `isOperationPending` — and therefore no
-`TimelockController.cancel(bytes32)` to call. The DAO Safe's `CANCELLER_ROLE` is
-irrelevant to this case; it only matters once an operation actually exists.
-
-### How it was cancelled
-
-`DELETE /safes/{safe}/multisig-transactions/{hash}/` is **not exposed** on
-`api.safe.global` — it answers an HTML `404` (and the OpenAPI schema is not published at
-any of the usual paths), so the queue entry could not simply be deleted. The enforceable
-cancel is the standard Safe **rejection transaction**: a tx at the *same nonce* from the
-Safe to itself.
-
-| field | value |
-|---|---|
-| `to` | `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9` (the Safe itself) |
-| `value` | `0` |
-| `data` | `0x` |
-| `operation` | `0` (call) |
-| `nonce` | `24` |
-| `safeTxHash` | `0xe51719fe3911bd8d37f5b56939f17a415d9fbf73437a28b8caa3d8dacabff734` |
-| submitted | `2026-09-21T16:40:52Z` |
-
-Both transactions now sit at nonce 24. The first one to collect **3-of-4** confirmations
-and execute consumes the nonce, and a Safe nonce can only ever be spent once — so the 015
-tx becomes permanently unexecutable. Until that rejection is signed, the 015 tx remains
-harmless but *visible* in the queue, so owners should sign the rejection rather than
-merely ignore it.
-
-### Re-proposing later
-
-Unchanged by the withdrawal: the inner calldata is sound and `01-schedule-raw.json` can be
-re-filed as-is once the strategy is final. Two things should be settled first:
-
-1. **013 must be executed** (op1 `updateUsdFeedInfo(UNI…)`, then op2
-   `addSupportedERC20(UNI)`) — that is exactly the "we didn't enable Uni oracle" gap, and
-   it is why the op carried 013's op id as its predecessor.
-2. **The deployed binary should be attributable** — see the provenance finding below
-   (24,570 B vs the 24,391 B reproduced from `origin/main`).
-
-Sequence lives in [`../README.md`](../README.md).
+Nothing to cancel. To re-propose once 013 has executed and the binary is attributed, re-file
+`01-schedule-raw.json` at the Safe's current nonce — the inner calldata, predecessor and salt are
+unchanged, so the operation id stays `0x489a556a…2201cd07`. A re-proposal after the strategy is
+redeployed needs new calldata, a new salt and a new directory.
