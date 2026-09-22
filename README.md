@@ -46,29 +46,28 @@ All verified on Etherscan.
 
 ## Status at a glance
 
-_As of 2026-09-22 23:03 UTC (block 26036183). Read live from `Timelock.getOperationState(opId)`
+_As of 2026-09-22 23:22 UTC (block 26036274). Read live from `Timelock.getOperationState(opId)`
 (`0` Unset · `1` Waiting · `2` Ready · `3` Done) and the Safe Transaction Service._
 
 | Proposal | Where it stands |
 |---|---|
-| 001–012 | **Executed** — every operation `Done`, effects re-verified on-chain |
-| [013](013-add-uni-supported-token/) | **Scheduled, Ready** since 2026-09-21 07:18:11 UTC — not yet executed; `execute` op1 then op2 (permissionless) |
+| 001–013 | **Executed** — every operation `Done`, effects re-verified on-chain |
 | [014](014-strategy-manager-performance-fee-bps/) | **Scheduled, Waiting** — ready 2026-09-24 13:32:59 UTC |
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | **Withdrawn** — never scheduled; its Safe nonce was consumed by a rejection |
 
-**013 is the only action that is live but unexecuted.** Its two operations (UNI/USD feed, then
-`addSupportedERC20(UNI)`) have been `Ready` for over 40 hours. `EXECUTOR_ROLE` is `address(0)`,
-so anyone with gas can run them from `02-execute.json`. Until someone does, UNI is not priceable:
-`Oracle.isTokenSupported(UNI) == false`. The 48h delay is a floor, not a schedule: nothing
-executes until someone sends the transaction.
+**013 opened UNI.** Both operations executed 2026-09-22 at 23:15:47 and 23:16:47 UTC, about 40h
+after they became `Ready`. The callers were permissionless (`0x046E01eE…a899D7`, the same address
+that ran 008–012). The Oracle now prices UNI (`0x5533…220e`, staleness 4200), and
+`StrategyManager.supportedERC20()` is `[USDC, USDT, UNI]`. The 48h delay is a floor, not a
+schedule: nothing executes until someone sends the transaction.
 
 **014 turns the performance fee on** (`setPerformanceFeeBps(1500)`, 0 → 15%), paid to the DAO
 Safe as `daoTreasury()`. It was scheduled 2026-09-22 13:32:59 UTC and can execute from
 2026-09-24 13:32:59 UTC.
 
 **015 was withdrawn before anyone signed it.** It would have registered the UniCL UNI/WETH
-0.3% strategy. The proposer pulled it because the strategy isn't final and UNI has no Oracle
-feed yet (that is 013). A same-nonce Safe rejection executed 2026-09-22 13:39:11 UTC, so the
+0.3% strategy. The proposer pulled it because the strategy wasn't final and UNI had no Oracle
+feed yet. 013 has since fixed the second point. A same-nonce Safe rejection executed 2026-09-22 13:39:11 UTC, so the
 filed transaction can never run. The record keeps the hazard analysis and an open bytecode
 provenance question for a future re-proposal.
 
@@ -90,7 +89,7 @@ The DAO Safe holds **no pending transactions** (next nonce 25).
 | [010](010-oracle-usdt-staleness-margin/) | Oracle: widen USDT staleness 86400 → 88200 (jitter margin) | **Executed** — 2026-09-16 (`getUsdFeedInfo(USDT)` staleness 88200) | `0xa2e19cb9…17ab4c6e` |
 | [011](011-strategy-manager-add-unicl-weth-usdt-strategy/) | StrategyManager: register the UniCL WETH/USDT 0.3% strategy (`addStrategy`) | **Executed** — 2026-09-16 (`isStrategyRegistered(0x3Fb6…6501) == true`) | `0x4b6a7a40…6fcd9fd6` |
 | [012](012-keeper-executors-allow-mimic-caller/) | Keeper executors: `allowExecutorCaller(Mimic 0x4115…8256)` on QueueKeeperExecutor + StrategyKeeperExecutor (batch, predecessor = 011) | **Executed** — 2026-09-17 (`isExecutorCaller(0x4115…8256) == true`, `executorCallerCount() == 1` on both) | `0xa4c9f4d3…505f6e40` (queue), `0xb716df94…06b880b5` (strategy) |
-| [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) and `addSupportedERC20(UNI)` (batch, predecessor = feed op) | **Scheduled** — 2026-09-19; Ready since 2026-09-21 07:18:11 UTC, not yet executed | `0xeca68714…06d49bbd` (feed), `0xcd443da6…a5f35ae9` (supported ERC-20) |
+| [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) and `addSupportedERC20(UNI)` (batch, predecessor = feed op) | **Executed** — 2026-09-22 (`isSupportedERC20(UNI) == true`) | `0xeca68714…06d49bbd` (feed), `0xcd443da6…a5f35ae9` (supported ERC-20) |
 | [014](014-strategy-manager-performance-fee-bps/) | StrategyManager: `setPerformanceFeeBps(1500)` (0 → 15%) | **Scheduled** — 2026-09-22; ready 2026-09-24 13:32:59 UTC | `0xc4302e52…7f74ea46` |
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the UniCL UNI/WETH 0.3% strategy (`addStrategy(0x2c3A…715d, 10, 10)`, predecessor = 013 op2) | **Withdrawn** — 2026-09-21, never scheduled (Safe nonce 24 rejected) | `0x489a556a…2201cd07` (never scheduled) |
 
