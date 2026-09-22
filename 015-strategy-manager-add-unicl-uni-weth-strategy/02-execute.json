@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1790010000000,
+  "meta": {
+    "name": "Execute (T+48h): register UniCL UNI/WETH 0.3% strategy",
+    "description": "Timelock.execute(...) for operation 0x489a556a585fbae6efeb04d3f1627d9168124c63a2b089e29b2e5ba42201cd07. Reverts TimelockUnexecutedPredecessor (0x90a9a618) until 013 op2 is Done. EXECUTOR_ROLE is address(0): anyone may send this once the 48h delay elapses. Target, payload, predecessor and salt must match the schedule exactly.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "address", "name": "target", "type": "address" },
+          { "internalType": "uint256", "name": "value", "type": "uint256" },
+          { "internalType": "bytes", "name": "payload", "type": "bytes" },
+          { "internalType": "bytes32", "name": "predecessor", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "salt", "type": "bytes32" }
+        ],
+        "name": "execute",
+        "payable": true
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "payload": "0xdca0c48f0000000000000000000000002c3aefacb41065810f43f23d0eba8df20350715d000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000a",
+        "predecessor": "0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9",
+        "salt": "0x04c997170365fd7c8ae41d6545e71cd8636caacda545cb6c146a8e7b81dc40b2"
+      }
+    }
+  ]
+}
