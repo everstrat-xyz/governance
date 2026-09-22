@@ -154,6 +154,13 @@ operation id and compare byte-for-byte to what the repo records.
   `✅ Executed on mainnet (tx …, block …, <UTC>)` plus the observable proof
   (`connectorWeight() == 9e17`, `getContractByKey("EVE") == 0x…`, `isAdapterAllowed(...) == true`).
   Update the root README row too.
+- **Withdrawn** — filed in the Safe but pulled before it executed (015). `❌ Withdrawn — never
+  scheduled.` Kill the queued Safe tx with a same-nonce rejection (Safe → itself, `value 0`,
+  `data 0x`) and record it in a `## Withdrawal (mainnet)` table. If `schedule` already ran, use
+  `cancel(opId)` instead.
+- Emoji belong only on a README's `**Status:**` line. The root README tables use the plain bold
+  word (`**Executed**` / `**Scheduled**` / `**Withdrawn**`), a date, and at most one getter as proof;
+  abbreviate op ids as `0x` + 8 hex + `…` + last 8 hex.
 
 ## Selectors / errors / event topics seen here
 
@@ -166,6 +173,9 @@ operation id and compare byte-for-byte to what the repo records.
 | `0x8eff1c3c` | `Oracle.updateUsdFeedInfo(address,address,uint256)` |
 | `0xd73acee5` / `0x2dbc46f3` | `StrategyManager.addSupportedERC20(address)` / `removeSupportedERC20(address)` |
 | `0x73721fe9` | `Converter.setAllowedAdapter(address,bool)` |
+| `0xdca0c48f` | `StrategyManager.addStrategy(address,uint8,uint8)` |
+| `0x9f0caac9` | `StrategyManager.setPerformanceFeeBps(uint256)` |
+| `0xb76fa138` | `KeeperExecutor.allowExecutorCaller(address)` |
 
 | Error | Meaning |
 |---|---|

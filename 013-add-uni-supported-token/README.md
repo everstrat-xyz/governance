@@ -1,54 +1,39 @@
-# 013 — Add UNI as a supported ERC-20 (UNI/USD Oracle feed + `StrategyManager`)
+# 013 — Add UNI as a supported ERC-20 (UNI/USD Oracle feed + StrategyManager)
 
-**Status:** ⏳ **PROPOSED — pending in the Safe queue at nonce 22, awaiting 3-of-4 owner confirmations.**
-Proposed 2026-09-18 19:05:31 UTC by the agent's registered Safe Tx Service proposer (delegate
-`0x1483E048a76A93a3A59bBfA6d60471eA4990e922`, delegator = owner `0x4A2D30c7…`), `confirmations: []`,
-`isExecuted: false`, `origin = everstrat/013-add-uni-supported-token`.
-Both operation ids are still `Unset` (`0`) on mainnet — nothing reaches the Timelock until the owners
-confirm and someone executes. The batch as queued:
-
-```
-safeTxHash = 0xe396b3f0217ee7d8496397ba9c8e91f0e070d6a495d82ca426af264140191795   (nonce 22)
-```
-
-Independently audited **from the service's own bytes** (`verify_safe_batch.py --nonce 22 …`): the 900-byte
-queued calldata decodes to `multiSend(bytes)` → 2 entries → `Timelock.schedule`, and equals a fresh
-repack of `01-schedule-raw.json` **byte-for-byte**, with both `hashOperation` ids reproducing.
-
-Next step is human: open the queued tx (Safe app, nonce 22) and confirm — 3 of 4.
-
-**Operation ids (verify with `Timelock.getOperationState`):**
-
-| # | Operation | id |
-|---|---|---|
-| op1 | `Oracle.updateUsdFeedInfo(UNI, 0x5533…220e, 4200)` | `0xeca687148460f11ee30984d2685c68a72a434233ff9bf2b984760bb606d49bbd` |
-| op2 | `StrategyManager.addSupportedERC20(UNI)` | `0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9` |
-
-Requested by **Arseny** (2026-09-18), in the same thread that picked the UNI/WETH 0.3% pool
-as a strategy candidate. Complements [011](../011-strategy-manager-add-unicl-weth-usdt-strategy/)
-by making the second token leg of a UniCL strategy priceable.
-
----
+**Status:** ⏳ **Scheduled on mainnet — Ready, not yet executed** (schedule tx
+`0x4b36e80469d8fe3f7d6cf71b34d82d3ab8ece17961365ec2e03ecb000d02afc7`, block 26010017,
+2026-09-19 07:18:11 UTC, DAO Safe nonce 22). Both operations have been `Ready`
+(`getOperationState == 2`) since **2026-09-21 07:18:11 UTC**; `execute` is permissionless, op1
+first. As of 2026-09-22 23:03 UTC (block 26036183) nobody has executed them:
+`Oracle.isTokenSupported(UNI) == false`, `StrategyManager.isSupportedERC20(UNI) == false`.
+**Operation ids:**
+- op1 — UNI/USD feed: `0xeca687148460f11ee30984d2685c68a72a434233ff9bf2b984760bb606d49bbd`
+- op2 — `addSupportedERC20(UNI)`: `0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9`
 
 ## What it changes
 
-Two privileged operations, scheduled in **one Safe batch**, executing in order after 48h:
+Two privileged operations, scheduled in **one DAO Safe batch**, executed in order after 48h:
 
-1. **`Oracle.updateUsdFeedInfo(UNI, 0x553303d460EE0afB37EdFf9bE42922D8FF63220e, 4200)`**
-   Registers the Chainlink **UNI / USD** feed. `Oracle.isTokenSupported(UNI)` → `true`,
+1. **`Oracle.updateUsdFeedInfo(UNI, 0x553303d460EE0afB37EdFf9bE42922D8FF63220e, 4200)`** —
+   registers the Chainlink **UNI / USD** feed. `Oracle.isTokenSupported(UNI)` → `true`,
    `getUsdPrice(UNI)` returns a fresh price, `convert(UNI ⇄ ETH)` becomes available.
-2. **`StrategyManager.addSupportedERC20(UNI)`**
-   Adds UNI to `supportedERC20()` so a strategy that holds UNI is counted correctly in
-   `totalNAVInETH()` instead of silently falling out of NAV.
+2. **`StrategyManager.addSupportedERC20(UNI)`** — adds UNI to `supportedERC20()` so a strategy
+   that holds UNI is counted in `totalNAVInETH()` instead of silently falling out of NAV.
 
-`_registry`-wide effects: none. No user funds move. No contract is upgraded. Both calls are
-config setters on already-deployed, already-verified contracts.
+No user funds move, no contract is upgraded. Both calls are config setters on
+already-deployed, already-verified contracts.
 
 ## Why
 
+Requested by **Arseny** (2026-09-18), in the same thread that picked the UNI/WETH 0.3% pool as a
+strategy candidate. Complements [011](../011-strategy-manager-add-unicl-weth-usdt-strategy/) by
+making the second token leg of a UniCL strategy priceable.
+
 - **UNI is the next strategy token.** The UniCL strategies registered in 009/011 hold their
   paired token (USDC / USDT) as working capital and pay withdrawals in it; a UniCL **UNI/WETH**
-  instance needs UNI to be a *priceable, supported* token before it can be registered.
+  instance needs UNI to be a *priceable, supported* token before it can be registered
+  (see [015](../015-strategy-manager-add-unicl-uni-weth-strategy/), withdrawn partly for this
+  reason).
 - **The pool that motivates it is deep.** Live DeFiLlama read, 2026-09-18:
 
   | UNI-WETH pool | TVL | `apyBase` (1d) | `apyBase7d` | vol 1d | vol 7d |
@@ -61,75 +46,83 @@ config setters on already-deployed, already-verified contracts.
   `0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801`, `token0 = UNI`, `token1 = WETH`,
   `tickSpacing = 60`, `observationCardinality` 102 (TWAP-ready), and the
   `UniswapV3ConverterAdapter` already allowlists it — **no new adapter work is required.**
-- **Ordering is forced, not stylistic.** `addSupportedERC20` reverts with
-  `StrategyManagerERC20NotPriceable` until the Oracle can price the token. Verified on a fork
-  (below), so the feed op must land first — hence the predecessor link.
 
-## Dependency / ordering
+### Why staleness = 4200 s
 
-```
-DAO Safe ── schedule ──▶ op1 (Oracle feed, predecessor = 0x00)
-DAO Safe ── schedule ──▶ op2 (addSupportedERC20, predecessor = op1)   [same batch, same nonce]
-T+48h    ── execute  ──▶ op1 … then op2 (permissionless, EXECUTOR_ROLE = address(0))
-```
+Measured, not copied: 600 consecutive Chainlink rounds on the UNI/USD aggregator
+`0xdEf8C51d7c1040637A198efFc39613865B32EA51` (13.00 days of history):
 
-Three reverts enforce this, all reproduced on a mainnet fork:
-
-| Attempt | Revert | Selector |
-|---|---|---|
-| `execute` op1 before the delay | `TimelockUnexpectedOperationState(op1, 1)` | `0x5ead8eb5` |
-| `execute` op2 before op1 is done | `TimelockUnexecutedPredecessor(op1)` | `0x90a9a618` |
-| `addSupportedERC20(UNI)` with no feed | `StrategyManagerERC20NotPriceable(UNI)` | `0x0eb217c5` |
-| re-`addSupportedERC20(UNI)` | already-supported | `0x04a77d9d` |
-| re-`execute` / re-`schedule` | `TimelockUnexpectedOperationState` | `0x5ead8eb5` |
-
-## Transactions
-
-| # | Target | Function | Calldata |
-|---|---|---|---|
-| 1 | Oracle `0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26` | `updateUsdFeedInfo(address,address,uint256)` | feed `0x553303d460EE0afB37EdFf9bE42922D8FF63220e`, staleness **4200** |
-| 2 | StrategyManager `0x94916ab93C669E7c734f844dB019Ce9449a3b5C9` | `addSupportedERC20(address)` | UNI `0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984` |
-
-- `01-schedule.json` — Safe Transaction Builder, 2 transactions (op1 then op2), delay `172800`.
-- `01-schedule-raw.json` — same two calls as raw `Timelock.schedule` calldata.
-- `02-execute.json` — raw `Timelock.execute` calldata, op1 first.
-
-Salts are fixed so the operation ids above are reproducible:
-`salt1 = 0x97e0462f…9e503428`, `salt2 = 0xd17cce2b…6441d2ac5b`.
-
-## Why staleness = 4200 s
-
-Measured empirically, not copied: 600 consecutive Chainlink rounds on the UNI/USD
-aggregator `0xdEf8C51d7c1040637A198efFc39613865B32EA51` (13.00 days of history, read via
-batched JSON-RPC on `ethereum-rpc.publicnode.com`):
-
-| gap min | median | mean | **max** | gaps > 3600s | gaps > 3900s | gaps > 4200s |
+| gap min | median | mean | **max** | gaps > 3600 s | gaps > 3900 s | gaps > 4200 s |
 |---|---|---|---|---|---|---|
 | 12 s | 1596 s | 1874.5 s | **3660 s** | 132 / 599 | **0** | **0** |
 
-132 of 599 gaps sit in the 3600–3899 s bucket — the feed is heartbeat-bound at ~1h, with a
-worst observed gap of **3660 s**. 4200 s therefore leaves a **540 s (14.7%) cushion** over the
-worst case seen in two weeks, and matches the convention from
+The feed is heartbeat-bound at ~1h with a worst observed gap of **3660 s**. 4200 s leaves a
+**540 s (14.7%) cushion** over the worst case seen in two weeks, and matches
 [008](../008-oracle-staleness-margin/), which widened WETH (also a 3600 s heartbeat) 3600 → 4200
-for exactly this jitter. Feed metadata verified on mainnet: `description() = "UNI / USD"`,
-`decimals() = 8`, proxy `0x5533…220e` → aggregator `0xdEf8C51d…`, owner
-`0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca`.
+for the same jitter. Feed metadata verified on mainnet: `description() = "UNI / USD"`,
+`decimals() = 8`, proxy `0x5533…220e` → aggregator `0xdEf8C51d…`.
 
-## Verification performed (mainnet fork, 2026-09-18)
+## Dependency on op1 (same batch)
 
-Two `anvil` forks of Ethereum mainnet against `https://ethereum-rpc.publicnode.com`; scripts
-`/tmp/sim013.sh` (timelock semantics, with the 48h warp) and `/tmp/sim013b.sh` (pricing and
-preconditions, no warp — the 48h warp necessarily staleness-breaks a 1h-heartbeat feed, so the
-two questions were probed on two forks, with the Timelock impersonated in the second).
+`addSupportedERC20` reverts `StrategyManagerERC20NotPriceable` (`0x0eb217c5`) until the Oracle
+can price the token, so op2 carries **op1's id as `predecessor`**: `execute(op2)` reverts
+`TimelockUnexecutedPredecessor` (`0x90a9a618`) until op1 is `Done`.
+
+```
+DAO Safe ── schedule ──▶ op1 (Oracle feed,         predecessor = 0x00…00)
+DAO Safe ── schedule ──▶ op2 (addSupportedERC20,   predecessor = op1)      [same batch, nonce 22]
+T+48h    ── execute  ──▶ op1, then op2 (permissionless, EXECUTOR_ROLE = address(0))
+```
+
+Alternative: `predecessor = 0x00…00` on op2 and sequence the two executes by hand — op2's
+operation id changes if you do. The coupling was kept because it makes the wrong order
+impossible rather than merely reverting.
+
+## Transactions
+
+| # | File | From | Calls |
+|---|---|---|---|
+| 1 | `01-schedule.json` | DAO Safe | `timelock.schedule(...)` ×2 (op1, op2), `delay = 172800` — wrapped by `MultiSendCallOnly` |
+| 2 | `02-execute.json` | anyone | `timelock.execute(...)` ×2 — **op1 first**, then op2 |
+
+`01-schedule-raw.json` is the same batch as raw `schedule` calldata (selector `0x01d5062a`).
+
+### Parameters
+
+| Field | op1 | op2 |
+|---|---|---|
+| `target` | Oracle `0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26` | StrategyManager `0x94916ab93C669E7c734f844dB019Ce9449a3b5C9` |
+| `value` | `0` | `0` |
+| `data` | `updateUsdFeedInfo(UNI, 0x5533…220e, 4200)` = `0x8eff1c3c…00001068` | `addSupportedERC20(UNI)` = `0xd73acee5…4201f984` |
+| `predecessor` | `0x00…00` | `0xeca68714…06d49bbd` (op1) |
+| `salt` | `0x97e0462f…9e503428` = `keccak256("everstrat/oracle/usd-feed/uni/2026-09-18")` | `0xd17cce2b…6441d2ac5b` = `keccak256("everstrat/strategy-manager/supported-erc20/uni/2026-09-18")` |
+| `delay` | `172800` | `172800` |
+
+UNI = `0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984`. Feed = Chainlink UNI/USD
+`0x553303d460EE0afB37EdFf9bE42922D8FF63220e`.
+
+## Verification performed
+
+Mainnet forks (anvil, `ethereum-rpc.publicnode.com`), 2026-09-18. The 48h warp necessarily
+staleness-breaks a 1h-heartbeat feed, so timelock mechanics and pricing were probed on separate
+forks (the Timelock impersonated in the second).
 
 **State before** (block 26,006,157): `Oracle.isTokenSupported(UNI) = false`,
-`SM.isSupportedERC20(UNI) = false`, `SM` UNI balance `0`,
+`SM.isSupportedERC20(UNI) = false`, SM UNI balance `0`,
 `SM.totalNAVInETH() = 436737449545944677`, `Registry.hasRole(ADMIN_ROLE, timelock) = true`.
 
-**Timelock mechanics** — both ops scheduled in one batch (gas 57,264 / 56,591), state `1 (Waiting)`,
-`readyAt = 1789928670`; pre-delay execute reverts `0x5ead8eb5`; after `warp 48h + 1s` both go
-`2 (Ready)`; executed from an **unrelated EOA** (op1 gas 157,422 @ block 26,006,161, op2 gas
-124,677 @ block 26,006,162) — confirming permissionless execution; both `3 (Done)`.
+| Step | Result |
+|---|---|
+| direct `updateUsdFeedInfo` from a non-admin | revert `RegistryClientMissingRole` `0x4d616cff` |
+| `addSupportedERC20(UNI)` with no feed (timelock impersonated) | revert `StrategyManagerERC20NotPriceable` `0x0eb217c5` |
+| DAO Safe `schedule` ×2 | OK, gas 57,264 / 56,591; both `1 (Waiting)` |
+| `execute` op1 before the delay | revert `TimelockUnexpectedOperationState` `0x5ead8eb5` |
+| `execute` op2 before op1 is done | revert `TimelockUnexecutedPredecessor` `0x90a9a618` |
+| `execute` op1, op2 after 48h + 1s, unrelated EOA | OK, gas 157,422 / 124,677; both `3 (Done)` |
+| re-`execute` / re-`schedule` | revert `0x5ead8eb5` |
+| re-`addSupportedERC20(UNI)` | revert `StrategyManagerERC20AlreadySupported` `0x04a77d9d` |
+| `addSupportedERC20(DAI)` (code, no feed) | revert `0x0eb217c5` |
+| `removeSupportedERC20(UNI)` from the Security Safe | OK, gas 45,213, no timelock |
 
 **Effects after** — `Oracle.isTokenSupported(UNI) = true`;
 `getUsdFeedInfo(UNI) = (0x553303d460EE0afB37EdFf9bE42922D8FF63220e, 4200)`;
@@ -137,104 +130,53 @@ two questions were probed on two forks, with the Timelock impersonated in the se
 `SM.supportedERC20() = [USDC, USDT, UNI]`; `SM.paused() = false`; **`totalNAVInETH()` unchanged**
 (`436737449545944677`) because the StrategyManager holds no UNI.
 
-**Pricing** (fresh feed, no warp) — `getUsdPrice(UNI) = 8.910119e18` (feed answered `891011916` at
-8 dp), `getUsdPrice(ETH) = 2598.67918e18`;
-`convert(1 UNI → ETH) = 3428710718030402` wei, `convert(1 ETH → UNI) = 291654817871145058850` wei
-(consistent: 8.910119 / 2598.67918 = 0.0034287);
+**Pricing** (fresh feed, no warp) — `getUsdPrice(UNI) = 8.910119e18`,
+`getUsdPrice(ETH) = 2598.67918e18`; `convert(1 UNI → ETH) = 3428710718030402` wei,
+`convert(1 ETH → UNI) = 291654817871145058850` wei (8.910119 / 2598.67918 = 0.0034287);
 `getUsdPriceWithStalenessCheck(UNI, 4200)` returns the price while `…(UNI, 100)` reverts
-`0xa9f73445` — the margin argument is actually enforced, not advisory.
+`0xa9f73445` — the bound is enforced, not advisory.
 
-**Duplicate / invalid paths** — re-adding UNI reverts `0x04a77d9d`; adding a token with code but no
-feed (DAI) reverts `0x0eb217c5`; a direct `updateUsdFeedInfo` from a non-admin reverts `0x4d616cff`
-(Registry permission, admin role hash as the argument).
-
-**The Safe payload itself, end to end** (`/tmp/sim013c.sh`, third anvil fork at block 26,006,240,
-`localhost:8548`). This one starts from untouched mainnet state and executes the *actual* batch
-payload rather than the two calls separately:
-
-1. `packed_multisend(01-schedule-raw.json)` from
-   `/root/.hermes/scripts/propose_safe_batch.py` is decoded back — 2 entries, both
-   `to = Timelock`, `operation = 0 (CALL)`, `value = 0`, 356 / 292 bytes of calldata, packed length
-   818, consumed 818 (exact) — and compared byte-for-byte against the file: **PASS**.
-2. The Safe's owner set is patched in *fork storage only* (`owners[anvil#0] = 1`, `threshold = 1`);
-   the real Safe is 4 owners / 3-of-4 and is not touched. `nonce()` stays `22`.
-3. `Safe.execTransaction(MultiSendCallOnly, 0, payload, operation = 1, …, sig)` → **success**,
-   gas **126,126**, block 26,006,241, nonce `22 → 23`, and the hash it was signed against is
-   `0xe396b3f0…191795` — the same value produced above on a different fork, so the proposal hash is
-   reproducible.
-4. Both ops `1 (Waiting)` immediately. `warp 172801 s` → both `2 (Ready)`. Both executed from an
-   unrelated EOA → both `3 (Done)`.
-5. Final state: `Oracle.isTokenSupported(UNI) = true`, `getUsdFeedInfo(UNI) = (0x5533…220e, 4200)`,
-   `Oracle.getSupportedTokens() = [address(0), USDC, WETH, USDT, UNI]`,
-   `SM.isSupportedERC20(UNI) = true`, `SM.supportedERC20() = [USDC, USDT, UNI]`, and
-   `SM.totalNAVInETH()` **unchanged** (`436737449545944677`) because the SM holds no UNI.
-
-`readyAt` is simply `exec time + 172800`: the fork batch landed at `1789756824`
-(2026-09-18 18:40:24 UTC), so `readyAt = 1789929624`. Real scheduling will use whatever timestamp
-the mainnet batch lands at.
+**Safe payload end to end** (third fork, block 26,006,240): the packed `MultiSendCallOnly`
+payload decoded back to 2 entries (both `to = Timelock`, `operation = 0`, `value = 0`) equal to
+`01-schedule-raw.json` byte-for-byte; with the Safe's owner set patched in fork storage only to
+1-of-1, `execTransaction(MultiSendCallOnly, …, operation = 1)` succeeded (gas 126,126) against
+safeTxHash `0xe396b3f0…191795` — the same hash later signed on mainnet.
 
 ## Risks
 
-- **The feed can freeze NAV.** This is the fail-closed design of `_supportedERC20sNAVInETH`
-  (zero balances skip the Oracle entirely; a non-zero balance with a stale feed **reverts**
-  `totalNAVInETH()` rather than mispricing). After the 48h warp both `totalNAVInETH()` and
-  `getUsdPrice(UNI)` reverted `0xa9f73445` while `SM.paused()` stayed `false` — NAV would be frozen,
-  not wrong. 4200 s is a tight-ish bound for a 1h-heartbeat feed; the 540 s cushion is measured, not
-  assumed, and should be monitored after UNI actually enters NAV.
-- **Fee APR on the motivating pool is bursty, not stable.** 0.3% `apyBase` is 108%/1d and 152%/7d,
-  while the 1% pool printed 621% over 7d and 83% over 1d in the same snapshot — realised yield
-  depends heavily on which fee tier, and on how much of the flow persists. 1d volume ($16.3M) is
-  ~99% of pool TVL, i.e. ~1× daily turnover.
-- **IL / exposure.** DeFiLlama flags the pool `ilRisk = yes`, `exposure = multi`, and its predictor
-  reads `Down` at 99% confidence. A UNI/WETH position is a volatile-pair LP, not a stable leg.
+- **The feed can freeze NAV.** `_supportedERC20sNAVInETH` is fail-closed: zero balances skip the
+  Oracle, but a non-zero UNI balance with a stale feed **reverts** `totalNAVInETH()` rather than
+  mispricing. After the 48h warp both `totalNAVInETH()` and `getUsdPrice(UNI)` reverted
+  `0xa9f73445` while `SM.paused()` stayed `false` — NAV frozen, not wrong. 4200 s is tight for a
+  1h-heartbeat feed; the 540 s cushion is measured and should be monitored once UNI enters NAV.
+- **Fee APR on the motivating pool is bursty.** 0.3% `apyBase` is 108%/1d vs 152%/7d, while the
+  1% pool printed 621% over 7d and 83% over 1d in the same snapshot. 1d volume is ~99% of pool TVL.
+- **IL / exposure.** DeFiLlama flags the pool `ilRisk = yes`, `exposure = multi`. A UNI/WETH
+  position is a volatile-pair LP, not a stable leg.
 - **Removal is instant.** `removeSupportedERC20(UNI)` via `SECURITY_ROLE` (Security Safe
-  `0x7c128C1C…9846`) flips `isSupportedERC20(UNI)` to `false` with **no timelock** — verified, gas
-  45,213. That is the escape hatch if the feed or the strategy misbehaves.
-- **Adding support alone does not allocate capital.** No strategy holding UNI is registered by this
-  proposal, and no UniCL strategy can use UNI until one is registered separately.
+  `0x7c128C1C…9846`) flips `isSupportedERC20(UNI)` to `false` with **no timelock**.
+- **Adding support alone does not allocate capital.** No strategy holding UNI is registered by
+  this proposal.
+
+## On-chain schedule (mainnet)
+
+| Field | Value |
+|---|---|
+| Proposed by | off-chain Safe delegate `0x1483E048a76A93a3A59bBfA6d60471eA4990e922`; `proposer` recorded as its delegator `0x4A2D30c7b9f7907D580f9A1902D42dd78B21F0d2`; submitted 2026-09-18 19:05:31 UTC |
+| Scheduled via | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 22 (batch of 2 `schedule` ops via `MultiSendCallOnly`) |
+| safeTxHash | `0xe396b3f0217ee7d8496397ba9c8e91f0e070d6a495d82ca426af264140191795` |
+| Signatures | 3 of 4 — `0x1Efb…9a46` 2026-09-18 21:00:03 · `0xF412…E149` 23:22:02 · `0xe9BE…dc4a` 2026-09-19 07:18:11 UTC (executor) |
+| Execute (Safe) | 2026-09-19 07:18:11 UTC — tx `0x4b36e80469d8fe3f7d6cf71b34d82d3ab8ece17961365ec2e03ecb000d02afc7`, block 26010017, gas 136,454 |
+| Events | `CallScheduled` + `CallSalt` for op1 and op2; `ExecutionSuccess(0xe396b3f0…191795)` |
+| Calldata check | the two `MultiSend` entries equal `01-schedule-raw.json` byte-for-byte; `hashOperation` reproduces both op ids |
+| Ready at | `getTimestamp` = `1789975091` = **2026-09-21 07:18:11 UTC** (both ops) |
+| Operation state | `2 (Ready)` for both ops (re-checked 2026-09-22 23:03 UTC, block 26036183) |
+| Execute (permissionless) | `02-execute.json` — op1, then op2. A live `eth_call` of op1's `execute` from a role-less EOA succeeds (gas estimate 158,630); op2 reverts `0x90a9a618` until op1 is done |
 
 ## Cancelling
 
-The DAO Safe is `CANCELLER`. `Timelock.cancel(opId)` any time before execution; after execution it
-reverts. Cancelling op1 makes op2 permanently unexecutable (its predecessor would never be done),
-so a cancel of the feed op also kills the `addSupportedERC20` — both must be re-proposed together.
-
-## How to verify independently
-
-```bash
-R=https://ethereum-rpc.publicnode.com
-TL=0xF0911198Ef0a4b4234546fa5F50d6d1D45091774
-ORACLE=0xF5B0C0ab00F92f6B8DC5F6314507FACC9c610c26
-SM=0x94916ab93C669E7c734f844dB019Ce9449a3b5C9
-UNI=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
-
-# state before scheduling (expect 0 = Unset)
-cast call $TL "getOperationState(bytes32)(uint8)" 0xeca687148460f11ee30984d2685c68a72a434233ff9bf2b984760bb606d49bbd --rpc-url $R
-cast call $TL "getOperationState(bytes32)(uint8)" 0xcd443da64d612cc5bc96157197e5ab62c5207d1d45d402be1d2e5170a5f35ae9 --rpc-url $R
-
-# current state (expect false / false)
-cast call $ORACLE "isTokenSupported(address)(bool)" $UNI --rpc-url $R
-cast call $SM "isSupportedERC20(address)(bool)" $UNI --rpc-url $R
-
-# recompute the op ids from the salts in 01-schedule.json
-cast call $TL "hashOperation(address,uint256,bytes,bytes32,bytes32)(bytes32)" \
-  $ORACLE 0 0x8eff1c3c0000000000000000000000001f9840a85d5af5bf1d1762f925bdaddc4201f984000000000000000000000000553303d460ee0afb37edff9be42922d8ff63220e0000000000000000000000000000000000000000000000000000000000001068 \
-  0x0000000000000000000000000000000000000000000000000000000000000000 \
-  0x97e0462f7a8786613c32e7059180c27fb633374a737c54c353f5a8729e503428 --rpc-url $R
-
-# feed sanity
-cast call 0x553303d460EE0afB37EdFf9bE42922D8FF63220e "description()(string)" --rpc-url $R
-cast call 0x553303d460EE0afB37EdFf9bE42922D8FF63220e "decimals()(uint8)" --rpc-url $R
-
-# the hash an owner signs, straight from the Safe (must be 0xe396b3f0…191795 while nonce is 22).
-# DATA = the MultiSend payload: cast abi-encode "f(bytes)" <payload> | cut -c 11-
-SAFE=0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9
-MS=0x9641d764fc13c8B624c04430C7356C1C7C8102e2
-DATA=$(python3 -c 'import sys;sys.path.insert(0,"/root/.hermes/scripts");from propose_safe_batch import packed_multisend,entries_from_repo;print(packed_multisend(entries_from_repo("013-add-uni-supported-token/01-schedule-raw.json")))')
-cast call $SAFE "getTransactionHash(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,uint256)(bytes32)" \
-  $MS 0 $DATA 1 0 0 0 0x0000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000 \
-  $(cast call $SAFE "nonce()(uint256)" --rpc-url $R) --rpc-url $R
-
-# is nonce 22 still free?
-curl -s "https://safe-transaction-mainnet.safe.global/api/v1/safes/$SAFE/multisig-transactions/?nonce=22" | head -c 200
-```
+Either the DAO Safe or the Security Safe may `cancel(opId)` on the timelock while the ops are
+`Ready`. Cancelling op1 makes op2 permanently unexecutable (its predecessor would never be
+`Done`), so the two must be cancelled — and re-proposed — together. After execution:
+`removeSupportedERC20(UNI)` (Security Safe, no delay) and `updateUsdFeedInfo(UNI, …)` via the
+48h `ADMIN_ROLE` path.

@@ -1,108 +1,99 @@
-# 014 — Set StrategyManager `performanceFeeBps` to 1500 (15%)
+# 014 — StrategyManager: set `performanceFeeBps` 0 → 1500 (15%)
 
-**Status:** 🟡 **PROPOSED — queued in the DAO Safe at nonce 23, `confirmations: []`.**
-`safeTxHash = 0x4fba6636d0eb3a605e38ef34a4b78274bffe725c00bb3b6bdbc9055a31dd0004`, submitted
-2026-09-21T16:02:21Z by delegate `0x1483E048…0E922` (proposer `0x4A2D30c7…1F0d2`), origin
-`everstrat/014-strategy-manager-performance-fee-bps`. The service decodes it as `schedule` with the
-exact parameters below, and the stored bytes match `01-schedule-raw.json` byte-for-byte. **Needs
-3-of-4 owner confirmations.**
+**Status:** ⏳ **Scheduled on mainnet** (tx
+`0x4d9828d1a877b12144fd149f6dc81a448e7077118247496282e686d965a5e881`, block 26033351,
+2026-09-22 13:32:59 UTC, DAO Safe nonce 23). Ready at **2026-09-24 13:32:59 UTC**
+(`getTimestamp` = `1790256779`); `getOperationState == 1` (Waiting) as of 2026-09-22 23:03 UTC.
+No predecessor. `performanceFeeBps()` is still `0` until someone calls `execute`.
+**Operation id:** `0xc4302e528a0a993eb9cc433dfc35ddace37bfef0cc3d2e7b97207d397f74ea46`
+(`hashOperation(StrategyManager, 0, setPerformanceFeeBps(1500), 0x00…00, salt)` — recomputed and
+verified on mainnet).
 
-> **Filing note.** The first two attempts were rejected with
-> `429 {"error_msg":"Monthly quota exceeded"}` — the anonymous tier is 5000 req/month/IP and our own
-> 5-minute `safe_watch` poll had burned it. A `SAFE_API_KEY` was added on 2026-09-21 and the POST then
-> returned **201**; the authenticated limit is **50,000** (10×), so this class of blocker is gone.
-> See [[Notes/2026-09-21-governance-014-performance-fee]].
+## What it changes
 
-**Requested by:** Arseny — *"set it to 15 and open a proposal on safe"* (2026-09-21), after вадюша
-reported that `performanceFeeBps` is still `0`, so the performance fee **accrues but cannot be
-harvested**.
+`StrategyManager.setPerformanceFeeBps(1500)` — the protocol's performance fee on strategy LP fees
+goes from **0 to 15%**. Fees accrue to `daoTreasury()`, which is
+`0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9` — **the DAO Safe itself**, not an ops address.
+Emits `PerformanceFeeBpsChanged(0, 1500)`.
+
+Bounds: `setPerformanceFeeBps` is `onlyAuthRole(ADMIN_ROLE)` (48h timelock — never SECURITY or
+KEEPER) and accepts `0 – MAX_PERFORMANCE_FEE_BPS` (`2000`, read on mainnet).
 
 ## Why
 
-The protocol takes a performance fee on the strategy LP fees it earns. With `performanceFeeBps = 0`
-the fee share still accrues but **cannot be collected** — `StrategyManager` has no way to settle it.
-Setting a non-zero rate is what unlocks collection, and per audit finding **M15**
+Requested by **Arseny** (2026-09-21): *"set it to 15 and open a proposal on safe"*, after
+Vadyusha reported that `performanceFeeBps` is still `0`, so the performance fee **accrues but
+cannot be harvested**. A first draft of this proposal used 1000 (10%); it was re-cut to 1500
+before filing, and only 1500 was ever signed.
+
+With `performanceFeeBps = 0` the fee share still accrues but `StrategyManager` has no way to
+settle it. Setting a non-zero rate is what unlocks collection — and per audit finding **M15**
 (`_setPerformanceFeeBps` does not settle outstanding fees first) the new rate applies to the
-**entire previously uncharged LP-fee base**, i.e. the retroactive period becomes collectable too.
+**entire previously uncharged LP-fee base**, so the retroactive period becomes collectable too.
 
-`performanceFeeBps` is an `ADMIN_ROLE` parameter (48h timelock) — it can only be changed through
-governance, never by SECURITY or KEEPER. Bounds: `0 – MAX_PERFORMANCE_FEE_BPS (2000)`.
+## No predecessor
 
-The fee is not minted to an ops address: `daoTreasury()` is `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`
-— **the DAO Safe itself**, so the fee accrues to the treasury.
-
-## Payload
-
-| | |
-|---|---|
-| Timelock | `0xF0911198Ef0a4b4234546fa5F50d6d1D45091774` (48h) |
-| Inner target | StrategyManager `0x94916ab93C669E7c734f844dB019Ce9449a3b5C9` |
-| Inner data | `setPerformanceFeeBps(1500)` = `0x9f0caac9…000005dc` |
-| `value` | `0` |
-| `predecessor` | `0x00…00` (none) |
-| `salt` | `0x2115f78dfb605f8591296be39bd99ddad345076ecbe6c2e21ec2d320472598c0` = `keccak256("everstrat/sm/performance-fee-bps/2026-09-21")` |
-| `delay` | `172800` (48h) |
-| **operation id** | `0xc4302e528a0a993eb9cc433dfc35ddace37bfef0cc3d2e7b97207d397f74ea46` |
-
-`getOperationState(opId)` on mainnet = **0 (Unset)** — nothing is scheduled under this salt yet.
-
-> **op-id derivation gotcha (cost me a cycle):** `hashOperation` is
-> `keccak256(abi.encode(target, value, data, predecessor, salt))` — **five** fields. The `delay` is
-> *not* part of the hash. Encoding six fields silently yields a well-formed but wrong 32-byte id that
-> no explorer will ever match. The id above is cross-checked against the on-chain
-> `hashOperation(address,uint256,bytes,bytes32,bytes32)` return value, not just computed locally.
+The fee setter has no on-chain dependency on any other scheduled operation, so
+`predecessor = 0x00…00`.
 
 ## Transactions
 
-### 1. `01-schedule.json` — Safe → Timelock, `schedule(...)`
-`to` `0xF0911198…1774`, `value 0`,
-`schedule(0x94916ab9…b5C9, 0, 0x9f0caac9…05dc, 0x00…00, 0x2115f78d…2598c0, 172800)`
-SafeTx `safeTxHash = 0x201f9ad4…cdf4452`, **signed** by the registered delegate `0x1483E048…0E922`.
+| # | File | From | Calls |
+|---|---|---|---|
+| 1 | `01-schedule.json` | DAO Safe | `timelock.schedule(...)` with `delay = 172800` |
+| 2 | `02-execute.json` | anyone | `timelock.execute(...)` after the delay |
 
-### 2. `02-execute.json` — permissionless
-`execute(0x94916ab9…b5C9, 0, 0x9f0caac9…05dc, 0x00…00, 0x2115f78d…2598c0)` — anyone may call once
-`Ready`. No Safe needed for this step.
+`01-schedule-raw.json` is the same transaction as raw calldata (selector `0x01d5062a`).
+
+### Parameters
+
+| Field | Value |
+|---|---|
+| Timelock | `0xF0911198Ef0a4b4234546fa5F50d6d1D45091774` (48h) |
+| `target` | StrategyManager `0x94916ab93C669E7c734f844dB019Ce9449a3b5C9` |
+| `value` | `0` |
+| `data` | `setPerformanceFeeBps(1500)` = `0x9f0caac900000000000000000000000000000000000000000000000000000000000005dc` |
+| `predecessor` | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+| `salt` | `0x2115f78dfb605f8591296be39bd99ddad345076ecbe6c2e21ec2d320472598c0` = `keccak256("everstrat/sm/performance-fee-bps/2026-09-21")` |
+| `delay` | `172800` (48h, the enforced minimum) |
 
 ## Verification performed
 
-Simulated on a mainnet fork (anvil, real deployed contracts), 2026-09-21:
+Mainnet fork (anvil, real deployed contracts), 2026-09-21:
 
-| step | result |
+| Step | Result |
 |---|---|
-| non-admin calls `setPerformanceFeeBps(1500)` directly | reverts `RegistryClientMissingRole` `0x4d616cff` |
-| DAO Safe calls `schedule(...)` | succeeds — gas **56,071** |
-| `execute(...)` before the 48h delay | reverts `TimelockUnexpectedOperationState` `0x5ead8eb5` |
-| `execute(...)` from an unrelated EOA after the delay | succeeds — gas **75,111** |
-| `performanceFeeBps()` after | **0 → 1500** ✅ |
-| `execute(...)` again | reverts `0x5ead8eb5` (already done) |
+| non-admin calls `setPerformanceFeeBps(1500)` directly | revert `RegistryClientMissingRole` `0x4d616cff` |
+| DAO Safe calls `schedule(...)` | OK, gas **56,071** |
+| `execute(...)` before the 48h delay | revert `TimelockUnexpectedOperationState` `0x5ead8eb5` |
+| `execute(...)` from an unrelated EOA after the delay | OK, gas **75,111** |
+| `performanceFeeBps()` after | **0 → 1500** |
+| `execute(...)` again | revert `0x5ead8eb5` (already done) |
 | `hashOperation(...)` | reproduces `0xc4302e52…f74ea46` exactly |
 
-## To submit while the API is quota-dead
+## Risks
 
-The quota is **per IP**, so an owner's browser is unaffected. In the Safe app → New transaction →
-**Transaction Builder** → custom contract:
+- **Retroactive.** The whole previously uncharged fee base becomes collectable at 15% (audit
+  M15). A later *decrease* is likewise retroactive, so if the rate is ever lowered, settle first.
+- Reversible only through the same 48h `ADMIN_ROLE` path — there is no SECURITY override.
 
-- `to`: `0xF0911198Ef0a4b4234546fa5F50d6d1D45091774`
-- raw data (`01-schedule-raw.json`), or method `schedule` with:
-  `target 0x94916ab93C669E7c734f844dB019Ce9449a3b5C9`, `value 0`,
-  `data 0x9f0caac900000000000000000000000000000000000000000000000000000000000005dc`,
-  `predecessor 0x0000000000000000000000000000000000000000000000000000000000000000`,
-  `salt 0x2115f78dfb605f8591296be39bd99ddad345076ecbe6c2e21ec2d320472598c0`,
-  `delay 172800`
+## On-chain schedule (mainnet)
 
-Then 3-of-4 confirmations as usual. The Safe's on-chain `nonce()` is **23**; the UI will pick the
-right nonce (`nonce()` is RPC-readable and unaffected by the API quota).
+| Field | Value |
+|---|---|
+| Proposed by | off-chain Safe delegate `0x1483E048a76A93a3A59bBfA6d60471eA4990e922`; `proposer` recorded as its delegator `0x4A2D30c7b9f7907D580f9A1902D42dd78B21F0d2`; submitted 2026-09-21 16:02:21 UTC |
+| Scheduled via | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 23 (single `schedule`) |
+| safeTxHash | `0x4fba6636d0eb3a605e38ef34a4b78274bffe725c00bb3b6bdbc9055a31dd0004` |
+| Signatures | 3 of 4 — `0x4A2D…F0d2` 12:26:38 · `0x1Efb…9a46` 12:44:28 · `0xF412…E149` 13:26:32 UTC (2026-09-22) |
+| Execute (Safe) | 2026-09-22 13:32:59 UTC — tx `0x4d9828d1a877b12144fd149f6dc81a448e7077118247496282e686d965a5e881`, block 26033351, gas 191,994; relayed by owner `0x4A2D…F0d2` through the MetaMask `DelegationManager` `0xdb9B1e94…47dB3` (`redeemDelegations`) |
+| Events | `CallScheduled` + `CallSalt` for `0xc4302e52…f74ea46`; `ExecutionSuccess(0x4fba6636…dd0004)` |
+| Calldata check | Safe tx `data` equals `01-schedule-raw.json` byte-for-byte |
+| Ready at | `getTimestamp` = `1790256779` = **2026-09-24 13:32:59 UTC** |
+| Operation state | `1 (Waiting)` (re-checked 2026-09-22 23:03 UTC, block 26036183) |
+| Execute (permissionless) | `02-execute.json` — anyone with gas, once `Ready` |
 
 ## Cancelling
 
-Only while `Waiting`/`Ready` and only via the Timelock: `cancel(opId)` requires `CANCELLER_ROLE`,
-which is the DAO Safe — so cancelling before execution is itself a 48h-ish Safe → Timelock dance.
-Simplest abort is simply never calling `execute`: the op id is unset until the schedule lands, so
-**before submission there is nothing to cancel**.
-
-## Consequences once executed
-
-- `performanceFeeBps` = **1500 (15%)** of strategy LP fees, minted/accrued to `daoTreasury()` (the DAO Safe).
-- **Retroactive**: the whole previously uncharged fee base becomes collectable at 15% (audit M15).
-- Reducible later through the same 48h path — but a decrease is likewise retroactive, so if the rate
-  is ever to be lowered, settle first.
+Before execution, either the DAO Safe or the Security Safe may call
+`cancel(0xc4302e528a0a993eb9cc433dfc35ddace37bfef0cc3d2e7b97207d397f74ea46)` on the timelock.
+After execution, `setPerformanceFeeBps(<new>)` via a new 48h `ADMIN_ROLE` proposal.
