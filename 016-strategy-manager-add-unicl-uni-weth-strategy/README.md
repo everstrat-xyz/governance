@@ -1,6 +1,6 @@
 # 016 — Register the UniCL UNI/WETH 0.3% strategy (re-deployed build)
 
-**Status:** 🟡 PROPOSED — awaiting 3-of-4 confirmations in the DAO Safe.
+**Status:** 🟡 **FILED** in the DAO Safe at **nonce 26** — `safeTxHash = 0x844e87d0b91f87e94f888f21a5a33e75625c1f810fa85b246348e343aff6f51d`, submitted **2026-09-23T11:22:47Z** by delegate `0x1483E048…0e922`, `confirmations: 0/3`. Needs 3-of-4 owner confirmations, then the 48h timelock, then a permissionless `execute`. Verified stored: `to` = timelock, 714-byte calldata byte-identical to `01-schedule-raw.json`, origin tagged.
 **Operation id:** `0x941ba6025a8faaa5670a5ac1802076259d9b22dc5ea85cfb4a7b727f7e035210`
 
 ## What it changes
