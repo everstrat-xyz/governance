@@ -79,19 +79,19 @@ without a feed). Both reverts, the NAV semantics, the pricing and the UNI/WETH 0
 pool were reproduced on a mainnet fork — see [013](013-add-uni-supported-token/). Staleness
 4200 s is measured against 600 Chainlink rounds / 13 days (max gap 3660 s, zero gaps above 3900 s).
 
-Two new proposals are queued behind that:
+**Status update (2026-09-23).** The queued proposals have landed. **013 is executed** — both ops
+are `Done`, so UNI has a price feed and is a supported ERC-20. **014 is executed** —
+`performanceFeeBps() == 1500`, meaning the protocol now charges its **15% performance fee**.
 
-- **[014](014-strategy-manager-performance-fee-bps/) at nonce 23** — turn the performance fee
-  on: `setPerformanceFeeBps(1500)` (0 → 15%). 48h admin timelock, no predecessor.
-- **[015](015-strategy-manager-add-unicl-uni-weth-strategy/) at nonce 24 — 🔴 WITHDRAWN
-  2026-09-21.** Was to register the UNI/WETH 0.3% strategy Arseny deployed on 2026-09-21,
-  gated on 013's op2 as predecessor. Withdrawn before a single signature: the strategy isn't
-  final and UNI has no oracle feed yet. A **rejection tx** now occupies nonce 24
-  (`0xe51719fe…abff734`) to consume it and kill the original.
+The withdrawn **015 is dead**: the rejection tx at nonce 24 executed (3 confirmations), consuming
+the nonce and making the 015 transaction permanently unexecutable. Nothing was ever scheduled on
+the timelock for it, so no `cancel(bytes32)` was ever involved.
 
-The queue head is **nonce 23** (014). Nonce 24 holds the 015 withdrawal rejection, which
-needs 3-of-4 to become final — until then the withdrawn 015 tx is merely unsigned, not
-unexecutable.
+**Safe nonce is now 26.** Nonce 25 holds a Transaction Builder multiSend that scheduled two 48h
+operations on the StrategyKeeperExecutor — `setMinWithdrawETH(0.0001 ETH)` and
+`setControllerReserveETH(0.05 ETH)`; both live values were still unchanged when this was written,
+so those are scheduled but not yet executed. **Nonce 26 is the queue head and holds 016**, which
+needs 3-of-4 confirmations, then its own 48h delay, then a permissionless `execute`.
 
 ## Decisions
 
@@ -109,9 +109,10 @@ unexecutable.
 | [010](010-oracle-usdt-staleness-margin/) | Oracle: widen USDT staleness 86400→88200 (jitter margin) | **Executed** — 2026-09-16 11:44:47 UTC (tx `0xfa6d1d56…0e6023e3a`); `getUsdFeedInfo(USDT)` now returns staleness **88200** with the feed unchanged (`0x3E7d1eAB…e32D`) | `0xa2e19cb9…17ab4c6e` |
 | [011](011-strategy-manager-add-unicl-weth-usdt-strategy/) | StrategyManager: register the UniCL WETH/USDT 0.3% strategy (`addStrategy`) | **Executed** — 2026-09-16 11:46:59 UTC (tx `0x1807f0d1…45c084b72e`); `isStrategyRegistered(0x3Fb6B917…6501)` is `true` | `0x4b6a7a40…96fcd9fd6` |
 | [012](012-keeper-executors-allow-mimic-caller/) | Keeper executors: `allowExecutorCaller(Mimic 0x4115…8256)` on both QueueKeeperExecutor and StrategyKeeperExecutor (batch, predecessor = 011) | **Executed** — 2026-09-17 12:02:59 / 12:04:23 UTC (tx `0x0441b1f8…cd788049` / `0x08760b79…775e0df3f`); `isExecutorCaller(0x4115…8256) == true` on both executors with `executorCallerCount() == 1`, and a live `perform` from the Mimic passes the caller gate | `0xa4c9f4d3…5f6e40` (queue), `0xb716df94…06b880b5` (strategy) |
-| [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the Chainlink UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) **and** `addSupportedERC20(UNI)` (batch, predecessor = feed op) | ✅ **Scheduled** — the queued Safe tx executed; both operation ids are now `Ready` (`getOperationState == 2`) as of 2026-09-21 (on-chain Safe nonce is 23 ⇒ nonce 22 executed). The feed + token registration take effect when someone calls `execute` (permissionless) | `0xeca68714…6d49bbd` (feed), `0xcd443da6…5f35ae9` (supported ERC-20) |
-| [014](014-strategy-manager-performance-fee-bps/) | StrategyManager: turn the performance fee on — `setPerformanceFeeBps(1500)` (0 → **15%**, rate set by Arseny 2026-09-21) | 🟡 **Proposed** — queued in the DAO Safe at **nonce 23**, `confirmations: []`, not executed; `safeTxHash = 0x4fba6636…dd0004`, submitted 2026-09-21T16:02:21Z by delegate `0x1483E048…0e922`. Stored bytes audited byte-for-byte against `01-schedule-raw.json`, and the service decodes it as `schedule` (target `0x94916a…b5C9`, `setPerformanceFeeBps(1500)`, predecessor `0x0`, salt `0x2115f78d…2598c0`, delay `172800`). Needs 3-of-4 owner confirmations. *(Filing was first blocked by `429 Monthly quota exceeded`; a `SAFE_API_KEY` raised the limit 5000 → 50,000.)* | `0xc4302e52…f74ea46` |
+| [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the Chainlink UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) **and** `addSupportedERC20(UNI)` (batch, predecessor = feed op) | ✅ **Executed** (2026-09-23) — both ops `Done`; live-verified: `Oracle.isTokenSupported(UNI) == true` and `StrategyManager.supportedERC20() == [USDC, USDT, UNI]`. *Original record:* the queued Safe tx executed; both operation ids are now `Ready` (`getOperationState == 2`) as of 2026-09-21 (on-chain Safe nonce is 23 ⇒ nonce 22 executed). The feed + token registration take effect when someone calls `execute` (permissionless) | `0xeca68714…6d49bbd` (feed), `0xcd443da6…5f35ae9` (supported ERC-20) |
+| [014](014-strategy-manager-performance-fee-bps/) | StrategyManager: turn the performance fee on — `setPerformanceFeeBps(1500)` (0 → **15%**, rate set by Arseny 2026-09-21) | ✅ **Executed** (2026-09-23) — `performanceFeeBps() == 1500`, so **the 15% performance fee is live**; op state `Done`. *Original record:* queued in the DAO Safe at **nonce 23**, `confirmations: []`, not executed; `safeTxHash = 0x4fba6636…dd0004`, submitted 2026-09-21T16:02:21Z by delegate `0x1483E048…0e922`. Stored bytes audited byte-for-byte against `01-schedule-raw.json`, and the service decodes it as `schedule` (target `0x94916a…b5C9`, `setPerformanceFeeBps(1500)`, predecessor `0x0`, salt `0x2115f78d…2598c0`, delay `172800`). Needs 3-of-4 owner confirmations. *(Filing was first blocked by `429 Monthly quota exceeded`; a `SAFE_API_KEY` raised the limit 5000 → 50,000.)* | `0xc4302e52…f74ea46` |
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the newly deployed UniCL UNI/WETH 0.3% strategy — `addStrategy(0x2c3AEFaC…0715d, 10, 10)`, **predecessor = 013's `addSupportedERC20(UNI)`** so it can only land once UNI is priceable | 🔴 **WITHDRAWN 2026-09-21 16:40 UTC** — filed at nonce 24 (`0x49019656…4c78f7c1f9`, never executed, `confirmations: []` — no owner ever signed), then withdrawn by Arseny: *the strategy is not completely ready and the UNI oracle was not enabled*. Nothing reached the timelock (`getOperationState == 0` Unset), so there was no scheduled op and no `cancel(bytes32)` to call. Cancellation was filed as a **Safe rejection at nonce 24** (Safe→Safe, `value: 0`, `0x`, `safeTxHash = 0xe51719fe…abff734`, submitted 16:40:52Z): 3-of-4 signatures consume the nonce and make the 015 tx permanently unexecutable. The hazard analysis below still stands as the argument against registering an unfundable strategy | `0x489a556a…2201cd07` (never scheduled) |
+| [016](016-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the re-deployed UniCL UNI/WETH 0.3% strategy — `addStrategy(0x956FE55D…cAfDd, 10, 10)`, **no predecessor** (013 op2 is `Done`, so the oracle dependency the withdrawn 015 encoded no longer exists) | 🟡 **Proposed** — queued in the DAO Safe at **nonce 26**: needs 3-of-4 confirmations, then the 48h timelock, then permissionless `execute`. Supersedes the withdrawn 015 — same action, different strategy address. Fork-proven end-to-end: `schedule` **57,036 gas** → state 2 after `+172801 s` → `execute` **266,541 gas** ⇒ `strategyCount` 3 → **4**, `isStrategyRegistered` **true**, weights **10 / 10**, and `Converter.isCaller(new)` **true** (granted by `addStrategy` itself, no second op). Operation id verified three ways: local `keccak(abi.encode(...))`, on-chain `hashOperation`, and the recorded file. ⚠️ Two open items in the README: the contract sits **1 byte** under the EIP-170 limit (24,575 / 24,576 B), and the binary is **not reproducible from `b599469`** (+179 B vs the repo's own build profile, IPFS metadata stripped — the same offset as the withdrawn deployment, so it looks pipeline-level rather than source-level) | `0x941ba602…7e035210` |
 
 ## Layout
 

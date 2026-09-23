@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1790121600000,
+  "meta": {
+    "name": "Execute (T+48h): register the UniCL UNI/WETH 0.3% strategy",
+    "description": "Timelock.execute(...) for operation 0x941ba6025a8faaa5670a5ac1802076259d9b22dc5ea85cfb4a7b727f7e035210. No predecessor. EXECUTOR_ROLE is address(0): anyone may send this once the 48h delay elapses. Target, payload, predecessor and salt must match the schedule exactly.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "payload",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x94916ab93C669E7c734f844dB019Ce9449a3b5C9",
+        "value": "0",
+        "payload": "0xdca0c48f000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafdd000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000a",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x849360ad72bce67bea7ea1a7c3964e6d7b046a7527d4c08abbb7f336eb938c37"
+      }
+    }
+  ]
+}
