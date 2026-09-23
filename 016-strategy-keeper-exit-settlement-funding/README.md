@@ -142,6 +142,17 @@ a full remove → convert → rebalance → re-add of its position. NAV rose ~0.
 case, about the same whatever the amount. That is LP fees surfacing from the withdraw's position
 poke, which hides the swap cost, so churn cost cannot be isolated from NAV here.
 
+**Mainnet keeper history.** Every `DepositExcess` Mimic has run through this executor (read from
+`StrategyUpkeepPerformed` logs, 2026-09-17 → 09-22). Each one deposited into all three strategies,
+and none emitted `StrategyDepositFailed`:
+
+| tx | Gas limit (Mimic) | Gas used | Headroom | Deposited |
+|---|---|---|---|---|
+| `0xd19f18b2e6fdaab5899c0ba913bba0b6f5c4bf9060f71bbd58ed2ce34ac1b38b` | 4,426,615 | 3,414,082 | 1.30× | 0.4345 ETH |
+| `0x01a87751fc3b611d59bc7bcce4083f1e3fd9fa4b1d215e047f41be703c694b9c` | 4,402,449 | 3,103,323 | 1.42× | 0.3197 ETH |
+| `0xf9d5ab12010a8e70dc0f5dd14105b3ef349a3e032bdede7565fe92fc8920a391` | 4,123,810 | 2,873,087 | 1.44× | 0.3200 ETH |
+| `0x655c071788fca0568ff6172944c73bbb3317013fe3c633586822edfc9a69f943` | 4,393,219 | 3,048,384 | 1.44× | 0.2038 ETH |
+
 ## Risks
 
 - **More LP churn, bounded.** Any shortfall ≥ 0.0001 ETH that the Controller cannot cover now
@@ -150,16 +161,20 @@ poke, which hides the swap cost, so churn cost cannot be isolated from NAV here.
   a remove/re-add of all three positions, whatever the size of the shortfall. `needsETH` only
   grows when a batch is priced (`minBatchAge` = 1 day), which limits how often this can happen.
   The reserve damps it: shortfalls only arise once a day's priced exits exceed the float.
-- **Gas-estimation starvation (existing issue, not introduced here; production behaviour
-  unverified).** On the fork, `withdrawFromStrategies` sent with a gas limit taken from
-  `eth_estimateGas` (~2.27M, versus ~2.70M actually needed) ran the **last** strategy in the loop
-  (WETH/USDT `0x3Fb6…6501`, weight 45) out of gas inside StrategyManager's `try/catch`. The result
-  was `StrategyWithdrawFailed` with an **empty** reason, and the Controller got only 55% of the
-  request (seen at 0.0001 and 0.01). In one run (0.001) the whole tx reverted. If Mimic sizes
-  `perform` gas from an estimate, `WithdrawShortfall` would under-deliver each round and be
-  re-recommended every tick. The keepers' no-op suppression (keepers#27) covers `Rebalance` only.
-  This proposal lets `WithdrawShortfall` fire across a wider range, so it raises exposure. How
-  Mimic sets the gas limit should be confirmed before `execute`.
+- **Tight gas limits starve the last strategy. Seen on a fork, not in production.** When the gas
+  limit is within a few percent of what the call needs (as with `cast`'s own estimate), the
+  **last** strategy in StrategyManager's loop (WETH/USDT `0x3Fb6…6501`, weight 45) runs out of gas
+  inside the `try/catch`. On withdraw the tx still succeeds but under-delivers:
+  `StrategyWithdrawFailed` with an empty reason, and the Controller got 55% of the request (one
+  run reverted outright). On deposit it is worse. After the `catch`, StrategyManager keeps only
+  ~1/64 of the gas, which is too little to emit `StrategyDepositFailed` and return the leftover ETH,
+  so its own frame runs out of gas and the whole tx reverts. With a 15M limit every run succeeded.
+  Production does not show this. Mimic sets `perform` gas limits with **1.30–1.44× headroom** over
+  gas used, and all four mainnet `DepositExcess` runs filled all three strategies (see
+  *Mainnet keeper history* above). `WithdrawShortfall` has never run on mainnet because no exit
+  has been queued. It needs less gas (~2.7M) than those deposits (2.9–3.4M), so the same headroom
+  should cover it. Only transactions that emitted `StrategyUpkeepPerformed` were checked. Reverted
+  `perform` calls through Mimic's shared contract were not searched.
 - **Idle-ETH drag.** 0.05–0.15 ETH (~4–11% of NAV) sits outside the strategies. This is roughly
   today's actual idle level, but it is now deliberate.
 - Reversible only through the same 48h `ADMIN_ROLE` path; there is no SECURITY override.
