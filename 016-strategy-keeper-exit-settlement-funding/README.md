@@ -1,6 +1,13 @@
 # 016 — StrategyKeeperExecutor: `minWithdrawETH` 0.01 → 0.0001 ETH, `controllerReserveETH` 0 → 0.05 ETH
 
-**Status:** 📝 Draft — not yet submitted.
+**Status:** 🟡 **Proposed** — queued in the DAO Safe at **nonce 25**, 1 of 3 confirmations, not
+executed. `safeTxHash = 0x3fe47bc2e2575bece7f2b2a7afaade84b43ed0925dcc05582d087d2cfdd8f637`,
+submitted 2026-09-23 00:50:49 UTC by owner `0xF412F1A5d22f08FBD406D3B2B52e80336fa8E149` (who also
+gave the first confirmation). It is a `multiSend` delegatecall to `MultiSendCallOnly`
+`0x9641d764fc13c8B624c04430C7356C1C7C8102e2`, value 0. Its two inner calls, decoded from the raw
+stored bytes, are plain calls to the timelock, and each one's calldata matches
+`01-schedule-raw.json` **byte-for-byte**. Neither operation is scheduled yet
+(`getOperationState == 0` for both at block 26036723).
 **Operation id (`minWithdrawETH`):** `0xc9c3bc8473e7a53e7cd69095ef3bc8e9f6d6453f292711c5636f1d195e5f5725`
 **Operation id (`controllerReserveETH`):** `0x826b1bdb0c36a7b9128c42a3261c21ba98f7920034dc00e8b81282f8566a02d5`
 (both `hashOperation(StrategyKeeperExecutor, 0, <setter>, 0x00…00, salt)`, recomputed locally and
