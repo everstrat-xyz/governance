@@ -174,6 +174,7 @@ operation id and compare byte-for-byte to what the repo records.
 | `0xdca0c48f` | `StrategyManager.addStrategy(address,uint8,uint8)` |
 | `0x9f0caac9` | `StrategyManager.setPerformanceFeeBps(uint256)` |
 | `0xb76fa138` | `KeeperExecutor.allowExecutorCaller(address)` |
+| `0x87977946` / `0x4c5808dc` | `StrategyKeeperExecutor.setMinWithdrawETH(uint256)` / `setControllerReserveETH(uint256)` |
 
 | Error | Meaning |
 |---|---|

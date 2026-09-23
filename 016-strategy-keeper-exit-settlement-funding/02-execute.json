@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1790121600000,
+  "meta": {
+    "name": "Execute (T+48h): StrategyKeeperExecutor minWithdrawETH + controllerReserveETH",
+    "description": "Executes the two scheduled StrategyKeeperExecutor setter operations. Execution is open (EXECUTOR_ROLE granted to address(0)) so any address may send these once the 48h delay has elapsed. No predecessor. The DAO Safe is not required. Salt must match each schedule exactly.",
+    "txBuilderVersion": "1.16.5"
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          {
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "payload",
+            "type": "bytes"
+          },
+          {
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xE94F714fbBF85c421b6FB80D3Ce0DFA20110EA29",
+        "value": "0",
+        "payload": "0x8797794600000000000000000000000000000000000000000000000000005af3107a4000",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x61b4eac54f186ab4517968691742a035c777a967ba43bb4754b66f67293f53f4"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          {
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "payload",
+            "type": "bytes"
+          },
+          {
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0xE94F714fbBF85c421b6FB80D3Ce0DFA20110EA29",
+        "value": "0",
+        "payload": "0x4c5808dc00000000000000000000000000000000000000000000000000b1a2bc2ec50000",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x61b4eac54f186ab4517968691742a035c777a967ba43bb4754b66f67293f53f4"
+      }
+    }
+  ]
+}

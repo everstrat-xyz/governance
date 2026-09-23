@@ -54,6 +54,7 @@ _As of 2026-09-22 23:22 UTC (block 26036274). Read live from `Timelock.getOperat
 | 001–013 | **Executed** — every operation `Done`, effects re-verified on-chain |
 | [014](014-strategy-manager-performance-fee-bps/) | **Scheduled, Waiting** — ready 2026-09-24 13:32:59 UTC |
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | **Withdrawn** — never scheduled; its Safe nonce was consumed by a rejection |
+| [016](016-strategy-keeper-exit-settlement-funding/) | **Proposed** — DAO Safe nonce 25, 1 of 3 confirmations |
 
 **013 opened UNI.** Both operations executed 2026-09-22 at 23:15:47 and 23:16:47 UTC, about 40h
 after they became `Ready`. The callers were permissionless (`0x046E01eE…a899D7`, the same address
@@ -71,7 +72,13 @@ feed yet. 013 has since fixed the second point. A same-nonce Safe rejection exec
 filed transaction can never run. The record keeps the hazard analysis and an open bytecode
 provenance question for a future re-proposal.
 
-The DAO Safe holds **no pending transactions** (next nonce 25).
+**016 is queued in the DAO Safe for keeper exit funding** (nonce 25, submitted 2026-09-23). It lowers the StrategyKeeperExecutor's `minWithdrawETH`
+from 0.01 to 0.0001 ETH, so small priced-exit shortfalls get pulled from the strategies instead of
+running out the 3-day window. It also sets `controllerReserveETH` to 0.05 ETH, which stays on the
+Controller to settle exits without touching the LP positions. `exitLiquidityTargetETH` stays 0.
+
+The DAO Safe holds **one pending transaction**: 016 at nonce 25 (`safeTxHash 0x3fe47bc2…fdd8f637`, 1 of 3
+confirmations; stored bytes match `01-schedule-raw.json`).
 
 ## Decisions
 
@@ -92,6 +99,7 @@ The DAO Safe holds **no pending transactions** (next nonce 25).
 | [013](013-add-uni-supported-token/) | Oracle + StrategyManager: register the UNI/USD feed (`updateUsdFeedInfo(UNI, 0x5533…220e, 4200)`) and `addSupportedERC20(UNI)` (batch, predecessor = feed op) | **Executed** — 2026-09-22 (`isSupportedERC20(UNI) == true`) | `0xeca68714…06d49bbd` (feed), `0xcd443da6…a5f35ae9` (supported ERC-20) |
 | [014](014-strategy-manager-performance-fee-bps/) | StrategyManager: `setPerformanceFeeBps(1500)` (0 → 15%) | **Scheduled** — 2026-09-22; ready 2026-09-24 13:32:59 UTC | `0xc4302e52…7f74ea46` |
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the UniCL UNI/WETH 0.3% strategy (`addStrategy(0x2c3A…715d, 10, 10)`, predecessor = 013 op2) | **Withdrawn** — 2026-09-21, never scheduled (Safe nonce 24 rejected) | `0x489a556a…2201cd07` (never scheduled) |
+| [016](016-strategy-keeper-exit-settlement-funding/) | StrategyKeeperExecutor: `setMinWithdrawETH(1e14)` (0.01 → 0.0001 ETH) + `setControllerReserveETH(5e16)` (0 → 0.05 ETH) (batch) | **Proposed** — 2026-09-23, DAO Safe nonce 25, 1 of 3 confirmations | `0xc9c3bc84…5e5f5725` (min withdraw), `0x826b1bdb…566a02d5` (reserve) |
 
 ## Layout
 
