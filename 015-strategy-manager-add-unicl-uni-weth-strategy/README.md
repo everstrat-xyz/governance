@@ -146,7 +146,11 @@ enforceable way to kill one.
 
 ## Cancelling
 
-Nothing to cancel. 013 has executed, so once the binary is attributed a re-proposal can re-file
+Nothing to cancel. **Superseded by [017](../017-strategy-manager-add-unicl-uni-weth-strategy/)**,
+which registered a re-deployed build of this strategy (`0x956F…AfDd`, no predecessor) on
+2026-09-26. The note below is kept for the record.
+
+013 has executed, so once the binary is attributed a re-proposal can re-file
 `01-schedule-raw.json` at the Safe's current nonce — the inner calldata, predecessor and salt are
 unchanged, so the operation id stays `0x489a556a…2201cd07`. A re-proposal after the strategy is
 redeployed needs new calldata, a new salt and a new directory.
