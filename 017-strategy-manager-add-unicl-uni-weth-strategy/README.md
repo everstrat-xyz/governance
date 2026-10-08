@@ -1,6 +1,11 @@
-# 016 — Register the UniCL UNI/WETH 0.3% strategy (re-deployed build)
+# 017 — StrategyManager: register the UniCL UNI/WETH 0.3% strategy (re-deployed build)
 
-**Status:** 🟡 **FILED** in the DAO Safe at **nonce 26** — `safeTxHash = 0x844e87d0b91f87e94f888f21a5a33e75625c1f810fa85b246348e343aff6f51d`, submitted **2026-09-23T11:22:47Z** by delegate `0x1483E048…0e922`, `confirmations: 0/3`. Needs 3-of-4 owner confirmations, then the 48h timelock, then a permissionless `execute`. Verified stored: `to` = timelock, 714-byte calldata byte-identical to `01-schedule-raw.json`, origin tagged.
+**Status:** ✅ **Executed on mainnet** (tx
+`0x3668b911fe773a6a8dec417a49334cbbbbcd474a5ee4dba264518ff950bd30ac`, block 26061446,
+2026-09-26 11:52:11 UTC) — permissionless `execute` after the 48h delay.
+`isStrategyRegistered(0x956F…AfDd) == true`, `strategyCount() == 4`, weights 10 / 10. Scheduled
+2026-09-23 12:49:47 UTC via DAO Safe nonce 26 (tx
+`0x534f557af6b7744329b581e0f6ea0cf9f62142ce5b4a214212376d309e37c2a6`, block 26040285).
 **Operation id:** `0x941ba6025a8faaa5670a5ac1802076259d9b22dc5ea85cfb4a7b727f7e035210`
 
 ## What it changes
@@ -109,10 +114,46 @@ cannot be deployed; the values above were read back from chain and are consisten
   deployed binary is not reproducible from the stated commit.
 - Registration is by **address**; this proposal deploys no code.
 
+## Numbering
+
+Drafted and filed as **016**: the Safe tx's `origin` reads
+`EverStrat: schedule 016 addStrategy(UniCL UNI/WETH 0.3% v2)`. Another proposal,
+[016](../016-strategy-keeper-exit-settlement-funding/) (keeper exit-settlement funding), had already
+been filed at Safe nonce 25 under the same number, so this record was renumbered to **017** when
+it merged. Nothing on-chain depends on the number: the JSON payloads, salt and operation id are
+unchanged.
+
+## On-chain schedule (mainnet)
+
+| Field | Value |
+|---|---|
+| Proposed by | off-chain Safe delegate `0x1483E048a76A93a3A59bBfA6d60471eA4990e922`; `proposer` recorded as its delegator `0x4A2D30c7b9f7907D580f9A1902D42dd78B21F0d2`; submitted 2026-09-23 11:22:47 UTC |
+| Scheduled via | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 26 (single `schedule`) |
+| safeTxHash | `0x844e87d0b91f87e94f888f21a5a33e75625c1f810fa85b246348e343aff6f51d` |
+| Signatures | 3 of 4 — `0xe9BE…dc4a` 11:52:45 · `0x4A2D…F0d2` 12:02:53 · `0xF412…E149` 12:14:54 UTC (2026-09-23) |
+| Execute (Safe) | 2026-09-23 12:49:47 UTC — tx `0x534f557af6b7744329b581e0f6ea0cf9f62142ce5b4a214212376d309e37c2a6`, block 26040285, executor `0x1Efb…9a46` |
+| Calldata check | Safe tx `data` equals `01-schedule-raw.json` byte-for-byte |
+| Ready at | 2026-09-25 12:49:47 UTC |
+
+## On-chain execution (mainnet)
+
+| Field | Value |
+|---|---|
+| Executed (UTC) | 2026-09-26 11:52:11 |
+| Transaction | `0x3668b911fe773a6a8dec417a49334cbbbbcd474a5ee4dba264518ff950bd30ac` |
+| Block | 26061446 |
+| Gas | 266,541 — identical to the fork simulation |
+| Caller | `0x046E01eE…a899D7` (permissionless — `EXECUTOR_ROLE` is `address(0)`) |
+| Events | `DepositWeightUpdated`, `WithdrawalWeightUpdated`, `CallerRoleGranted`, `StrategyAdded(0x956F…AfDd)`, `CallExecuted` |
+
+**Effect verified on-chain** (block 26149662, 2026-10-08): `isStrategyRegistered(0x956F…AfDd) == true`;
+`strategies()` = `[0x5E12…ac38, 0x59C4…2252, 0x3Fb6…6501, 0x956F…AfDd]`; `depositWeight` /
+`withdrawalWeight` = `10` / `10`; `Converter.isCaller(0x956F…AfDd) == true`; the strategy is
+unpaused and already holds capital (`navInETH() = 116070477577341208`, ≈ 0.116 ETH). The runtime
+code is 24,575 B, the size the provenance note below refers to.
+
 ## Cancelling
 
-- **Before the Safe executes it** (nothing exists on-chain yet): create a Safe rejection tx at
-  this proposal's nonce (Safe→Safe, `value: 0`, `data: 0x`). Executing it consumes the nonce and
-  makes this transaction permanently unexecutable. A queued-but-unexecuted Safe tx has **no
-  timelock operation at all** — `getOperationState` returns 0.
-- **After the Safe executes it**: `cancel(opId)` from the DAO Safe (`CANCELLER_ROLE`).
+No longer possible — the operation is executed. To unwind: `removeStrategy` /
+`forceRemoveStrategy` (`ADMIN_ROLE`, 48h); `setDepositWeight` / `setWithdrawalWeight` retune
+weights without removing it.
