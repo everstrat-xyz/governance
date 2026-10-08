@@ -1,13 +1,11 @@
 # 016 — StrategyKeeperExecutor: `minWithdrawETH` 0.01 → 0.0001 ETH, `controllerReserveETH` 0 → 0.05 ETH
 
-**Status:** 🟡 **Proposed** — queued in the DAO Safe at **nonce 25**, 1 of 3 confirmations, not
-executed. `safeTxHash = 0x3fe47bc2e2575bece7f2b2a7afaade84b43ed0925dcc05582d087d2cfdd8f637`,
-submitted 2026-09-23 00:50:49 UTC by owner `0xF412F1A5d22f08FBD406D3B2B52e80336fa8E149` (who also
-gave the first confirmation). It is a `multiSend` delegatecall to `MultiSendCallOnly`
-`0x9641d764fc13c8B624c04430C7356C1C7C8102e2`, value 0. Its two inner calls, decoded from the raw
-stored bytes, are plain calls to the timelock, and each one's calldata matches
-`01-schedule-raw.json` **byte-for-byte**. Neither operation is scheduled yet
-(`getOperationState == 0` for both at block 26036723).
+**Status:** ✅ **Executed on mainnet** — 2026-09-26 11:40:59 / 11:42:11 UTC (tx
+`0x791f1de42df3186d7a5c2a2c08afca9be236b4a04cbd5113d6e01408ebbe5eef` /
+`0x99e134c1a12ae5c6c76f1bb3b590701cb5827bbb413bbcec3a1356de257d5253`, blocks 26061390 / 26061396).
+`StrategyKeeperExecutor.minWithdrawETH() == 1e14` (0.0001 ETH), `controllerReserveETH() == 5e16`
+(0.05 ETH). Scheduled 2026-09-23 10:42:23 UTC via DAO Safe nonce 25 (tx
+`0xd522b7e5898929ef9d0c474f9cc48386e1b787f6b2801463601e71740214eb4a`, block 26039654).
 **Operation id (`minWithdrawETH`):** `0xc9c3bc8473e7a53e7cd69095ef3bc8e9f6d6453f292711c5636f1d195e5f5725`
 **Operation id (`controllerReserveETH`):** `0x826b1bdb0c36a7b9128c42a3261c21ba98f7920034dc00e8b81282f8566a02d5`
 (both `hashOperation(StrategyKeeperExecutor, 0, <setter>, 0x00…00, salt)`, recomputed locally and
@@ -186,9 +184,34 @@ and none emitted `StrategyDepositFailed`:
   today's actual idle level, but it is now deliberate.
 - Reversible only through the same 48h `ADMIN_ROLE` path; there is no SECURITY override.
 
+## On-chain schedule (mainnet)
+
+| Field | Value |
+|---|---|
+| Proposed by | owner `0xF412F1A5d22f08FBD406D3B2B52e80336fa8E149`, via the Safe Transaction Builder; submitted 2026-09-23 00:50:49 UTC |
+| Scheduled via | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 25 (batch of 2 `schedule` ops via `MultiSendCallOnly`) |
+| safeTxHash | `0x3fe47bc2e2575bece7f2b2a7afaade84b43ed0925dcc05582d087d2cfdd8f637` |
+| Signatures | 3 of 4 — `0xF412…E149` 00:50:49 · `0x4A2D…F0d2` 10:33:23 · `0xe9BE…dc4a` 10:37:14 UTC (2026-09-23) |
+| Execute (Safe) | 2026-09-23 10:42:23 UTC — tx `0xd522b7e5898929ef9d0c474f9cc48386e1b787f6b2801463601e71740214eb4a`, block 26039654, gas 229,382, executor `0x4A2D…F0d2` |
+| Events | `CallScheduled` + `CallSalt` for both op ids |
+| Calldata check | the two `MultiSend` entries equal `01-schedule-raw.json` byte-for-byte |
+| Ready at | 2026-09-25 10:42:23 UTC (both ops) |
+
+## On-chain execution (mainnet)
+
+Executed on 2026-09-26, one call per operation, both from `0x046E01eE…a899D7` (permissionless —
+`EXECUTOR_ROLE` is `address(0)`). Both calls equal `02-execute.json` byte-for-byte.
+
+| Operation | Transaction | Block | Executed (UTC) | Gas | Event |
+|---|---|---|---|---|---|
+| `minWithdrawETH` `0xc9c3bc84…5e5f5725` | `0x791f1de42df3186d7a5c2a2c08afca9be236b4a04cbd5113d6e01408ebbe5eef` | 26061390 | 2026-09-26 11:40:59 | 52,670 | `MinWithdrawETHChanged` |
+| `controllerReserveETH` `0x826b1bdb…566a02d5` | `0x99e134c1a12ae5c6c76f1bb3b590701cb5827bbb413bbcec3a1356de257d5253` | 26061396 | 2026-09-26 11:42:11 | 69,638 | `ControllerReserveETHChanged` |
+
+**Effect verified on-chain** (block 26149662, 2026-10-08): `minWithdrawETH() == 100000000000000`
+(0.0001 ETH), `controllerReserveETH() == 50000000000000000` (0.05 ETH); both ops
+`getOperationState == 3` (Done).
+
 ## Cancelling
 
-Before execution, either the DAO Safe or the Security Safe may call `cancel(opId)` on the
-timelock for either operation (`0xc9c3bc84…5e5f5725` and/or `0x826b1bdb…566a02d5`). They are
-independent, so one can be cancelled and the other left to execute. After execution, revert with
-`setMinWithdrawETH(1e16)` / `setControllerReserveETH(0)` through a new 48h `ADMIN_ROLE` proposal.
+No longer possible — both operations are executed. To revert: `setMinWithdrawETH(1e16)` /
+`setControllerReserveETH(0)` through a new 48h `ADMIN_ROLE` proposal.

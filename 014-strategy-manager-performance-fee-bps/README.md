@@ -1,10 +1,10 @@
 # 014 — StrategyManager: set `performanceFeeBps` 0 → 1500 (15%)
 
-**Status:** ⏳ **Scheduled on mainnet** (tx
-`0x4d9828d1a877b12144fd149f6dc81a448e7077118247496282e686d965a5e881`, block 26033351,
-2026-09-22 13:32:59 UTC, DAO Safe nonce 23). Ready at **2026-09-24 13:32:59 UTC**
-(`getTimestamp` = `1790256779`); `getOperationState == 1` (Waiting) as of 2026-09-22 23:03 UTC.
-No predecessor. `performanceFeeBps()` is still `0` until someone calls `execute`.
+**Status:** ✅ **Executed on mainnet** (tx
+`0xcac94cc8af126797663f909c10e10e40a42513b17d2d0c0fc1a3ecd03c74673a`, block 26061384,
+2026-09-26 11:39:47 UTC) — permissionless `execute`, ~46h after the delay elapsed.
+`StrategyManager.performanceFeeBps() == 1500`. Scheduled 2026-09-22 13:32:59 UTC via DAO Safe
+nonce 23 (tx `0x4d9828d1a877b12144fd149f6dc81a448e7077118247496282e686d965a5e881`, block 26033351).
 **Operation id:** `0xc4302e528a0a993eb9cc433dfc35ddace37bfef0cc3d2e7b97207d397f74ea46`
 (`hashOperation(StrategyManager, 0, setPerformanceFeeBps(1500), 0x00…00, salt)` — recomputed and
 verified on mainnet).
@@ -89,11 +89,25 @@ Mainnet fork (anvil, real deployed contracts), 2026-09-21:
 | Events | `CallScheduled` + `CallSalt` for `0xc4302e52…f74ea46`; `ExecutionSuccess(0x4fba6636…dd0004)` |
 | Calldata check | Safe tx `data` equals `01-schedule-raw.json` byte-for-byte |
 | Ready at | `getTimestamp` = `1790256779` = **2026-09-24 13:32:59 UTC** |
-| Operation state | `1 (Waiting)` (re-checked 2026-09-22 23:03 UTC, block 26036183) |
 | Execute (permissionless) | `02-execute.json` — anyone with gas, once `Ready` |
+
+## On-chain execution (mainnet)
+
+| Field | Value |
+|---|---|
+| Executed (UTC) | 2026-09-26 11:39:47 |
+| Transaction | `0xcac94cc8af126797663f909c10e10e40a42513b17d2d0c0fc1a3ecd03c74673a` |
+| Block | 26061384 |
+| Gas | 75,111 — identical to the fork simulation |
+| Caller | `0x046E01eE…a899D7` (permissionless — `EXECUTOR_ROLE` is `address(0)`) |
+| Events | `PerformanceFeeBpsChanged(0, 1500)`, `CallExecuted` |
+| Calldata check | equals `02-execute.json` byte-for-byte |
+
+**Effect verified on-chain** (block 26149662, 2026-10-08): `performanceFeeBps() == 1500`,
+`getOperationState(0xc4302e52…7f74ea46) == 3` (Done). `daoTreasury()` is still the DAO Safe.
 
 ## Cancelling
 
-Before execution, either the DAO Safe or the Security Safe may call
-`cancel(0xc4302e528a0a993eb9cc433dfc35ddace37bfef0cc3d2e7b97207d397f74ea46)` on the timelock.
-After execution, `setPerformanceFeeBps(<new>)` via a new 48h `ADMIN_ROLE` proposal.
+No longer possible — the operation is executed. To change the rate:
+`setPerformanceFeeBps(<new>)` via a new 48h `ADMIN_ROLE` proposal (settle first if lowering — see
+*Risks*).
