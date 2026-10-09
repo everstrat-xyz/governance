@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1791504000000,
+  "meta": {
+    "name": "Execute (T+48h): 019 register the 4 UniCL v2 strategies",
+    "description": "Timelock.executeBatch for operation 0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6. No predecessor. EXECUTOR_ROLE is address(0): anyone may send this once Ready.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "targets",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "values",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "payloads",
+            "type": "bytes[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ],
+        "name": "executeBatch",
+        "payable": true
+      },
+      "contractInputsValues": {
+        "targets": "[\"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xdca0c48f000000000000000000000000fbcc73fa67f50d38fb318991c6cabd5a6f64014a00000000000000000000000000000000000000000000000000000000000000280000000000000000000000000000000000000000000000000000000000000028\", \"0xdca0c48f00000000000000000000000063b68cc99991429ca8a808125e446990ae7fe669000000000000000000000000000000000000000000000000000000000000000f000000000000000000000000000000000000000000000000000000000000000f\", \"0xdca0c48f000000000000000000000000e80bfd65a55855ead8cb5f7040031426cb718cc5000000000000000000000000000000000000000000000000000000000000002d000000000000000000000000000000000000000000000000000000000000002d\", \"0xdca0c48f000000000000000000000000fc888a499c4172e393a258fbc6cad1475a7e4129000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000a\"]",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0xf204b152986e83e94ffbbbc3a4d8f4fec04a75b44347272f1912b2b3499237fe"
+      }
+    }
+  ]
+}
