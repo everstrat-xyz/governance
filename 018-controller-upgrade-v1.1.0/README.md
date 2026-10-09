@@ -1,9 +1,10 @@
 # 018 — Controller: upgrade implementation 1.0.0 → 1.1.0 (`withdrawFromStrategy` callable by ADMIN)
 
-**Status:** 📝 **Proposed** — queued in the DAO Safe at **nonce 28**, 1 of 3 confirmations, not
-executed (`safeTxHash = 0x03dac026627cb5d5df700d23ec7426e1eda2a011f3454ee5fbe19fb5f4346abc`). The
-stored transaction equals `01-schedule-raw.json` byte-for-byte. Nothing is on the timelock yet
-(`getOperationState == 0`); after 3-of-5 confirmations and the Safe execution, the 48h delay starts.
+**Status:** ⏳ **Scheduled on mainnet** (tx
+`0x8a71e20fcebdb22379489645df2814503d464818b2356dd301b523ea053a55c1`, block 26154751,
+2026-10-09 12:07:59 UTC, DAO Safe nonce 28). Ready at **2026-10-11 12:07:59 UTC**
+(`getTimestamp` = `1791720479`); `getOperationState == 1` (Waiting). No predecessor. The Controller
+stays on 1.0.0 until someone calls `execute`.
 **Operation id:** `0x8cc3710fc1e770419105d3974350f2de05eb8a575e8057bf602fd28830b7c98a`
 (`hashOperation(Controller, 0, upgradeToAndCall(0xd4f4…d55D, 0x), 0x00…00, salt)` — recomputed
 locally and reproduced by the mainnet timelock's own `hashOperation`; `getOperationState == 0`
@@ -159,7 +160,7 @@ change from this upgrade.
   SECURITY fast path for upgrades. `pause()` (ADMIN or SECURITY, instant) stops
   `withdrawFromStrategy` for every caller in the meantime.
 
-## Safe proposal (mainnet)
+## On-chain schedule (mainnet)
 
 | Field | Value |
 |---|---|
@@ -167,8 +168,11 @@ change from this upgrade.
 | Safe | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 28 (single `schedule` call, `operation = 0`) |
 | safeTxHash | `0x03dac026627cb5d5df700d23ec7426e1eda2a011f3454ee5fbe19fb5f4346abc` — reproduced by the Safe's own `getTransactionHash(…, nonce 28)` |
 | Calldata check | `to` = timelock, `value 0`, `data` equals `01-schedule-raw.json` byte-for-byte; the service decodes it as `schedule(Controller, 0, upgradeToAndCall(0xd4f4…d55D, 0x), 0x0, 0x7c850ef4…f069143f, 172800)`; `safeTxGas`/`baseGas`/`gasPrice` 0, no refund receiver |
-| Signatures | 1 of 3 — `0xF412…E149` 02:18:02 UTC |
-| Operation state | `0 (Unset)` (checked 2026-10-09) |
+| Signatures | 3 of 5 — `0xF412…E149` 02:18:02 · `0xe9BE…dc4a` 06:42:02 · `0x1Efb…9a46` 06:50:00 UTC |
+| Execute (Safe) | 2026-10-09 12:07:59 UTC — tx `0x8a71e20fcebdb22379489645df2814503d464818b2356dd301b523ea053a55c1`, block 26154751, gas 102,498, executor `0x1Efb…9a46` |
+| Events | `CallScheduled` + `CallSalt` for `0x8cc3710f…30b7c98a`; `ExecutionSuccess(0x03dac026…5f4346abc)` |
+| Ready at | `getTimestamp` = `1791720479` = **2026-10-11 12:07:59 UTC** |
+| Execute (permissionless) | `02-execute.json` — anyone with gas, once `Ready` |
 
 ## Cancelling
 
