@@ -1,6 +1,9 @@
 # 018 — Controller: upgrade implementation 1.0.0 → 1.1.0 (`withdrawFromStrategy` callable by ADMIN)
 
-**Status:** 📝 Draft — not yet submitted.
+**Status:** 📝 **Proposed** — queued in the DAO Safe at **nonce 28**, 1 of 3 confirmations, not
+executed (`safeTxHash = 0x03dac026627cb5d5df700d23ec7426e1eda2a011f3454ee5fbe19fb5f4346abc`). The
+stored transaction equals `01-schedule-raw.json` byte-for-byte. Nothing is on the timelock yet
+(`getOperationState == 0`); after 3-of-5 confirmations and the Safe execution, the 48h delay starts.
 **Operation id:** `0x8cc3710fc1e770419105d3974350f2de05eb8a575e8057bf602fd28830b7c98a`
 (`hashOperation(Controller, 0, upgradeToAndCall(0xd4f4…d55D, 0x), 0x00…00, salt)` — recomputed
 locally and reproduced by the mainnet timelock's own `hashOperation`; `getOperationState == 0`
@@ -82,7 +85,7 @@ The upgrade has no on-chain dependency on any other scheduled operation, so
 | Initializers | locked on the implementation: `Initializable._initialized == type(uint64).max`; `initialize(...)` on it reverts `InvalidInitialization` `0xf92ee8a9` |
 | Upgrade auth | `_authorizeUpgrade` is `onlyAuthRole(ADMIN_ROLE)` — only the timelock can upgrade |
 | Source diff vs live | Diffed against the live implementation's **Blockscout-verified** source: `Controller.sol` differs only in the modifier above and the version string; `IController.sol` only in NatSpec; `IStrategy.sol` only in NatSpec on `isHealthy()` |
-| Etherscan/Blockscout verification | **not verified yet** — see *Risks* |
+| Explorer verification | verified on Blockscout as `Controller` (2026-10-09) |
 
 **Library delta.** The live 1.0.0 binary was compiled against newer OpenZeppelin
 *non-upgradeable* sources (file headers v5.5–v5.7) than the contracts repo pins
@@ -140,10 +143,8 @@ change from this upgrade.
 
 ## Risks
 
-- **The new implementation is not source-verified on Etherscan/Blockscout yet.** The bytecode is
-  reproduced from `157129b` above, but signers relying on the explorer would see unverified code.
-  Verify it (`forge verify-contract 0xd4f4…d55D src/contracts/Controller.sol:Controller`) before
-  collecting signatures.
+- **Explorer verification.** The new implementation is source-verified on Blockscout as
+  `Controller` (checked 2026-10-09), in addition to the local byte-for-byte reproduction above.
 - **The upgrade script is not committed.** `script/UpgradeController.s.sol`, which produced the
   deployment, exists only as an uncommitted file in the contracts checkout; commit it so the
   deployment is reproducible from the repo.
@@ -157,6 +158,17 @@ change from this upgrade.
 - Rollback is another 48h upgrade back to `0x6bf777b1173b49173cce5ec82505ebd7ce5cbefc`; there is no
   SECURITY fast path for upgrades. `pause()` (ADMIN or SECURITY, instant) stops
   `withdrawFromStrategy` for every caller in the meantime.
+
+## Safe proposal (mainnet)
+
+| Field | Value |
+|---|---|
+| Proposed by | owner `0xF412F1A5d22f08FBD406D3B2B52e80336fa8E149`, via the Safe Transaction Builder; submitted 2026-10-09 02:18:02 UTC |
+| Safe | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 28 (single `schedule` call, `operation = 0`) |
+| safeTxHash | `0x03dac026627cb5d5df700d23ec7426e1eda2a011f3454ee5fbe19fb5f4346abc` — reproduced by the Safe's own `getTransactionHash(…, nonce 28)` |
+| Calldata check | `to` = timelock, `value 0`, `data` equals `01-schedule-raw.json` byte-for-byte; the service decodes it as `schedule(Controller, 0, upgradeToAndCall(0xd4f4…d55D, 0x), 0x0, 0x7c850ef4…f069143f, 172800)`; `safeTxGas`/`baseGas`/`gasPrice` 0, no refund receiver |
+| Signatures | 1 of 3 — `0xF412…E149` 02:18:02 UTC |
+| Operation state | `0 (Unset)` (checked 2026-10-09) |
 
 ## Cancelling
 
