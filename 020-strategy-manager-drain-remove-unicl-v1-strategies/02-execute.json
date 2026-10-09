@@ -4,7 +4,7 @@
   "createdAt": 1791504000000,
   "meta": {
     "name": "Execute (T+48h): 020 drain + remove the 4 UniCL v1 strategies",
-    "description": "Timelock.executeBatch x4 (any order, each independent), after 019 is Done and 018 is executed. EXECUTOR_ROLE is address(0). Reverts while a v1 strategy is paused. Operation ids: usdc-weth-0.3pct 0x0867987d3b1031f96c2b1fe55e7c6ee16c98052725f8795a17afb28e24e8e06e, usdc-weth-0.01pct 0x15bd85e34ae24c4027895dac31be3b0acad8c9741efb1f8ff595cafe13eb2a14, weth-usdt-0.3pct 0x4cb3334f7677057a07bf052fdbf7415816f1458f2af4d4a7ed26e979595a69ae, uni-weth-0.3pct 0xfb251769634d731c258f9a28038d21a373753303b030e2cb4e9319857548a11b.",
+    "description": "Timelock.executeBatch x4 (any order, each independent), after 019 is Done and 018 is executed. EXECUTOR_ROLE is address(0). Operation ids: usdc-weth-0.3pct 0xfa9e716cf5547d760c68e8758a4900a0644df7490af3fbee8a9ccf56ed7493d5, usdc-weth-0.01pct 0xe9438cb7438f47c22b1e74477c013d86870cb08f7080080844d3532dacef75c8, weth-usdt-0.3pct 0xe680e96963678090ac5854516999bf7c770284e622e66c014e04c689b9265bd9, uni-weth-0.3pct 0x93ee86d5f12f2b739647a886d51e7dce3baeb77c02809d4c0d10fcf3b81f4cd2.",
     "txBuilderVersion": "1.16.5",
     "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
     "createdFromOwnerAddress": ""
@@ -46,9 +46,9 @@
         "payable": true
       },
       "contractInputsValues": {
-        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x5E12FFD5e0F69d37B581D06b68ad6c53609cac38\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
-        "values": "[\"0\", \"0\", \"0\", \"0\"]",
-        "payloads": "[\"0xb53d09580000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d09580000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xf06d084b\", \"0x428ea1950000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38\"]",
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d09580000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d09580000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea1950000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38\"]",
         "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
         "salt": "0xca5a07a0b6e53a95f818a74c68e6580bf7f914a6efe768891c7e9553a914b38f"
       }
@@ -89,9 +89,9 @@
         "payable": true
       },
       "contractInputsValues": {
-        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x59C476c1817b23791d96F35b9f468E6d9A242252\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
-        "values": "[\"0\", \"0\", \"0\", \"0\"]",
-        "payloads": "[\"0xb53d095800000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d095800000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xf06d084b\", \"0x428ea19500000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252\"]",
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d095800000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d095800000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea19500000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252\"]",
         "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
         "salt": "0xfc137cde715162c3c8d120d0f0bc2232160e9387d7b9f7ba0d4830133d83524c"
       }
@@ -132,9 +132,9 @@
         "payable": true
       },
       "contractInputsValues": {
-        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x3Fb6B9174427CA4FF38728398F4F4CB526F66501\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
-        "values": "[\"0\", \"0\", \"0\", \"0\"]",
-        "payloads": "[\"0xb53d09580000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d09580000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xf06d084b\", \"0x428ea1950000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501\"]",
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d09580000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d09580000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea1950000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501\"]",
         "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
         "salt": "0x7b093cde77ceb92cd28fd9720ec0a5cc75a64756a33c19f462de212f03664c2e"
       }
@@ -175,9 +175,9 @@
         "payable": true
       },
       "contractInputsValues": {
-        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x956fE55DB50527E75c1fcA679adE509AD89cAFDd\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
-        "values": "[\"0\", \"0\", \"0\", \"0\"]",
-        "payloads": "[\"0xb53d0958000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafddffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d0958000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafddffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xf06d084b\", \"0x428ea195000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafdd\"]",
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d0958000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafddffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d0958000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafddffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea195000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafdd\"]",
         "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
         "salt": "0x623ba74160b472b961951bed443b3efca4ce980ef46601cd310c860244f7b1a7"
       }

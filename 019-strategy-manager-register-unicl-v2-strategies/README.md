@@ -127,10 +127,10 @@ Mainnet forks (anvil, `ethereum-rpc.publicnode.com`), 2026-10-09.
 **Effects, the whole migration in order** (block 26154937; fork-only `updateDelay(0)` so no time
 warp stales the Chainlink feeds — the delay is not part of the operation id, so the same ids are
 exercised): after 019, each v2 strategy has `isStrategyRegistered == true`, weights as above and
-`Converter.isCaller == true`. After 018 and 020 the keeper's `depositToStrategies(3.3545 ETH)` (gas
-3,779,313, block 26155078) split the funds into the v2 set ≈ 40/15/45/10 (1.2201 / 0.4575 / 1.3728 /
-0.3045 ETH), all four `isHealthy() == true`; a follow-up keeper `withdrawFromStrategies(0.05 ETH)`
-(gas 4,235,940) and `checkAndRebalanceStrategies()` (gas 523,805) succeeded. Full numbers in 020.
+`Converter.isCaller == true`. After 018 and 020 the keeper's `depositToStrategies(3.3566 ETH)` (gas
+3,668,221) split the funds into the v2 set ≈ 40/15/45/10 (1.2185 / 0.4569 / 1.3710 / 0.3050 ETH),
+all four `isHealthy() == true`; a follow-up keeper `withdrawFromStrategies(0.05 ETH)` (gas 4,249,825)
+and `checkAndRebalanceStrategies()` (gas 516,846) succeeded. Full numbers in 020.
 
 ## Risks
 

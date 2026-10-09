@@ -74,8 +74,8 @@ _As of 2026-10-09 12:54 UTC (block 26154982). Read live from `Timelock.getOperat
 **019 and 020 are drafted: a v1 → v2 strategy migration.** 019 registers the UniCL v2 build of each
 of the four live strategies, same pools, caps and weights, as one atomic batch. 020 then drains each
 v1 strategy and removes it, one atomic batch per strategy, gated on 019 by `predecessor` and on 018
-by the Controller permission. Each batch reverts while its strategy is paused, so a paused strategy
-can never be force-removed with funds in it. On forks the whole migration, including re-depositing
+by the Controller permission. A v1 strategy paused while its 020 operation is pending must have that
+operation cancelled, or the batch would force-remove it with its funds. On forks the whole migration, including re-depositing
 into v2, cost −0.02% to −0.05% of NAV.
 
 **Since the last sweep (2026-09-22):**
@@ -119,7 +119,7 @@ ran 008–013.
 | [017](017-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the re-deployed UniCL UNI/WETH 0.3% strategy (`addStrategy(0x956F…AfDd, 10, 10)`) | **Executed** — 2026-09-26 (`isStrategyRegistered(0x956F…AfDd) == true`) | `0x941ba602…7e035210` |
 | [018](018-controller-upgrade-v1.1.0/) | Controller: UUPS upgrade to implementation `0xd4f4…d55D` (v1.0.0 → v1.1.0; `withdrawFromStrategy` callable by `ADMIN_ROLE`) | **Scheduled** — 2026-10-09; ready 2026-10-11 12:07:59 UTC | `0x8cc3710f…30b7c98a` |
 | [019](019-strategy-manager-register-unicl-v2-strategies/) | StrategyManager: register the four UniCL v2 strategies (`addStrategy` ×4, one `scheduleBatch`, weights 40/15/45/10) | **Draft** — 2026-10-09, not yet submitted | `0xf558cda6…fc9ed6a6` |
-| [020](020-strategy-manager-drain-remove-unicl-v1-strategies/) | Controller + StrategyManager: drain and force-remove the four UniCL v1 strategies (4 × `scheduleBatch` `[withdrawFromStrategy(max) ×2, investIdleETH() pause guard, forceRemoveStrategy]`, predecessor = 019) | **Draft** — 2026-10-09, not yet submitted | `0x0867987d…24e8e06e`, `0x15bd85e3…13eb2a14`, `0x4cb3334f…595a69ae`, `0xfb251769…7548a11b` |
+| [020](020-strategy-manager-drain-remove-unicl-v1-strategies/) | Controller + StrategyManager: drain and force-remove the four UniCL v1 strategies (4 × `scheduleBatch` `[withdrawFromStrategy(max) ×2, forceRemoveStrategy]`, predecessor = 019) | **Draft** — 2026-10-09, not yet submitted | `0xfa9e716c…ed7493d5`, `0xe9438cb7…acef75c8`, `0xe680e969…b9265bd9`, `0x93ee86d5…b81f4cd2` |
 
 ## Layout
 
