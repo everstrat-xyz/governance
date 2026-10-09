@@ -73,7 +73,15 @@ hashOperation(address,uint256,bytes,bytes32,bytes32) view returns (bytes32)
 getOperationState(bytes32) returns (uint8)   // 0 Unset · 1 Waiting · 2 Ready · 3 Done
 isOperationPending/Ready/Done(bytes32) · getTimestamp(bytes32)   // getTimestamp == 1 ⇒ Done sentinel
 cancel(bytes32)   // DAO Safe or Security Safe
+scheduleBatch(address[] targets, uint256[] values, bytes[] payloads, bytes32 predecessor, bytes32 salt, uint256 delay)  // 0x8f2a0bb0
+executeBatch (address[] targets, uint256[] values, bytes[] payloads, bytes32 predecessor, bytes32 salt)                 // 0xe38335e5, payable
+hashOperationBatch(address[],uint256[],bytes[],bytes32,bytes32) view returns (bytes32)
 ```
+Use `scheduleBatch` when several calls must land **atomically** under one op id (019: register 4
+strategies; 020: `[withdraw, withdraw, forceRemove]` per strategy). A reverting `executeBatch`
+does not consume the op — it stays `Ready` and can be retried. One CallScheduled is emitted per
+call index, one CallSalt per op. Ship `01-schedule-raw.json` as the preferred upload: the Tx
+Builder's parsing of `address[]` / `bytes[]` inputs is less predictable than raw calldata.
 `delay` is `172800` (the enforced minimum) unless a longer delay is explicitly wanted. A
 batch of scheduled ops is one Safe tx with N `schedule` entries in `transactions` — the
 Safe UI wraps them via `MultiSendCallOnly` 1.4.1 `0x9641d764fc13c8B624c04430C7356C1C7C8102e2`.
@@ -174,6 +182,10 @@ operation id and compare byte-for-byte to what the repo records.
 | `0xdca0c48f` | `StrategyManager.addStrategy(address,uint8,uint8)` |
 | `0x9f0caac9` | `StrategyManager.setPerformanceFeeBps(uint256)` |
 | `0xb76fa138` | `KeeperExecutor.allowExecutorCaller(address)` |
+| `0x8f2a0bb0` / `0xe38335e5` | `scheduleBatch(...)` / `executeBatch(...)` |
+| `0x4f1ef286` | `upgradeToAndCall(address,bytes)` (UUPS; `_authorizeUpgrade` is `ADMIN_ROLE`) |
+| `0xb53d0958` | `Controller.withdrawFromStrategy(address,uint256)` (ADMIN or KEEPER since 018) |
+| `0x428ea195` | `StrategyManager.forceRemoveStrategy(address)` |
 | `0x87977946` / `0x4c5808dc` | `StrategyKeeperExecutor.setMinWithdrawETH(uint256)` / `setControllerReserveETH(uint256)` |
 
 | Error | Meaning |
@@ -183,6 +195,9 @@ operation id and compare byte-for-byte to what the repo records.
 | `0x4d616cff` | `RegistryClientMissingRole(bytes32)` |
 | `0x0eb217c5` | `StrategyManagerERC20NotPriceable(address)` — Oracle can't price the token yet |
 | `0x04a77d9d` / `0x29bcb2f9` | `StrategyManagerERC20AlreadySupported(address)` / `ConverterAdapterAlreadyAllowed()` |
+| `0x958c6bdf` | `RegistryClientCallerHasNoneOfRoles(bytes32,bytes32)` — `onlyEitherAuthRole` |
+| `0x3b3fa6e8` | `StrategyManagerStrategyNAVResidueTooHigh(address)` — `removeStrategy` needs NAV ≤ 10 wei |
+| `0xe07c8dba` / `0xf92ee8a9` | `UUPSUnauthorizedCallContext()` / `InvalidInitialization()` |
 
 | Event topic0 | Event |
 |---|---|
@@ -199,5 +214,26 @@ operation id and compare byte-for-byte to what the repo records.
   USD feed must be registered first. `UniswapV3ConverterAdapter` maps `weth → address(0)`
   for Oracle lookups, so a WETH↔X route needs the native-ETH (`address(0)`) feed too, not
   just WETH.
+- `removeStrategy` requires `navInETH() ≤ MAX_NAV_RESIDUE` (a 10-wei `constant`). What the UniCL
+  v1 build leaves after a full withdraw depends on prices at that moment (0 to ~0.09% of NAV), so
+  v1 removal uses `forceRemoveStrategy` in the same atomic batch as the drain (020).
+  `withdrawFromStrategy(s, type(uint256).max)` is capped by StrategyManager at `maxWithdrawal()`, so
+  "drain everything" needs no stale amount — **but `maxWithdrawal()` is 0 while the strategy is
+  paused**, and the withdraw then silently moves nothing — a drain + `forceRemoveStrategy` batch
+  would then deregister the strategy with its full NAV. If a strategy is paused while such an op
+  is pending, cancel the op (Security Safe can, with no delay).
+- Ops that read Chainlink feeds (withdraw/deposit/NAV) can't be simulated after a 48h warp. On the
+  fork, impersonate the timelock and `updateDelay(0)`, then `schedule`/`scheduleBatch` with delay 0:
+  `delay` is not hashed, so the same op ids execute with fresh feeds. Prove the 48h mechanics
+  separately with the exact raw JSON. An op already scheduled on mainnet can't be re-scheduled on
+  the fork; apply its inner call as the impersonated timelock instead.
+- Replaying a call against **historical** state: publicnode serves recent blocks only (`block not
+  found`); `eth.drpc.org` and `rpc.mevblocker.io` serve archive state and support `eth_simulateV1`,
+  which runs a sequence of calls server-side with state carried between them (e.g. withdraw, then
+  read `navInETH()`) in ~0.6 s per block — far faster than forking. `anvil_reset` to another fork
+  block panics on this anvil build ("Could not flush cache on fork DB"); restart anvil instead.
+- Before a contract upgrade, diff against the live implementation's *verified* source, not just the
+  previous commit: the 1.0.0 Controller was compiled against newer OZ non-upgradeable files than the
+  repo pins (018).
 - Feed adds / `setAllowedAdapter` / `addSupportedERC20` are `ADMIN_ROLE`, 48h. Removes are
   often `ADMIN_ROLE || SECURITY_ROLE` with SECURITY having no delay — check the source.
