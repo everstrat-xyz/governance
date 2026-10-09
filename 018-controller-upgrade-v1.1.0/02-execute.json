@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1791504000000,
+  "meta": {
+    "name": "Execute (T+48h): Controller upgrade to v1.1.0",
+    "description": "Timelock.execute(...) for operation 0x8cc3710fc1e770419105d3974350f2de05eb8a575e8057bf602fd28830b7c98a. No predecessor. EXECUTOR_ROLE is address(0): anyone may send this once the 48h delay elapses. Target, payload, predecessor and salt must match the schedule exactly.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "name": "execute",
+        "payable": true,
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "payload",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "target": "0x9097868dcbda5a630729015DE1ddeCd66d74052c",
+        "value": "0",
+        "payload": "0x4f1ef286000000000000000000000000d4f4152a887253cfdd23d0289951176ec13cd55d00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x7c850ef421d89b725d209b16d857da947a373067cf7bd6d56d2e2405f069143f"
+      }
+    }
+  ]
+}

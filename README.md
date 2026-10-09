@@ -63,6 +63,7 @@ _As of 2026-10-08 19:06 UTC (block 26149662). Read live from `Timelock.getOperat
 | 001–014 | **Executed** — every operation `Done`, effects re-verified on-chain |
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | **Withdrawn** — never scheduled; superseded by 017 |
 | 016–017 | **Executed** — every operation `Done`, effects re-verified on-chain |
+| [018](018-controller-upgrade-v1.1.0/) | **Draft** — Controller upgrade to v1.1.0, simulated, not yet submitted |
 
 **Nothing is in flight.** The timelock has no `Waiting` or `Ready` operations, and the DAO Safe
 holds no pending transactions (next nonce 28). Every operation scheduled to date has executed,
@@ -107,6 +108,7 @@ ran 008–013.
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the UniCL UNI/WETH 0.3% strategy (`addStrategy(0x2c3A…715d, 10, 10)`, predecessor = 013 op2) | **Withdrawn** — 2026-09-21, never scheduled (Safe nonce 24 rejected); superseded by 017 | `0x489a556a…2201cd07` (never scheduled) |
 | [016](016-strategy-keeper-exit-settlement-funding/) | StrategyKeeperExecutor: `setMinWithdrawETH(1e14)` (0.01 → 0.0001 ETH) + `setControllerReserveETH(5e16)` (0 → 0.05 ETH) (batch) | **Executed** — 2026-09-26 (`minWithdrawETH() == 1e14`, `controllerReserveETH() == 5e16`) | `0xc9c3bc84…5e5f5725` (min withdraw), `0x826b1bdb…566a02d5` (reserve) |
 | [017](017-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the re-deployed UniCL UNI/WETH 0.3% strategy (`addStrategy(0x956F…AfDd, 10, 10)`) | **Executed** — 2026-09-26 (`isStrategyRegistered(0x956F…AfDd) == true`) | `0x941ba602…7e035210` |
+| [018](018-controller-upgrade-v1.1.0/) | Controller: UUPS upgrade to implementation `0xd4f4…d55D` (v1.0.0 → v1.1.0; `withdrawFromStrategy` callable by `ADMIN_ROLE`) | **Draft** — 2026-10-09, not yet submitted | `0x8cc3710f…30b7c98a` |
 
 ## Layout
 
