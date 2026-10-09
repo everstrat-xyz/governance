@@ -227,6 +227,11 @@ operation id and compare byte-for-byte to what the repo records.
   `delay` is not hashed, so the same op ids execute with fresh feeds. Prove the 48h mechanics
   separately with the exact raw JSON. An op already scheduled on mainnet can't be re-scheduled on
   the fork; apply its inner call as the impersonated timelock instead.
+- Replaying a call against **historical** state: publicnode serves recent blocks only (`block not
+  found`); `eth.drpc.org` and `rpc.mevblocker.io` serve archive state and support `eth_simulateV1`,
+  which runs a sequence of calls server-side with state carried between them (e.g. withdraw, then
+  read `navInETH()`) in ~0.6 s per block — far faster than forking. `anvil_reset` to another fork
+  block panics on this anvil build ("Could not flush cache on fork DB"); restart anvil instead.
 - Before a contract upgrade, diff against the live implementation's *verified* source, not just the
   previous commit: the 1.0.0 Controller was compiled against newer OZ non-upgradeable files than the
   repo pins (018).

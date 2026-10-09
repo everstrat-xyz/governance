@@ -50,10 +50,21 @@ The alternative — zero the v1 deposit weights and let exits drain them over ti
 cost now but keeps the v1 unwind behaviour for every withdrawal, runs eight strategies for an
 open-ended period, and still needs a removal proposal at the end.
 
-## Why `forceRemoveStrategy` instead of raising `MAX_NAV_RESIDUE`
+## Why `forceRemoveStrategy`
 
-`removeStrategy` requires `navInETH() ≤ MAX_NAV_RESIDUE` = **10 wei**. What a v1 full withdrawal
-leaves behind is not stable — the same sweep, an hour apart:
+`removeStrategy` requires `navInETH() ≤ MAX_NAV_RESIDUE` = **10 wei**. Whether a v1 full withdrawal
+meets that is decided by the market at the moment of execution, not by the strategy.
+
+**Mechanism** (v1 `UniCLStrat.withdraw`, verified source of `0x5E12…ac38`). A withdrawal of
+`amount = navInETH()` removes all liquidity, converts paired token to WETH, pays out
+`min(WETH, amount)`, and — if the pool is calm — re-adds whatever is left as new liquidity. So:
+
+- if the unwind at spot is worth **more** than the TWAP-priced `navInETH()`, the strategy pays exactly
+  `navInETH()` and keeps the surplus as residue (≈ 0.01–0.1% of NAV) → `removeStrategy` reverts;
+- if it is worth **less**, the strategy pays everything it got (slightly under `navInETH()`) and keeps
+  nothing → residue 0.
+
+The same sweep an hour apart, on forks:
 
 | v1 strategy | Fork block 26154906: after 1 sweep | after 2 sweeps | Fork block 26155030: after 1 sweep |
 |---|---|---|---|
@@ -62,31 +73,65 @@ leaves behind is not stable — the same sweep, an hour apart:
 | WETH/USDT 0.3% | 1,372,956,351,431,870 wei (0.094%) | 827,595,663,203 wei | 0 |
 | UNI/WETH 0.3% | 0 | 0 | 0 |
 
-So a `[withdraw, removeStrategy]` batch would execute or revert depending on prices at execution time.
+### Alternative considered: plain `removeStrategy`, retried until it passes
 
-Raising the bound was considered and rejected:
+A `[withdraw, removeStrategy]` batch that reverts simply stays `Ready`, so it could be retried
+(after a free `eth_call`) until a zero-residue moment. To size that, the drain was replayed against
+historical mainnet state — `eth_simulateV1` at every 50th block from 26,105,032 to 26,155,432
+(2026-10-02 → 2026-10-09, **1,009 points per strategy, ≈ 10 min apart**), calling
+`StrategyManager.withdrawFromStrategy(old, 2²⁵⁶−1)` as the Controller and then `old.navInETH()`
+(RPC: `eth.drpc.org`, `rpc.mevblocker.io`; cross-checked against a full anvil fork at block 26155300 —
+same NAV, same zero residue):
+
+| v1 strategy | `removeStrategy` would pass | Expected wait from a random moment¹ | Blocked stretch: median / p90 / max | Value recovered vs NAV: when removable / when blocked (2 sweeps) |
+|---|---|---|---|---|
+| USDC/WETH 0.3% | 57.9% | 18 min | 20 / 61 / 301 min | −0.043% / +0.047% |
+| USDC/WETH 0.01% | 56.8% | 14 min | 30 / 60 / 191 min | −0.041% / +0.045% |
+| WETH/USDT 0.3% | 59.7% | 15 min | 20 / 60 / 301 min | −0.044% / +0.045% |
+| UNI/WETH 0.3% | 72.0% | 7 min | 20 / 50 / 140 min | −0.149% / +0.083% |
+
+¹ Time-weighted remaining blocked time from a uniformly random start, at 10-minute resolution. All
+four were removable at the same moment 44.3% of the time. Withdrawals reverted outright at 8 / 2 / 1 /
+0 of the 1,009 points (UNI/WETH, USDC/WETH 0.3%, USDC/WETH 0.01%, WETH/USDT) — that blocks either
+design equally.
+
+**Why it was not chosen:**
+
+- **It selects the worse moments.** A zero residue occurs exactly when the unwind is worth less than
+  NAV. Waiting for it recovers a median −0.04% of NAV (−0.15% for UNI/WETH), where `forceRemove`
+  executed whenever recovers +0.05% (+0.08%) via the second sweep — ≈ 0.09% of the drained ETH
+  apart, ≈ 0.003 ETH on today's ≈ 3.35 ETH. Small, but systematic and always against the protocol.
+- **It makes execution timing a job.** Each batch needs someone to probe and retry — about 15 minutes
+  typically, up to 5 hours in the past week — and the v2 set runs alongside v1 (eight strategies,
+  doubled keeper gas) until all four land. `forceRemove` batches execute on the first try.
+- **What it would add is narrow.** The residue check guards one situation: a paused strategy (below).
+  That is a deliberate ADMIN / Security Safe action, and the party taking it can cancel the pending
+  020 operation in the same step.
+
+### Alternative considered: raise `MAX_NAV_RESIDUE`
 
 - **It is a `constant`.** Changing it means a new StrategyManager implementation, review, deployment
   and a separate 48h UUPS upgrade that 020 would also have to wait for — the contract that holds all
   strategy accounting, upgraded to accommodate a one-off legacy migration. v2 does not need it: v2
   strategies drain to exactly 0.
-- **No absolute bound fits.** The residue scales with NAV. At today's ≈1.3 ETH per strategy it
-  ranged 0 – 1.4 × 10¹⁵ wei after one sweep; the WETH/USDT cap is 4500 ETH, where the same 0.09% is
-  ≈4 ETH. A bound loose enough for v1 at scale stops guarding anything; a tight one makes the batch
-  a coin flip.
-- **`forceRemoveStrategy` exists for exactly this case** and records the dropped NAV in its event.
-  The one thing it gives up is covered below.
+- **No absolute bound fits.** The residue scales with NAV: a median 0.0002–0.0006 ETH when blocked at
+  today's ≈ 1.3 ETH per strategy, but the same ≈ 0.05–0.09% at the WETH/USDT cap of 4500 ETH is ≈ 2–4 ETH.
+  A bound loose enough for v1 at scale stops guarding anything; a tight one is the plain
+  `removeStrategy` case above.
 
-**What `removeStrategy`'s check would still have caught.** Within this batch, the only way to
-deregister a strategy that still holds funds is if both withdrawals silently move nothing while
-`navInETH() > 0`. That happens in exactly one case: the strategy is **paused** — `maxWithdrawal()`
-returns 0 when paused, StrategyManager then returns 0 without calling the strategy, and
-`forceRemoveStrategy` would drop the strategy's full NAV (it stays in the contract, recoverable only
-by re-adding it and running `emergencyExit`). A strategy pauses only via `pause()`, by ADMIN or the
-Security Safe. This batch does not guard against that on-chain; the rule is operational — see
-*Risks*. Otherwise each withdrawal either completes for the full `navInETH()` (net of swap costs)
-or reverts the batch, so `forceRemoveStrategy` writes off at most the second-sweep residue —
-≤ 8.3 × 10¹¹ wei per strategy in every run so far, 0 in the latest.
+### What `forceRemoveStrategy` gives up
+
+`forceRemoveStrategy` exists for exactly this case and records the dropped NAV in its
+`StrategyForceRemoved` event. The one thing the 10-wei check would still have caught: within this
+batch, the only way to deregister a strategy that still holds funds is if both withdrawals silently
+move nothing while `navInETH() > 0`. That happens in exactly one case — the strategy is **paused**:
+`maxWithdrawal()` returns 0 when paused, StrategyManager then returns 0 without calling the strategy,
+and `forceRemoveStrategy` would drop the strategy's full NAV (it stays in the contract, recoverable
+only by re-adding it and running `emergencyExit`). A strategy pauses only via `pause()`, by ADMIN or
+the Security Safe. This batch does not guard against that on-chain; the rule is operational — see
+*Risks*. Otherwise each withdrawal either completes for the full `navInETH()` (net of swap costs) or
+reverts the batch, so `forceRemoveStrategy` writes off at most the second-sweep residue —
+≤ 8.3 × 10¹¹ wei per strategy in every fork run, 0 in the latest.
 
 ## Dependency on 019 and 018
 
@@ -173,6 +218,9 @@ Then, as the keeper, `depositToStrategies(3.3566 ETH)` into the v2 set (gas 3,66
 A later fork an hour on (block 26155030) found a single sweep draining all three original v1
 strategies to exactly 0 — the residue table above — and a full migration there cost −0.048% end to
 end, so cost and residue both move with market state.
+
+**Historical replay** (blocks 26,105,032 – 26,155,432, every 50th block, `eth_simulateV1`): see
+*Alternative considered: plain `removeStrategy`* above for method and results.
 
 **Paused strategy** (block 26155018): after the Security Safe `pause()`s USDC/WETH 0.3% v1 it still
 reports `navInETH()` 1.295682 ETH but `maxWithdrawal()` 0 — the state in which this batch would
