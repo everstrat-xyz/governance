@@ -1,0 +1,210 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1791504000000,
+  "meta": {
+    "name": "EverStrat 020: schedule drain + removal of the 4 UniCL v1 strategies",
+    "description": "4 x Timelock.scheduleBatch, one per UniCL v1 strategy: [Controller.withdrawFromStrategy(old, type(uint256).max) x2, StrategyManager.forceRemoveStrategy(old)]. Each predecessor = 019 (0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6); requires 018 (Controller v1.1.0) executed. Delay 172800. Operation ids: usdc-weth-0.3pct 0xfa9e716cf5547d760c68e8758a4900a0644df7490af3fbee8a9ccf56ed7493d5, usdc-weth-0.01pct 0xe9438cb7438f47c22b1e74477c013d86870cb08f7080080844d3532dacef75c8, weth-usdt-0.3pct 0xe680e96963678090ac5854516999bf7c770284e622e66c014e04c689b9265bd9, uni-weth-0.3pct 0x93ee86d5f12f2b739647a886d51e7dce3baeb77c02809d4c0d10fcf3b81f4cd2.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "targets",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "values",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "payloads",
+            "type": "bytes[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delay",
+            "type": "uint256"
+          }
+        ],
+        "name": "scheduleBatch",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d09580000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d09580000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea1950000000000000000000000005e12ffd5e0f69d37b581d06b68ad6c53609cac38\"]",
+        "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
+        "salt": "0xca5a07a0b6e53a95f818a74c68e6580bf7f914a6efe768891c7e9553a914b38f",
+        "delay": "172800"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "targets",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "values",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "payloads",
+            "type": "bytes[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delay",
+            "type": "uint256"
+          }
+        ],
+        "name": "scheduleBatch",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d095800000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d095800000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea19500000000000000000000000059c476c1817b23791d96f35b9f468e6d9a242252\"]",
+        "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
+        "salt": "0xfc137cde715162c3c8d120d0f0bc2232160e9387d7b9f7ba0d4830133d83524c",
+        "delay": "172800"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "targets",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "values",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "payloads",
+            "type": "bytes[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delay",
+            "type": "uint256"
+          }
+        ],
+        "name": "scheduleBatch",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d09580000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d09580000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea1950000000000000000000000003fb6b9174427ca4ff38728398f4f4cb526f66501\"]",
+        "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
+        "salt": "0x7b093cde77ceb92cd28fd9720ec0a5cc75a64756a33c19f462de212f03664c2e",
+        "delay": "172800"
+      }
+    },
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "targets",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "values",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "payloads",
+            "type": "bytes[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delay",
+            "type": "uint256"
+          }
+        ],
+        "name": "scheduleBatch",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x94916ab93C669E7c734f844dB019Ce9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d0958000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafddffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d0958000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafddffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x428ea195000000000000000000000000956fe55db50527e75c1fca679ade509ad89cafdd\"]",
+        "predecessor": "0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6",
+        "salt": "0x623ba74160b472b961951bed443b3efca4ce980ef46601cd310c860244f7b1a7",
+        "delay": "172800"
+      }
+    }
+  ]
+}

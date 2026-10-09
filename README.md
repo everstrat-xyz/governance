@@ -55,7 +55,7 @@ All verified on Etherscan.
 
 ## Status at a glance
 
-_As of 2026-10-09 02:19 UTC (block 26151819). Read live from `Timelock.getOperationState(opId)`
+_As of 2026-10-09 12:54 UTC (block 26154982). Read live from `Timelock.getOperationState(opId)`
 (`0` Unset · `1` Waiting · `2` Ready · `3` Done) and the Safe Transaction Service._
 
 | Proposal | Where it stands |
@@ -63,12 +63,19 @@ _As of 2026-10-09 02:19 UTC (block 26151819). Read live from `Timelock.getOperat
 | 001–014 | **Executed** — every operation `Done`, effects re-verified on-chain |
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | **Withdrawn** — never scheduled; superseded by 017 |
 | 016–017 | **Executed** — every operation `Done`, effects re-verified on-chain |
-| [018](018-controller-upgrade-v1.1.0/) | **Proposed** — Controller upgrade to v1.1.0; DAO Safe nonce 28, 1 of 3 confirmations |
+| [018](018-controller-upgrade-v1.1.0/) | **Scheduled, Waiting** — Controller upgrade to v1.1.0; ready 2026-10-11 12:07:59 UTC |
+| [019](019-strategy-manager-register-unicl-v2-strategies/) | **Draft** — register the four UniCL v2 strategies |
+| [020](020-strategy-manager-drain-remove-unicl-v1-strategies/) | **Draft** — drain and remove the four UniCL v1 strategies (after 018 and 019) |
 
-**One proposal is in the Safe queue: [018](018-controller-upgrade-v1.1.0/)**, the Controller upgrade
-to v1.1.0, at DAO Safe nonce 28 (`safeTxHash 0x03dac026…5f4346abc`, 1 of 3 confirmations; stored
-bytes match `01-schedule-raw.json`). The timelock has no `Waiting` or `Ready` operations. Every
-operation scheduled to date has executed, except 015, which was withdrawn before it was scheduled.
+**018 is scheduled.** The Controller upgrade to v1.1.0 (`withdrawFromStrategy` callable by
+`ADMIN_ROLE`) was scheduled 2026-10-09 12:07:59 UTC at Safe nonce 28 and can execute from
+2026-10-11 12:07:59 UTC. The DAO Safe holds no pending transactions (next nonce 29).
+
+**019 and 020 are drafted: a v1 → v2 strategy migration.** 019 registers the UniCL v2 build of each
+of the four live strategies, same pools, caps and weights, as one atomic batch. 020 then drains each
+v1 strategy and removes it, one atomic batch per strategy, gated on 019 by `predecessor` and on 018
+by the Controller permission. On a fork the whole migration, including re-depositing into v2, cost
+−0.021% of NAV.
 
 **Since the last sweep (2026-09-22):**
 
@@ -109,7 +116,9 @@ ran 008–013.
 | [015](015-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the UniCL UNI/WETH 0.3% strategy (`addStrategy(0x2c3A…715d, 10, 10)`, predecessor = 013 op2) | **Withdrawn** — 2026-09-21, never scheduled (Safe nonce 24 rejected); superseded by 017 | `0x489a556a…2201cd07` (never scheduled) |
 | [016](016-strategy-keeper-exit-settlement-funding/) | StrategyKeeperExecutor: `setMinWithdrawETH(1e14)` (0.01 → 0.0001 ETH) + `setControllerReserveETH(5e16)` (0 → 0.05 ETH) (batch) | **Executed** — 2026-09-26 (`minWithdrawETH() == 1e14`, `controllerReserveETH() == 5e16`) | `0xc9c3bc84…5e5f5725` (min withdraw), `0x826b1bdb…566a02d5` (reserve) |
 | [017](017-strategy-manager-add-unicl-uni-weth-strategy/) | StrategyManager: register the re-deployed UniCL UNI/WETH 0.3% strategy (`addStrategy(0x956F…AfDd, 10, 10)`) | **Executed** — 2026-09-26 (`isStrategyRegistered(0x956F…AfDd) == true`) | `0x941ba602…7e035210` |
-| [018](018-controller-upgrade-v1.1.0/) | Controller: UUPS upgrade to implementation `0xd4f4…d55D` (v1.0.0 → v1.1.0; `withdrawFromStrategy` callable by `ADMIN_ROLE`) | **Proposed** — 2026-10-09, DAO Safe nonce 28, 1 of 3 confirmations | `0x8cc3710f…30b7c98a` |
+| [018](018-controller-upgrade-v1.1.0/) | Controller: UUPS upgrade to implementation `0xd4f4…d55D` (v1.0.0 → v1.1.0; `withdrawFromStrategy` callable by `ADMIN_ROLE`) | **Scheduled** — 2026-10-09; ready 2026-10-11 12:07:59 UTC | `0x8cc3710f…30b7c98a` |
+| [019](019-strategy-manager-register-unicl-v2-strategies/) | StrategyManager: register the four UniCL v2 strategies (`addStrategy` ×4, one `scheduleBatch`, weights 40/15/45/10) | **Draft** — 2026-10-09, not yet submitted | `0xf558cda6…fc9ed6a6` |
+| [020](020-strategy-manager-drain-remove-unicl-v1-strategies/) | Controller + StrategyManager: drain and force-remove the four UniCL v1 strategies (4 × `scheduleBatch` `[withdrawFromStrategy(max) ×2, forceRemoveStrategy]`, predecessor = 019) | **Draft** — 2026-10-09, not yet submitted | `0xfa9e716c…ed7493d5`, `0xe9438cb7…acef75c8`, `0xe680e969…b9265bd9`, `0x93ee86d5…b81f4cd2` |
 
 ## Layout
 
