@@ -30,9 +30,10 @@ the second half. The v2 strategy code is contracts
 [#53](https://github.com/everstrat-xyz/contracts/pull/53) (`157129b`): ratio-aware inventory swaps,
 alt position from leftover, incremental liquidity (`996ab2a`); swaps and withdraw path sized on the
 route rather than the strategy pool (`d714231`); near-full withdrawals unwind fully (`4e782d7`);
-logic moved into the linked `UniCLStratLib` to fit EIP-170 (`8dac70a`). The last fix is directly
-visible on mainnet: a full withdrawal from the three original v1 strategies leaves ≈ 0.08–0.09% of
-their NAV behind (measured — see 020), while the v2 path unwinds completely.
+logic moved into the linked `UniCLStratLib` to fit EIP-170 (`8dac70a`). The withdrawal fixes are
+visible on mainnet state: depending on prices at the time, a full withdrawal from the three original
+v1 strategies left anywhere from 0 to ≈ 0.09% of their NAV behind (measured — see 020), while the v2
+path unwinds completely.
 
 **Why one batch.** A single `scheduleBatch` registers all four or none, and gives 020 one operation id
 to name as its `predecessor`, so the v1 set can never be drained before the v2 set exists.
@@ -126,10 +127,10 @@ Mainnet forks (anvil, `ethereum-rpc.publicnode.com`), 2026-10-09.
 **Effects, the whole migration in order** (block 26154937; fork-only `updateDelay(0)` so no time
 warp stales the Chainlink feeds — the delay is not part of the operation id, so the same ids are
 exercised): after 019, each v2 strategy has `isStrategyRegistered == true`, weights as above and
-`Converter.isCaller == true`. After 018 and 020 the keeper's `depositToStrategies(3.3566 ETH)` (gas
-3,668,221) split the funds into the v2 set ≈ 40/15/45/10 (1.2185 / 0.4569 / 1.3710 / 0.3050 ETH),
-all four `isHealthy() == true`; a follow-up keeper `withdrawFromStrategies(0.05 ETH)` (gas 4,249,825)
-and `checkAndRebalanceStrategies()` (gas 516,846) succeeded. Full numbers in 020.
+`Converter.isCaller == true`. After 018 and 020 the keeper's `depositToStrategies(3.3545 ETH)` (gas
+3,779,313, block 26155078) split the funds into the v2 set ≈ 40/15/45/10 (1.2201 / 0.4575 / 1.3728 /
+0.3045 ETH), all four `isHealthy() == true`; a follow-up keeper `withdrawFromStrategies(0.05 ETH)`
+(gas 4,235,940) and `checkAndRebalanceStrategies()` (gas 523,805) succeeded. Full numbers in 020.
 
 ## Risks
 

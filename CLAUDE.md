@@ -186,6 +186,7 @@ operation id and compare byte-for-byte to what the repo records.
 | `0x4f1ef286` | `upgradeToAndCall(address,bytes)` (UUPS; `_authorizeUpgrade` is `ADMIN_ROLE`) |
 | `0xb53d0958` | `Controller.withdrawFromStrategy(address,uint256)` (ADMIN or KEEPER since 018) |
 | `0x428ea195` | `StrategyManager.forceRemoveStrategy(address)` |
+| `0xf06d084b` | `UniCLStrat.investIdleETH()` — `ADMIN` + `whenNotPaused`; used as a pause guard in 020 |
 | `0x87977946` / `0x4c5808dc` | `StrategyKeeperExecutor.setMinWithdrawETH(uint256)` / `setControllerReserveETH(uint256)` |
 
 | Error | Meaning |
@@ -214,10 +215,14 @@ operation id and compare byte-for-byte to what the repo records.
   USD feed must be registered first. `UniswapV3ConverterAdapter` maps `weth → address(0)`
   for Oracle lookups, so a WETH↔X route needs the native-ETH (`address(0)`) feed too, not
   just WETH.
-- `removeStrategy` requires `navInETH() ≤ MAX_NAV_RESIDUE` (10 wei). The UniCL v1 build leaves
-  ~0.08–0.09% of NAV after a full withdraw, so v1 strategies need `forceRemoveStrategy` after the
-  drain, in the same atomic batch (020). `withdrawFromStrategy(s, type(uint256).max)` is capped by
-  StrategyManager at `maxWithdrawal()`, so "drain everything" needs no stale amount.
+- `removeStrategy` requires `navInETH() ≤ MAX_NAV_RESIDUE` (a 10-wei `constant`). What the UniCL
+  v1 build leaves after a full withdraw depends on prices at that moment (0 to ~0.09% of NAV), so
+  v1 removal uses `forceRemoveStrategy` in the same atomic batch as the drain (020).
+  `withdrawFromStrategy(s, type(uint256).max)` is capped by StrategyManager at `maxWithdrawal()`, so
+  "drain everything" needs no stale amount — **but `maxWithdrawal()` is 0 while the strategy is
+  paused**, and the withdraw then silently moves nothing. Any batch that force-removes after a drain
+  must revert on a paused strategy: 020 calls `strategy.investIdleETH()` (`ADMIN` + `whenNotPaused`,
+  a no-op with no idle ETH) between the drain and the removal.
 - Ops that read Chainlink feeds (withdraw/deposit/NAV) can't be simulated after a 48h warp. On the
   fork, impersonate the timelock and `updateDelay(0)`, then `schedule`/`scheduleBatch` with delay 0:
   `delay` is not hashed, so the same op ids execute with fresh feeds. Prove the 48h mechanics
