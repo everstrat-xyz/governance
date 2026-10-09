@@ -1,6 +1,8 @@
 # 020 — Drain and remove the four UniCL v1 strategies
 
-**Status:** 📝 Draft — not yet submitted.
+**Status:** 📝 **Proposed** — queued in the DAO Safe at **nonce 30** (after 019 at nonce 29), 1 of 3
+confirmations, not executed (`safeTxHash = 0xe61d90b75bea84c41169e481f25cb9d5d99c69b6df4197004f54d0d7442520b1`).
+The four `MultiSend` entries equal `01-schedule-raw.json` byte-for-byte. Nothing is on the timelock yet.
 **Operation ids** (four independent `scheduleBatch` operations, each `predecessor` = 019):
 
 | v1 strategy | Operation id |
@@ -252,6 +254,20 @@ force-remove it with its funds (see *Risks*).
   keeper may still deposit into v1 meanwhile; the batch drains whatever is there. Execute 020 right
   after 019.
 - Removal is reversible only by re-adding the v1 address (`addStrategy`, 48h) — not a goal.
+
+## Safe proposal (mainnet)
+
+| Field | Value |
+|---|---|
+| Proposed by | owner `0xF412F1A5d22f08FBD406D3B2B52e80336fa8E149`, via the Safe Transaction Builder; submitted 2026-10-09 14:59:19 UTC |
+| Safe | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 30 — `multiSend` delegatecall (`operation = 1`) to `MultiSendCallOnly` 1.4.1 `0x9641d764fc13c8B624c04430C7356C1C7C8102e2`, value 0 |
+| safeTxHash | `0xe61d90b75bea84c41169e481f25cb9d5d99c69b6df4197004f54d0d7442520b1` — reproduced by the Safe's own `getTransactionHash(…, nonce 30)` |
+| Calldata check | 4 entries, each `to` = timelock, `operation = 0` (CALL), `value 0`; their `data` equal the four `01-schedule-raw.json` transactions byte-for-byte and in order; `safeTxGas`/`baseGas`/`gasPrice` 0, no refund receiver |
+| Signatures | 1 of 3 — `0xF412…E149` 14:59:19 UTC |
+| Operation state | `0 (Unset)` for all four (checked 2026-10-09) |
+
+Safe nonces execute in order, so nonce 29 (019) must execute before nonce 30 (020); both then become
+`Ready` 48h after their own Safe execution, and 020 additionally waits for 019 (`predecessor`) and 018.
 
 ## Cancelling
 
