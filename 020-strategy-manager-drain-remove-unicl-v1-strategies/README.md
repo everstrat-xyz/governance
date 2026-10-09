@@ -143,7 +143,9 @@ reverts the batch, so `forceRemoveStrategy` writes off at most the second-sweep 
   reverts `RegistryClientMissingRole(KEEPER_ROLE)` (`0x4d616cff`) and simply stays `Ready` — a failed
   `executeBatch` does not consume the operation. 018 is scheduled (ready 2026-10-11 12:07:59 UTC),
   before 020 can be. Only one predecessor fits; 019 was chosen because skipping it is the harmful
-  case, while skipping 018 only reverts.
+  case, while skipping 018 only reverts. `predecessor = 018` here instead would let 020 drain and
+  remove the v1 set before 019 registers v2 — leaving no strategies at all. Chaining 019 on 018 to
+  make the whole sequence explicit was considered and not taken (see 019).
 - The four 020 operations are independent of each other and may execute in any order.
 
 Alternative: `predecessor = 0x00…00` on each, sequencing 018 → 019 → 020 by hand — the operation ids

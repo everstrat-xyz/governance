@@ -1,6 +1,8 @@
 # 019 — StrategyManager: register the four UniCL v2 strategies
 
-**Status:** 📝 Draft — not yet submitted.
+**Status:** 📝 **Proposed** — queued in the DAO Safe at **nonce 29**, 1 of 3 confirmations, not
+executed (`safeTxHash = 0xc83e0a6c4482379cf36cb8e2f7d4a737eeb1ec8e378db01daa4e4c500fa6b6fb`). The stored
+transaction equals `01-schedule-raw.json` byte-for-byte. Nothing is on the timelock yet.
 **Operation id:** `0xf558cda6b3831a4fb393278e368ff3b319c04696e37ebb034d31c463fc9ed6a6`
 (one `scheduleBatch` operation — `hashOperationBatch(targets, values, payloads, 0x00…00, salt)`,
 recomputed locally and reproduced by the mainnet timelock's own `hashOperationBatch`;
@@ -41,7 +43,14 @@ to name as its `predecessor`, so the v1 set can never be drained before the v2 s
 ## No predecessor
 
 Registering strategies has no on-chain dependency on another scheduled operation: `predecessor =
-0x00…00`. (It does not depend on [018](../018-controller-upgrade-v1.1.0/); 020 does.)
+0x00…00`. It does not need [018](../018-controller-upgrade-v1.1.0/); 020 does.
+
+Considered: `predecessor = 018` (`0x8cc3710f…30b7c98a`), making the whole chain 018 → 019 → 020
+explicit. It works — on a fork, 019 before 018 reverts `TimelockUnexecutedPredecessor` and executes
+after it (826,618 gas) — but it is not needed for safety: 020 already cannot act before 018 (its
+withdraw reverts `RegistryClientMissingRole` and the operation stays `Ready`), and 019 alone only
+registers empty strategies. 018 is also ready (2026-10-11 12:07:59 UTC) before 019 can be. This
+version was already queued at Safe nonce 29 when the option came up, so it was kept.
 
 ## Transactions
 
@@ -146,6 +155,17 @@ and `checkAndRebalanceStrategies()` (gas 516,846) succeeded. Full numbers in 020
   the window short; scheduling both in the same signing round makes them Ready together.
 - Removal of a v2 strategy is `removeStrategy` / `forceRemoveStrategy` (`ADMIN_ROLE`, 48h); `pause()`
   on a strategy (ADMIN or SECURITY, instant) stops deposits and withdrawals for it.
+
+## Safe proposal (mainnet)
+
+| Field | Value |
+|---|---|
+| Proposed by | owner `0xF412F1A5d22f08FBD406D3B2B52e80336fa8E149`, via the Safe Transaction Builder; submitted 2026-10-09 14:43:09 UTC |
+| Safe | DAO Safe `0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9`, nonce 29 (single `scheduleBatch` call, `operation = 0`) |
+| safeTxHash | `0xc83e0a6c4482379cf36cb8e2f7d4a737eeb1ec8e378db01daa4e4c500fa6b6fb` — reproduced by the Safe's own `getTransactionHash(…, nonce 29)` |
+| Calldata check | `to` = timelock, `value 0`, `data` equals `01-schedule-raw.json` byte-for-byte; decodes as `scheduleBatch(4 × StrategyManager, 4 × 0, 4 × addStrategy, 0x0, 0xf204b152…3499237fe, 172800)`; `safeTxGas`/`baseGas`/`gasPrice` 0, no refund receiver |
+| Signatures | 1 of 3 — `0xF412…E149` 14:43:09 UTC |
+| Operation state | `0 (Unset)` (checked 2026-10-09) |
 
 ## Cancelling
 
