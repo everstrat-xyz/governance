@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1792454400000,
+  "meta": {
+    "name": "EverStrat 021: drain + remove the UniCL UNI/WETH strategy",
+    "description": "Timelock.scheduleBatch calldata (selector 0x8f2a0bb0), 1 entry. One atomic batch: [Controller.withdrawFromStrategy(UNI/WETH v2, type(uint256).max) x2, UniCLStrat(UNI/WETH v2).pause(), StrategyManager.forceRemoveStrategy(UNI/WETH v2)]. predecessor = 0x0000000000000000000000000000000000000000000000000000000000000000; delay 172800. Requires 019 (v2 registered) and 018 (Controller v1.1.0) executed \u2014 both are Done. Operation id 0xa8bf3f7281633b88cfe2f5c14e59b149afff1820a0b57a657b7935c42a7f9656.",
+    "txBuilderVersion": "1.16.5",
+    "createdFromSafeAddress": "0x1780C78eB50cD28dC349CEA8452eD1F7206D8fF9",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0xF0911198Ef0a4b4234546fa5F50d6d1D45091774",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "targets",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "values",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "payloads",
+            "type": "bytes[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "predecessor",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delay",
+            "type": "uint256"
+          }
+        ],
+        "name": "scheduleBatch",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "targets": "[\"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0x9097868dcbda5a630729015DE1ddeCd66d74052c\", \"0xfc888a499c4172e393a258fbc6cad1475a7e4129\", \"0x94916ab93C669E7c734F844DB019CE9449a3b5C9\"]",
+        "values": "[\"0\", \"0\", \"0\", \"0\"]",
+        "payloads": "[\"0xb53d0958000000000000000000000000fc888a499c4172e393a258fbc6cad1475a7e4129ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0xb53d0958000000000000000000000000fc888a499c4172e393a258fbc6cad1475a7e4129ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\", \"0x8456cb59\", \"0x428ea195000000000000000000000000fc888a499c4172e393a258fbc6cad1475a7e4129\"]",
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0xc9735ac119706fa807fd289be4ca15f7755821e569c25c255d2c9a2cb83c21d8",
+        "delay": "172800"
+      }
+    }
+  ]
+}
