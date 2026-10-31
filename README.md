@@ -122,6 +122,7 @@ ran 008–013.
 | [018](018-controller-upgrade-v1.1.0/) | Controller: UUPS upgrade to implementation `0xd4f4…d55D` (v1.0.0 → v1.1.0; `withdrawFromStrategy` callable by `ADMIN_ROLE`) | **Scheduled** — 2026-10-09; ready 2026-10-11 12:07:59 UTC | `0x8cc3710f…30b7c98a` |
 | [019](019-strategy-manager-register-unicl-v2-strategies/) | StrategyManager: register the four UniCL v2 strategies (`addStrategy` ×4, one `scheduleBatch`, weights 40/15/45/10) | **Proposed** — 2026-10-09, DAO Safe nonce 29, 1 of 3 confirmations | `0xf558cda6…fc9ed6a6` |
 | [020](020-strategy-manager-drain-remove-unicl-v1-strategies/) | Controller + StrategyManager: drain and force-remove the four UniCL v1 strategies (4 × `scheduleBatch` `[withdrawFromStrategy(max) ×2, forceRemoveStrategy]`, predecessor = 019) | **Proposed** — 2026-10-09, DAO Safe nonce 30, 1 of 3 confirmations | `0xfa9e716c…ed7493d5`, `0xe9438cb7…acef75c8`, `0xe680e969…b9265bd9`, `0x93ee86d5…b81f4cd2` |
+| [021](021-strategy-manager-drain-remove-uni-weth-strategy/) | Controller + UniCLStrat + StrategyManager: drain, pause and force-remove the UniCL **UNI/WETH v2** strategy `0xfc88…4129` (one `scheduleBatch` of 4 calls) | **Draft** — calldata verified live 2026-10-21, not yet queued in the DAO Safe (next nonce 31) | `0xa8bf3f72…42a7f9656` |
 
 ## Layout
 
